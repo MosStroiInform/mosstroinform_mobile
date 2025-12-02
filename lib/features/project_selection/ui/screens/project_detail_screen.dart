@@ -339,13 +339,15 @@ class _CharacteristicsSection extends StatelessWidget {
             const Divider(),
             _CharacteristicRow(
               label: l10n.floors,
-              value: '${project.floors} ${project.floors > 1 ? l10n.floorsPlural : l10n.floor}',
+              value:
+                  '${project.floors} ${project.floors > 1 ? l10n.floorsPlural : l10n.floor}',
               icon: Icons.layers,
             ),
             const Divider(),
             _CharacteristicRow(
               label: l10n.price,
-              value: '${_ProjectDetailScreenState._formatPrice(project.price)} ₽',
+              value:
+                  '${_ProjectDetailScreenState._formatPrice(project.price)} ₽',
               icon: Icons.attach_money,
             ),
           ],
