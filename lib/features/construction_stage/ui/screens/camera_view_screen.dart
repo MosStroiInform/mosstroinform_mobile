@@ -29,6 +29,39 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     _initializeVideo();
   }
 
+  void _addVideoListener() {
+    _controller?.addListener(() {
+      if (_controller != null) {
+        final value = _controller!.value;
+        debugPrint('=== Состояние видео изменилось ===');
+        debugPrint('isInitialized: ${value.isInitialized}');
+        debugPrint('isPlaying: ${value.isPlaying}');
+        debugPrint('isBuffering: ${value.isBuffering}');
+        debugPrint('hasError: ${value.hasError}');
+        if (value.hasError) {
+          debugPrint('Ошибка видео: ${value.errorDescription}');
+        }
+        debugPrint('position: ${value.position}');
+        debugPrint('buffered: ${value.buffered}');
+        debugPrint('size: ${value.size}');
+        debugPrint('aspectRatio: ${value.aspectRatio}');
+        
+        // Обновляем состояние при изменении
+        if (mounted && value.isInitialized && !_isInitialized) {
+          setState(() {
+            _isInitialized = true;
+          });
+        }
+        
+        if (mounted && value.hasError && !_hasError) {
+          setState(() {
+            _hasError = true;
+          });
+        }
+      }
+    });
+  }
+
   Future<void> _initializeVideo() async {
     debugPrint('=== Начало инициализации видео ===');
     debugPrint('isActive: ${widget.camera.isActive}');
@@ -56,6 +89,9 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(widget.camera.streamUrl),
       );
+
+      // Добавляем слушатель изменений состояния
+      _addVideoListener();
 
       debugPrint('=== Начало инициализации контроллера ===');
       await _controller!.initialize();
@@ -207,8 +243,13 @@ class _VideoLoadingWidget extends StatelessWidget {
 class _VideoErrorWidget extends StatelessWidget {
   final Camera camera;
   final AppLocalizations l10n;
+  final String? errorDescription;
 
-  const _VideoErrorWidget({required this.camera, required this.l10n});
+  const _VideoErrorWidget({
+    required this.camera,
+    required this.l10n,
+    this.errorDescription,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +279,19 @@ class _VideoErrorWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
+          if (errorDescription != null) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Ошибка: $errorDescription',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           // Показываем URL для отладки
           Padding(

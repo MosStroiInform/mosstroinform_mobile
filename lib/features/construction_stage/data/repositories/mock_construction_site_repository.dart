@@ -23,8 +23,7 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'description': 'Обзор главного входа и фасада',
           // Публичный HLS поток для тестирования (Big Buck Bunny)
           // HLS (HTTP Live Streaming) - стандартный формат для потокового видео
-          'streamUrl':
-              'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+          'streamUrl': 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+1',
         },
@@ -77,4 +76,3 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
     }
   }
 }
-
