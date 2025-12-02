@@ -120,7 +120,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get area => 'Площадь';
 
   @override
-  String get floors => 'Этажность';
+  String get floors => 'этажа';
 
   @override
   String get price => 'Стоимость';
@@ -271,4 +271,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorLoadingSignature => 'Ошибка загрузки подписи';
+
+  @override
+  String get loadingVideoStream => 'Загрузка видеопотока...';
+
+  @override
+  String get errorLoadingVideoStream => 'Ошибка загрузки видеопотока';
+
+  @override
+  String get toConstruction => 'К стройке';
+
+  @override
+  String get toDocuments => 'К документам';
+
+  @override
+  String get completionTooltip => 'Завершение строительства';
+
+  @override
+  String get chatTooltip => 'Чат со специалистом';
+
+  @override
+  String get completed => 'Завершён';
+
+  @override
+  String get inProgress => 'В процессе';
+
+  @override
+  String get waiting => 'Ожидает';
+
+  @override
+  String get constructionStagesLabel => 'Этапы строительства:';
 }

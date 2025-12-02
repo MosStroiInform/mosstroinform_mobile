@@ -310,10 +310,10 @@ abstract class AppLocalizations {
   /// **'Площадь'**
   String get area;
 
-  /// Метка этажности
+  /// Слово этажа (множественное число)
   ///
   /// In ru, this message translates to:
-  /// **'Этажность'**
+  /// **'этажа'**
   String get floors;
 
   /// Метка стоимости
@@ -322,7 +322,7 @@ abstract class AppLocalizations {
   /// **'Стоимость'**
   String get price;
 
-  /// Слово этаж
+  /// Слово этаж (единственное число)
   ///
   /// In ru, this message translates to:
   /// **'этаж'**
@@ -603,6 +603,66 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ошибка загрузки подписи'**
   String get errorLoadingSignature;
+
+  /// Сообщение при загрузке видеопотока
+  ///
+  /// In ru, this message translates to:
+  /// **'Загрузка видеопотока...'**
+  String get loadingVideoStream;
+
+  /// Сообщение об ошибке загрузки видеопотока
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка загрузки видеопотока'**
+  String get errorLoadingVideoStream;
+
+  /// Кнопка перехода к стройке
+  ///
+  /// In ru, this message translates to:
+  /// **'К стройке'**
+  String get toConstruction;
+
+  /// Кнопка перехода к документам
+  ///
+  /// In ru, this message translates to:
+  /// **'К документам'**
+  String get toDocuments;
+
+  /// Подсказка для кнопки завершения строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершение строительства'**
+  String get completionTooltip;
+
+  /// Подсказка для кнопки чата
+  ///
+  /// In ru, this message translates to:
+  /// **'Чат со специалистом'**
+  String get chatTooltip;
+
+  /// Статус этапа - завершён
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершён'**
+  String get completed;
+
+  /// Статус этапа - в процессе
+  ///
+  /// In ru, this message translates to:
+  /// **'В процессе'**
+  String get inProgress;
+
+  /// Статус этапа - ожидает
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает'**
+  String get waiting;
+
+  /// Заголовок этапов строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Этапы строительства:'**
+  String get constructionStagesLabel;
 }
 
 class _AppLocalizationsDelegate

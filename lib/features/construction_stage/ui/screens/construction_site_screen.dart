@@ -44,7 +44,7 @@ class _ConstructionSiteScreenState
           // Кнопка перехода к завершению строительства
           IconButton(
             icon: const Icon(Icons.check_circle_outline),
-            tooltip: 'Завершение строительства',
+            tooltip: l10n.completionTooltip,
             onPressed: () {
               context.push('/completion/${widget.projectId}');
             },
@@ -52,7 +52,7 @@ class _ConstructionSiteScreenState
           // Кнопка перехода к чату
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline),
-            tooltip: 'Чат со специалистом',
+            tooltip: l10n.chatTooltip,
             onPressed: () {
               context.push('/chats');
             },

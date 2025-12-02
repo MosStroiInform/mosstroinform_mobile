@@ -71,33 +71,56 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.camera.name)),
       body: _hasError
-          ? _buildErrorWidget(context, l10n)
+          ? _VideoErrorWidget(camera: widget.camera, l10n: l10n)
           : _isInitialized && _controller != null
-          ? _buildVideoPlayer(context, theme)
-          : _buildLoadingWidget(context, theme),
+          ? _VideoPlayerWidget(
+              controller: _controller!,
+              onPlayPause: () {
+                setState(() {
+                  if (_controller!.value.isPlaying) {
+                    _controller!.pause();
+                  } else {
+                    _controller!.play();
+                  }
+                });
+              },
+            )
+          : const _VideoLoadingWidget(),
     );
   }
+}
 
-  Widget _buildVideoPlayer(BuildContext context, ThemeData theme) {
+/// Виджет видеоплеера
+class _VideoPlayerWidget extends StatelessWidget {
+  final VideoPlayerController controller;
+  final VoidCallback onPlayPause;
+
+  const _VideoPlayerWidget({
+    required this.controller,
+    required this.onPlayPause,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: AspectRatio(
-        aspectRatio: _controller!.value.aspectRatio,
+        aspectRatio: controller.value.aspectRatio,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            VideoPlayer(_controller!),
+            VideoPlayer(controller),
             // Для потокового видео прогресс-бар показывает буферизацию
             Positioned(
               bottom: 16,
               left: 16,
               right: 16,
               child: VideoProgressIndicator(
-                _controller!,
+                controller,
                 allowScrubbing:
                     false, // Для live streams скроллинг не имеет смысла
                 colors: VideoProgressColors(
@@ -110,17 +133,9 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
             Positioned(
               bottom: 60,
               child: FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    if (_controller!.value.isPlaying) {
-                      _controller!.pause();
-                    } else {
-                      _controller!.play();
-                    }
-                  });
-                },
+                onPressed: onPlayPause,
                 child: Icon(
-                  _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                 ),
               ),
             ),
@@ -129,21 +144,41 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       ),
     );
   }
+}
 
-  Widget _buildLoadingWidget(BuildContext context, ThemeData theme) {
+/// Виджет загрузки видеопотока
+class _VideoLoadingWidget extends StatelessWidget {
+  const _VideoLoadingWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
-          Text('Загрузка видеопотока...', style: theme.textTheme.bodyLarge),
+          Text(l10n.loadingVideoStream, style: theme.textTheme.bodyLarge),
         ],
       ),
     );
   }
+}
 
-  Widget _buildErrorWidget(BuildContext context, AppLocalizations l10n) {
+/// Виджет ошибки загрузки видеопотока
+class _VideoErrorWidget extends StatelessWidget {
+  final Camera camera;
+  final AppLocalizations l10n;
+
+  const _VideoErrorWidget({
+    required this.camera,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
       child: Column(
@@ -152,18 +187,18 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
-            widget.camera.isActive
-                ? 'Ошибка загрузки видеопотока'
+            camera.isActive
+                ? l10n.errorLoadingVideoStream
                 : l10n.cameraNotActive,
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          if (widget.camera.description.isNotEmpty)
+          if (camera.description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                widget.camera.description,
+                camera.description,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

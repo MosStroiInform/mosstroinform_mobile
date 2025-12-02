@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Виджет элемента этапа строительства
 class ProjectStageItem extends StatelessWidget {
@@ -12,6 +13,7 @@ class ProjectStageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     Color statusColor;
@@ -22,17 +24,17 @@ class ProjectStageItem extends StatelessWidget {
       case StageStatus.completed:
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
-        statusText = 'Завершён';
+        statusText = l10n.completed;
         break;
       case StageStatus.inProgress:
         statusColor = Colors.blue;
         statusIcon = Icons.radio_button_checked;
-        statusText = 'В процессе';
+        statusText = l10n.inProgress;
         break;
       case StageStatus.pending:
         statusColor = Colors.grey;
         statusIcon = Icons.radio_button_unchecked;
-        statusText = 'Ожидает';
+        statusText = l10n.waiting;
         break;
     }
 

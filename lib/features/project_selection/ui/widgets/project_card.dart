@@ -99,7 +99,7 @@ class ProjectCard extends StatelessWidget {
                       _buildInfoChip(
                         context,
                         Icons.layers,
-                        '${project.floors} этаж${project.floors > 1 ? 'а' : ''}',
+                        '${project.floors} ${project.floors > 1 ? l10n.floors : l10n.floor}',
                       ),
                       const Spacer(),
                       Text(
@@ -116,7 +116,7 @@ class ProjectCard extends StatelessWidget {
                   // Этапы строительства
                   if (project.stages.isNotEmpty) ...[
                     Text(
-                      'Этапы строительства:',
+                      l10n.constructionStagesLabel,
                       style: theme.textTheme.labelMedium,
                     ),
                     const SizedBox(height: 8),

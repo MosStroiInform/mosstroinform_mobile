@@ -73,7 +73,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             backgroundColor: Colors.green,
             action: allApproved
                 ? SnackBarAction(
-                    label: 'К стройке',
+                    label: l10n.toConstruction,
                     textColor: Colors.white,
                     onPressed: () {
                       // Переходим к стройке первого проекта (для демо)

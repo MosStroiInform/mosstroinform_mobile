@@ -170,7 +170,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                             SnackBar(
                               content: Text(l10n.constructionRequestSent),
                               action: SnackBarAction(
-                                label: 'К документам',
+                                label: l10n.toDocuments,
                                 onPressed: () {
                                   context.push('/documents');
                                 },

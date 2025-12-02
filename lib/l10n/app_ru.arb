@@ -357,5 +357,54 @@
   "errorLoadingSignature": "Ошибка загрузки подписи",
   "@errorLoadingSignature": {
     "description": "Сообщение об ошибке загрузки подписи"
+  },
+  
+  "loadingVideoStream": "Загрузка видеопотока...",
+  "@loadingVideoStream": {
+    "description": "Сообщение при загрузке видеопотока"
+  },
+  "errorLoadingVideoStream": "Ошибка загрузки видеопотока",
+  "@errorLoadingVideoStream": {
+    "description": "Сообщение об ошибке загрузки видеопотока"
+  },
+  "toConstruction": "К стройке",
+  "@toConstruction": {
+    "description": "Кнопка перехода к стройке"
+  },
+  "toDocuments": "К документам",
+  "@toDocuments": {
+    "description": "Кнопка перехода к документам"
+  },
+  "completionTooltip": "Завершение строительства",
+  "@completionTooltip": {
+    "description": "Подсказка для кнопки завершения строительства"
+  },
+  "chatTooltip": "Чат со специалистом",
+  "@chatTooltip": {
+    "description": "Подсказка для кнопки чата"
+  },
+  "completed": "Завершён",
+  "@completed": {
+    "description": "Статус этапа - завершён"
+  },
+  "inProgress": "В процессе",
+  "@inProgress": {
+    "description": "Статус этапа - в процессе"
+  },
+  "waiting": "Ожидает",
+  "@waiting": {
+    "description": "Статус этапа - ожидает"
+  },
+  "floor": "этаж",
+  "@floor": {
+    "description": "Слово этаж (единственное число)"
+  },
+  "floors": "этажа",
+  "@floors": {
+    "description": "Слово этажа (множественное число)"
+  },
+  "constructionStagesLabel": "Этапы строительства:",
+  "@constructionStagesLabel": {
+    "description": "Заголовок этапов строительства"
   }
 }
