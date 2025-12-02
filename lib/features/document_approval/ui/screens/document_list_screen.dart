@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/features/document_approval/ui/widgets/document_card.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран списка документов
 class DocumentListScreen extends ConsumerStatefulWidget {
@@ -48,16 +49,12 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
                 final document = documents[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: DocumentCard(
-                    document: document,
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/documents/${document.id}',
-                        arguments: document.id,
-                      );
-                    },
-                  ),
+                    child: DocumentCard(
+                      document: document,
+                      onTap: () {
+                        context.push('/documents/${document.id}');
+                      },
+                    ),
                 );
               },
             ),

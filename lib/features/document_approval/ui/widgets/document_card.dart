@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Виджет карточки документа
 class DocumentCard extends StatelessWidget {
   final Document document;
   final VoidCallback onTap;
 
-  const DocumentCard({
-    super.key,
-    required this.document,
-    required this.onTap,
-  });
+  const DocumentCard({super.key, required this.document, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -176,4 +172,3 @@ class _StatusChip extends StatelessWidget {
     );
   }
 }
-

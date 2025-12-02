@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_stage_item.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран детального просмотра проекта
 class ProjectDetailScreen extends ConsumerStatefulWidget {

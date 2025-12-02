@@ -43,6 +43,17 @@ final _router = GoRouter(
         return ProjectDetailScreen(projectId: projectId);
       },
     ),
+    GoRoute(
+      path: '/documents',
+      builder: (context, state) => const DocumentListScreen(),
+    ),
+    GoRoute(
+      path: '/documents/:id',
+      builder: (context, state) {
+        final documentId = state.pathParameters['id']!;
+        return DocumentDetailScreen(documentId: documentId);
+      },
+    ),
   ],
 );
 
