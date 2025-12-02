@@ -21,11 +21,20 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('=== CameraViewScreen initState ===');
+    debugPrint('Камера: ${widget.camera.name}');
+    debugPrint('ID: ${widget.camera.id}');
+    debugPrint('isActive: ${widget.camera.isActive}');
+    debugPrint('URL: ${widget.camera.streamUrl}');
     _initializeVideo();
   }
 
   Future<void> _initializeVideo() async {
+    debugPrint('=== Начало инициализации видео ===');
+    debugPrint('isActive: ${widget.camera.isActive}');
+    
     if (!widget.camera.isActive) {
+      debugPrint('Камера неактивна, показываем ошибку');
       setState(() {
         _hasError = true;
       });
