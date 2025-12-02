@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 import 'core/config/app_config_simple.dart';
@@ -24,10 +25,10 @@ void main() {
   final config = AppConfigSimple.fromFlavor(flavor);
   
   // В production можно логировать текущее окружение
-  debugPrint('Запуск приложения с flavor: $flavor');
-  debugPrint('Окружение: ${config.environmentName}');
-  debugPrint('Использование моков: ${config.useMocks}');
-  debugPrint('Base URL: ${config.baseUrl}');
+  AppLogger.info('Запуск приложения с flavor: $flavor');
+  AppLogger.info('Окружение: ${config.environmentName}');
+  AppLogger.info('Использование моков: ${config.useMocks}');
+  AppLogger.info('Base URL: ${config.baseUrl}');
 
   runApp(
     ProviderScope(

@@ -71,6 +71,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           Expanded(
             child: messagesAsync.when(
               data: (state) {
+                // Если список пустой и нет ошибки - это начальное состояние, показываем шиммер
+                if (state.messages.isEmpty && state.error == null) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Если список пустой после загрузки - показываем сообщение
                 if (state.messages.isEmpty) {
                   return Center(child: Text(l10n.noMessages));
                 }

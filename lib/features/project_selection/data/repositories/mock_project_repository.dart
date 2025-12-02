@@ -40,8 +40,46 @@ class MockProjectRepository implements ProjectRepository {
   Future<void> requestConstruction(String projectId) async {
     // Симуляция задержки сети
     await Future.delayed(const Duration(milliseconds: 500));
-    // В реальном приложении здесь была бы отправка запроса
-    // Для моков можно обновить состояние проекта, если нужно
+    
+    // Обновляем состояние проекта: переводим первый этап в статус inProgress
+    final projects = await getProjects();
+    final projectIndex = projects.indexWhere((p) => p.id == projectId);
+    
+    if (projectIndex != -1) {
+      final project = projects[projectIndex];
+      
+      // Проверяем, что еще не был отправлен запрос (все этапы в pending)
+      final allPending = project.stages.every(
+        (stage) => stage.status == StageStatus.pending,
+      );
+      
+      if (allPending && project.stages.isNotEmpty) {
+        // Обновляем первый этап на inProgress
+        final updatedStages = [
+          ConstructionStage(
+            id: project.stages.first.id,
+            name: project.stages.first.name,
+            status: StageStatus.inProgress,
+          ),
+          ...project.stages.skip(1),
+        ];
+        
+        final updatedProject = Project(
+          id: project.id,
+          name: project.name,
+          address: project.address,
+          description: project.description,
+          area: project.area,
+          floors: project.floors,
+          price: project.price,
+          imageUrl: project.imageUrl,
+          stages: updatedStages,
+        );
+        
+        // Обновляем состояние через провайдер
+        ref.read(mockProjectsStateProvider.notifier).updateProject(updatedProject);
+      }
+    }
   }
 }
 

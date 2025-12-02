@@ -221,8 +221,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       ),
       body: documentAsync.when(
         data: (document) {
+          // Если документ не загружен - это начальное состояние, показываем шиммер
           if (document == null) {
-            return Center(child: Text(l10n.documentNotFound));
+            return const DocumentDetailShimmer();
           }
 
           return SingleChildScrollView(

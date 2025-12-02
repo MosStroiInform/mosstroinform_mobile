@@ -62,6 +62,22 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
       ),
       body: projectsAsync.when(
         data: (state) {
+          // Если список пустой и нет ошибки - это начальное состояние, показываем шиммер
+          // (начальное состояние возвращается как data с пустым списком)
+          if (state.projects.isEmpty && state.error == null) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: ProjectCardShimmer(),
+                );
+              },
+            );
+          }
+
+          // Если список пустой после загрузки (с ошибкой) - показываем сообщение
           if (state.projects.isEmpty && !state.isLoading) {
             return Center(
               child: Text(l10n.projectsNotFound),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/notifier/final_document_notifier.dart';
@@ -92,6 +93,12 @@ class _FinalDocumentDetailScreenState
       ),
       body: documentAsync.when(
         data: (state) {
+          // Если документ не загружен и нет ошибки - это начальное состояние, показываем шиммер
+          if (state.document == null && state.error == null) {
+            return const DocumentDetailShimmer();
+          }
+
+          // Если документ не найден и есть ошибка - показываем ошибку
           if (state.document == null) {
             return Center(child: Text(l10n.finalDocumentNotFound));
           }

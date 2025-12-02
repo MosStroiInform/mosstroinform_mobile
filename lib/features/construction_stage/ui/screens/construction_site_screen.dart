@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/notifier/construction_site_notifier.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/screens/camera_view_screen.dart';
@@ -23,10 +24,10 @@ class _ConstructionSiteScreenState
   @override
   void initState() {
     super.initState();
-    debugPrint('=== ConstructionSiteScreen.initState ===');
-    debugPrint('projectId: ${widget.projectId}');
+    AppLogger.debug('ConstructionSiteScreen.initState');
+    AppLogger.debug('projectId: ${widget.projectId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      debugPrint('=== ConstructionSiteScreen: загружаем площадку ===');
+      AppLogger.debug('ConstructionSiteScreen: загружаем площадку');
       ref
           .read(constructionSiteNotifierProvider(widget.projectId).notifier)
           .loadConstructionSite();
@@ -65,6 +66,12 @@ class _ConstructionSiteScreenState
       ),
       body: siteAsync.when(
         data: (state) {
+          // Если площадка не загружена и нет ошибки - это начальное состояние, показываем шиммер
+          if (state.site == null && state.error == null) {
+            return const CameraGridShimmer();
+          }
+
+          // Если площадка не найдена и есть ошибка - показываем ошибку
           if (state.site == null) {
             return Center(child: Text(l10n.errorLoadingConstructionSite));
           }

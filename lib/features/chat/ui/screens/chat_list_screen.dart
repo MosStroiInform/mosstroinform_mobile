@@ -32,6 +32,22 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       appBar: AppBar(title: Text(l10n.chats)),
       body: chatsAsync.when(
         data: (state) {
+          // Если список пустой и нет ошибки - это начальное состояние, показываем шиммер
+          // (начальное состояние возвращается как data с пустым списком)
+          if (state.chats.isEmpty && state.error == null) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: ChatCardShimmer(),
+                );
+              },
+            );
+          }
+
+          // Если список пустой после загрузки (с ошибкой) - показываем сообщение
           if (state.chats.isEmpty) {
             return Center(child: Text(l10n.noChats));
           }

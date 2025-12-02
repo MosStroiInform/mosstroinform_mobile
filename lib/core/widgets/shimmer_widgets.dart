@@ -533,3 +533,38 @@ class FinalDocumentCardShimmer extends StatelessWidget {
   }
 }
 
+/// Shimmer эффект для экрана статуса завершения строительства
+class CompletionStatusShimmer extends StatelessWidget {
+  const CompletionStatusShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Shimmer.fromColors(
+      baseColor: theme.colorScheme.surfaceContainerHighest,
+      highlightColor: theme.colorScheme.surface,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Shimmer для статуса
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Shimmer для документов
+            ...List.generate(3, (index) => const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: FinalDocumentCardShimmer(),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

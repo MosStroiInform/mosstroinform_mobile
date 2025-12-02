@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
+import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
+import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_stage_item.dart';
@@ -19,8 +22,6 @@ class ProjectDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
-  bool _requestSent = false; // Флаг отправки запроса на строительство
-
   @override
   void initState() {
     super.initState();
@@ -40,21 +41,69 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
       appBar: AppBar(
         title: Text(l10n.projectDetails),
         actions: [
-          // Кнопка перехода к документам (показывается после отправки запроса)
-          if (_requestSent)
-            IconButton(
-              icon: const Icon(Icons.description),
-              tooltip: l10n.toDocuments,
-              onPressed: () {
-                if (mounted) {
-                  context.push('/documents');
-                }
-              },
-            ),
+          Builder(
+            builder: (context) {
+              // Проверяем статус проекта и документов
+              final projectState = projectAsync.maybeWhen(
+                data: (state) => state.project,
+                orElse: () => null,
+              );
+
+              if (projectState == null) return const SizedBox.shrink();
+
+              // Проверяем, был ли уже отправлен запрос на строительство
+              final hasRequestBeenSent = projectState.stages.any(
+                (stage) => stage.status != StageStatus.pending,
+              );
+
+              // Проверяем, все ли документы одобрены
+              final allDocuments = ref.watch(documentsNotifierProvider);
+              final allApproved = allDocuments.maybeWhen(
+                data: (docs) =>
+                    docs.isNotEmpty &&
+                    docs.every((doc) => doc.status == DocumentStatus.approved),
+                orElse: () => false,
+              );
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Кнопка перехода к строительству (показывается если запрос отправлен и все документы одобрены)
+                  if (hasRequestBeenSent && allApproved)
+                    IconButton(
+                      icon: const Icon(Icons.construction),
+                      tooltip: l10n.toConstruction,
+                      onPressed: () {
+                        if (mounted) {
+                          context.push('/construction/${widget.projectId}');
+                        }
+                      },
+                    ),
+                  // Кнопка перехода к документам (показывается после отправки запроса)
+                  if (hasRequestBeenSent)
+                    IconButton(
+                      icon: const Icon(Icons.description),
+                      tooltip: l10n.toDocuments,
+                      onPressed: () {
+                        if (mounted) {
+                          context.push('/documents');
+                        }
+                      },
+                    ),
+                ],
+              );
+            },
+          ),
         ],
       ),
       body: projectAsync.when(
         data: (state) {
+          // Если проект не загружен и нет ошибки - это начальное состояние, показываем шиммер
+          if (state.project == null && state.error == null) {
+            return const ProjectDetailShimmer();
+          }
+
+          // Если проект не найден и есть ошибка - показываем ошибку
           if (state.project == null) {
             return Center(child: Text(l10n.projectNotFound));
           }
@@ -188,6 +237,20 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         data: (state) {
           if (state.project == null) return const SizedBox.shrink();
 
+          final project = state.project!;
+
+          // Проверяем, был ли уже отправлен запрос на строительство
+          // Если хотя бы один этап имеет статус inProgress или completed,
+          // значит запрос уже был отправлен
+          final hasRequestBeenSent = project.stages.any(
+            (stage) => stage.status != StageStatus.pending,
+          );
+
+          // Не показываем кнопку, если запрос уже был отправлен
+          if (hasRequestBeenSent) {
+            return const SizedBox.shrink();
+          }
+
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -195,10 +258,10 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                 onPressed: state.isLoading
                     ? null
                     : () async {
-                        debugPrint(
-                          '=== Нажата кнопка "Отправить запрос на строительство" ===',
+                        AppLogger.debug(
+                          'Нажата кнопка "Отправить запрос на строительство"',
                         );
-                        debugPrint('projectId: ${widget.projectId}');
+                        AppLogger.debug('projectId: ${widget.projectId}');
                         final l10n = AppLocalizations.of(context)!;
                         final messenger = ScaffoldMessenger.of(context);
 
@@ -206,7 +269,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                           await ref
                               .read(projectNotifierProvider.notifier)
                               .requestConstruction(widget.projectId);
-                          debugPrint(
+                          AppLogger.info(
                             'Запрос на строительство отправлен успешно',
                           );
 
@@ -217,13 +280,9 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                                 duration: const Duration(seconds: 2),
                               ),
                             );
-                            // Устанавливаем флаг отправки запроса для показа кнопки
-                            setState(() {
-                              _requestSent = true;
-                            });
                           }
                         } catch (e) {
-                          debugPrint('Ошибка при отправке запроса: $e');
+                          AppLogger.error('Ошибка при отправке запроса', e);
                           if (mounted) {
                             messenger.showSnackBar(
                               SnackBar(

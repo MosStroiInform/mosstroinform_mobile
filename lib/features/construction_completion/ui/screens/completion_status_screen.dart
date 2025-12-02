@@ -43,6 +43,12 @@ class _CompletionStatusScreenState extends ConsumerState<CompletionStatusScreen>
       appBar: AppBar(title: Text(l10n.constructionCompletion)),
       body: statusAsync.when(
         data: (state) {
+          // Если статус не загружен и нет ошибки - это начальное состояние, показываем шиммер
+          if (state.status == null && state.error == null) {
+            return const CompletionStatusShimmer();
+          }
+
+          // Если статус не найден и есть ошибка - показываем ошибку
           if (state.status == null) {
             return Center(child: Text(l10n.errorLoadingCompletionStatus));
           }

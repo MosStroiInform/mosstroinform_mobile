@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/domain/entities/construction_site.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
@@ -22,11 +23,11 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('=== CameraViewScreen initState ===');
-    debugPrint('Камера: ${widget.camera.name}');
-    debugPrint('ID: ${widget.camera.id}');
-    debugPrint('isActive: ${widget.camera.isActive}');
-    debugPrint('URL: ${widget.camera.streamUrl}');
+    AppLogger.debug('CameraViewScreen initState');
+    AppLogger.debug('Камера: ${widget.camera.name}');
+    AppLogger.debug('ID: ${widget.camera.id}');
+    AppLogger.debug('isActive: ${widget.camera.isActive}');
+    AppLogger.debug('URL: ${widget.camera.streamUrl}');
     _initializeVideo();
   }
 
@@ -34,26 +35,26 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     _videoListener = () {
       if (_controller != null && mounted) {
         final value = _controller!.value;
-        debugPrint('=== Состояние видео изменилось ===');
-        debugPrint('isInitialized: ${value.isInitialized}');
-        debugPrint('isPlaying: ${value.isPlaying}');
-        debugPrint('isBuffering: ${value.isBuffering}');
-        debugPrint('hasError: ${value.hasError}');
+        AppLogger.debug('Состояние видео изменилось');
+        AppLogger.debug('isInitialized: ${value.isInitialized}');
+        AppLogger.debug('isPlaying: ${value.isPlaying}');
+        AppLogger.debug('isBuffering: ${value.isBuffering}');
+        AppLogger.debug('hasError: ${value.hasError}');
         if (value.hasError) {
-          debugPrint('Ошибка видео: ${value.errorDescription}');
+          AppLogger.warning('Ошибка видео: ${value.errorDescription}');
         }
-        debugPrint('position: ${value.position}');
-        debugPrint('duration: ${value.duration}');
-        debugPrint('buffered: ${value.buffered}');
-        debugPrint('size: ${value.size}');
-        debugPrint('aspectRatio: ${value.aspectRatio}');
+        AppLogger.debug('position: ${value.position}');
+        AppLogger.debug('duration: ${value.duration}');
+        AppLogger.debug('buffered: ${value.buffered}');
+        AppLogger.debug('size: ${value.size}');
+        AppLogger.debug('aspectRatio: ${value.aspectRatio}');
 
         // Определяем тип потока
         final isLiveStream =
             value.duration == Duration.zero ||
             value.duration.inHours >
                 1000; // Live потоки обычно имеют очень большую или нулевую длительность
-        debugPrint(
+        AppLogger.debug(
           'Тип потока: ${isLiveStream ? "LIVE (реальное время)" : "VOD (потоковое видео)"}',
         );
 
@@ -75,11 +76,11 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   }
 
   Future<void> _initializeVideo() async {
-    debugPrint('=== Начало инициализации видео ===');
-    debugPrint('isActive: ${widget.camera.isActive}');
+    AppLogger.debug('Начало инициализации видео');
+    AppLogger.debug('isActive: ${widget.camera.isActive}');
 
     if (!widget.camera.isActive) {
-      debugPrint('Камера неактивна, показываем ошибку');
+      AppLogger.warning('Камера неактивна, показываем ошибку');
       setState(() {
         _hasError = true;
       });
@@ -87,8 +88,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     }
 
     try {
-      debugPrint('=== Создание VideoPlayerController ===');
-      debugPrint('URL: ${widget.camera.streamUrl}');
+      AppLogger.debug('Создание VideoPlayerController');
+      AppLogger.debug('URL: ${widget.camera.streamUrl}');
 
       // VideoPlayerController.networkUrl поддерживает потоковое видео:
       // - HLS потоки (.m3u8) - стандарт для потокового видео (поддерживается из коробки)
@@ -97,7 +98,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       // - Обычные видеофайлы через HTTP
       // Примечание: Для RTSP потоков может потребоваться дополнительный пакет
       // (например, flutter_vlc_player или media_kit)
-      debugPrint(
+      AppLogger.debug(
         'Тип потока: ${widget.camera.streamUrl.endsWith('.m3u8') ? 'HLS (потоковое)' : 'HTTP (файл)'}',
       );
       _controller = VideoPlayerController.networkUrl(
@@ -107,34 +108,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       // Добавляем слушатель изменений состояния
       _addVideoListener();
 
-      debugPrint('=== Начало инициализации контроллера ===');
+      AppLogger.debug('Начало инициализации контроллера');
       await _controller!.initialize();
-      debugPrint('=== Контроллер инициализирован ===');
+      AppLogger.debug('Контроллер инициализирован');
 
-      debugPrint('Длительность: ${_controller!.value.duration}');
-      debugPrint('Разрешение: ${_controller!.value.size}');
-      debugPrint('AspectRatio: ${_controller!.value.aspectRatio}');
-      debugPrint('isInitialized: ${_controller!.value.isInitialized}');
+      AppLogger.debug('Длительность: ${_controller!.value.duration}');
+      AppLogger.debug('Разрешение: ${_controller!.value.size}');
+      AppLogger.debug('AspectRatio: ${_controller!.value.aspectRatio}');
+      AppLogger.debug('isInitialized: ${_controller!.value.isInitialized}');
 
       if (mounted) {
-        debugPrint('=== Widget mounted, обновляем состояние ===');
+        AppLogger.debug('Widget mounted, обновляем состояние');
         setState(() {
           _isInitialized = true;
         });
         // Автоматически запускаем воспроизведение
-        debugPrint('=== Запуск воспроизведения ===');
+        AppLogger.debug('Запуск воспроизведения');
         await _controller!.play();
-        debugPrint('=== Воспроизведение запущено ===');
-        debugPrint('isPlaying: ${_controller!.value.isPlaying}');
+        AppLogger.debug('Воспроизведение запущено');
+        AppLogger.debug('isPlaying: ${_controller!.value.isPlaying}');
       } else {
-        debugPrint('=== Widget не mounted, пропускаем обновление ===');
+        AppLogger.debug('Widget не mounted, пропускаем обновление');
       }
     } catch (e, stackTrace) {
-      debugPrint('=== ОШИБКА инициализации видео ===');
-      debugPrint('Ошибка: $e');
-      debugPrint('Тип ошибки: ${e.runtimeType}');
-      debugPrint('Stack trace: $stackTrace');
-      debugPrint('URL потока: ${widget.camera.streamUrl}');
+      AppLogger.error('ОШИБКА инициализации видео', e, stackTrace);
+      AppLogger.error('URL потока: ${widget.camera.streamUrl}');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -145,31 +143,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
   @override
   void dispose() {
-    debugPrint('=== CameraViewScreen dispose ===');
+    AppLogger.debug('CameraViewScreen dispose');
     // Останавливаем воспроизведение перед освобождением ресурсов
     if (_controller != null) {
       try {
         if (_controller!.value.isInitialized && _controller!.value.isPlaying) {
-          debugPrint('Останавливаем воспроизведение видео');
+          AppLogger.debug('Останавливаем воспроизведение видео');
           _controller!.pause();
         }
         // Удаляем слушатель перед dispose
         if (_videoListener != null) {
           _controller!.removeListener(_videoListener!);
-          debugPrint('Слушатель удален');
+          AppLogger.debug('Слушатель удален');
         }
-        debugPrint('Освобождаем ресурсы видеоплеера');
+        AppLogger.debug('Освобождаем ресурсы видеоплеера');
         _controller!.dispose();
         _controller = null;
       } catch (e) {
-        debugPrint('Ошибка при освобождении видеоплеера: $e');
+        AppLogger.error('Ошибка при освобождении видеоплеера', e);
         // Все равно пытаемся освободить ресурсы
         _controller?.dispose();
         _controller = null;
       }
     }
     super.dispose();
-    debugPrint('=== CameraViewScreen dispose завершен ===');
+    AppLogger.debug('CameraViewScreen dispose завершен');
   }
 
   @override
