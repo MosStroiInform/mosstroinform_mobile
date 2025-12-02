@@ -28,7 +28,6 @@ void main() {
 
   group('ProjectsNotifier', () {
     test('build возвращает начальное состояние с пустым списком', () async {
-      final notifier = container.read(projectsNotifierProvider.notifier);
       final state = await container.read(projectsNotifierProvider.future);
 
       expect(state.projects, isEmpty);
