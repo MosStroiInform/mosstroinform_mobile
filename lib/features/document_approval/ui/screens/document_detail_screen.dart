@@ -51,10 +51,39 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        final navigator = context;
+        
+        // Перезагружаем список документов для проверки статуса
+        await ref.read(documentsNotifierProvider.notifier).loadDocuments();
+        
+        if (!mounted) return;
+        
+        // Проверяем, все ли документы одобрены
+        final allDocuments = ref.read(documentsNotifierProvider);
+        final allApproved = allDocuments.maybeWhen(
+          data: (docs) => docs.isNotEmpty && 
+              docs.every((doc) => doc.status == DocumentStatus.approved),
+          orElse: () => false,
+        );
+
+        messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.documentApproved),
             backgroundColor: Colors.green,
+            action: allApproved
+                ? SnackBarAction(
+                    label: 'К стройке',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      // Переходим к стройке первого проекта (для демо)
+                      navigator.push('/construction/1');
+                    },
+                  )
+                : null,
+            duration: allApproved 
+                ? const Duration(seconds: 5) 
+                : const Duration(seconds: 2),
           ),
         );
       }

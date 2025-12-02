@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/notifier/construction_site_notifier.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/screens/camera_view_screen.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/camera_grid_item.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран строительной площадки с камерами
 class ConstructionSiteScreen extends ConsumerStatefulWidget {
   final String projectId;
 
-  const ConstructionSiteScreen({
-    super.key,
-    required this.projectId,
-  });
+  const ConstructionSiteScreen({super.key, required this.projectId});
 
   @override
   ConsumerState<ConstructionSiteScreen> createState() =>
@@ -35,8 +32,9 @@ class _ConstructionSiteScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final siteAsync =
-        ref.watch(constructionSiteNotifierProvider(widget.projectId));
+    final siteAsync = ref.watch(
+      constructionSiteNotifierProvider(widget.projectId),
+    );
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -185,11 +183,11 @@ class _ConstructionSiteScreenState
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.8,
-                    ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.8,
+                        ),
                     itemCount: site.cameras.length,
                     itemBuilder: (context, index) {
                       final camera = site.cameras[index];
@@ -198,9 +196,8 @@ class _ConstructionSiteScreenState
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => CameraViewScreen(
-                                camera: camera,
-                              ),
+                              builder: (context) =>
+                                  CameraViewScreen(camera: camera),
                             ),
                           );
                         },
@@ -232,8 +229,11 @@ class _ConstructionSiteScreenState
               ElevatedButton(
                 onPressed: () {
                   ref
-                      .read(constructionSiteNotifierProvider(widget.projectId)
-                          .notifier)
+                      .read(
+                        constructionSiteNotifierProvider(
+                          widget.projectId,
+                        ).notifier,
+                      )
                       .loadConstructionSite();
                 },
                 child: Text(l10n.retry),
@@ -249,4 +249,3 @@ class _ConstructionSiteScreenState
     return '${date.day}.${date.month}.${date.year}';
   }
 }
-
