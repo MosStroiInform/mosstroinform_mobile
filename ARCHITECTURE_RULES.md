@@ -52,6 +52,8 @@ lib/features/{feature}/
 ├── domain/
 │   ├── entities/          # Сущности домена
 │   ├── repositories/      # Интерфейсы репозиториев
+│   ├── providers/        # Провайдеры репозиториев (возвращают интерфейсы)
+│   │   └── {feature}_repository_provider.dart
 │   └── usecases/          # Use cases
 ├── notifier/              # Только Notifiers для состояния
 │   └── {feature}_notifier.dart
