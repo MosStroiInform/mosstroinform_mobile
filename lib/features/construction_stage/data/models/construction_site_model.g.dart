@@ -23,5 +23,5 @@ Map<String, dynamic> _$$CameraModelImplToJson(_$CameraModelImpl instance) =>
       'description': instance.description,
       'streamUrl': instance.streamUrl,
       'isActive': instance.isActive,
-      'thumbnailUrl': instance.thumbnailUrl,
+      if (instance.thumbnailUrl case final value?) 'thumbnailUrl': value,
     };

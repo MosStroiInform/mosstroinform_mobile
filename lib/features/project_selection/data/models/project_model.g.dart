@@ -32,8 +32,8 @@ Map<String, dynamic> _$$ProjectModelImplToJson(_$ProjectModelImpl instance) =>
       'area': instance.area,
       'floors': instance.floors,
       'price': instance.price,
-      'imageUrl': instance.imageUrl,
-      'stages': instance.stages,
+      if (instance.imageUrl case final value?) 'imageUrl': value,
+      'stages': instance.stages.map((e) => e.toJson()).toList(),
     };
 
 _$ConstructionStageModelImpl _$$ConstructionStageModelImplFromJson(

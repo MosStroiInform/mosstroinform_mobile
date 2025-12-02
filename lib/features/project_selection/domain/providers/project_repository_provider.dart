@@ -1,10 +1,10 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/core/config/app_config_provider.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/providers/project_data_source_provider.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/repositories/mock_project_repository.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/repositories/project_repository_impl.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/repositories/project_repository.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'project_repository_provider.g.dart';
 
@@ -21,4 +21,3 @@ ProjectRepository projectRepository(Ref ref) {
   final remoteDataSource = ref.watch(projectRemoteDataSourceProvider);
   return ProjectRepositoryImpl(remoteDataSource: remoteDataSource);
 }
-
