@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/notifier/construction_site_notifier.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/screens/camera_view_screen.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/camera_grid_item.dart';
@@ -211,7 +212,7 @@ class _ConstructionSiteScreenState
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const CameraGridShimmer(),
         error: (error, stackTrace) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

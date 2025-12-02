@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
@@ -377,7 +378,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const DocumentDetailShimmer(),
         error: (error, stackTrace) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_card.dart';
 
@@ -100,7 +101,16 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
               await ref.read(projectsNotifierProvider.notifier).loadProjects();
             },
             child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: 3,
+                    itemBuilder: (context, index) {
+                      return const Padding(
+                        padding: EdgeInsets.only(bottom: 16),
+                        child: ProjectCardShimmer(),
+                      );
+                    },
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: state.projects.length,
@@ -119,7 +129,16 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
                   ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: ProjectCardShimmer(),
+            );
+          },
+        ),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
