@@ -17,6 +17,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
   bool _hasError = false;
+  VoidCallback? _videoListener;
 
   @override
   void initState() {
