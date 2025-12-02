@@ -177,24 +177,41 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                 onPressed: state.isLoading
                     ? null
                     : () async {
+                        debugPrint('=== Нажата кнопка "Отправить запрос на строительство" ===');
+                        debugPrint('projectId: ${widget.projectId}');
                         final l10n = AppLocalizations.of(context)!;
                         final messenger = ScaffoldMessenger.of(context);
-                        await ref
-                            .read(projectNotifierProvider.notifier)
-                            .requestConstruction(widget.projectId);
+                        
+                        try {
+                          await ref
+                              .read(projectNotifierProvider.notifier)
+                              .requestConstruction(widget.projectId);
+                          debugPrint('Запрос на строительство отправлен успешно');
 
-                        if (mounted) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.constructionRequestSent),
-                              action: SnackBarAction(
-                                label: l10n.toDocuments,
-                                onPressed: () {
-                                  context.push('/documents');
-                                },
+                          if (mounted) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.constructionRequestSent),
+                                action: SnackBarAction(
+                                  label: l10n.toDocuments,
+                                  onPressed: () {
+                                    debugPrint('Переход к документам');
+                                    context.push('/documents');
+                                  },
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint('Ошибка при отправке запроса: $e');
+                          if (mounted) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text('${l10n.error}: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
                       },
                 style: ElevatedButton.styleFrom(

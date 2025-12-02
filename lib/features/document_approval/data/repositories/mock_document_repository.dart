@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/core/data/mock_data/mock_state_providers.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
@@ -36,11 +37,15 @@ class MockDocumentRepository implements DocumentRepository {
 
   @override
   Future<void> approveDocument(String documentId) async {
+    debugPrint('=== MockDocumentRepository.approveDocument ===');
+    debugPrint('documentId: $documentId');
     await Future.delayed(const Duration(milliseconds: 500));
     
     // Получаем текущий документ
     final documents = ref.read(mockDocumentsStateProvider);
+    debugPrint('Текущее количество документов: ${documents.length}');
     final document = documents.firstWhere((d) => d.id == documentId);
+    debugPrint('Документ найден: ${document.title}, текущий статус: ${document.status}');
     
     // Создаем обновленный документ со статусом approved
     final updatedDocument = Document(
@@ -54,8 +59,10 @@ class MockDocumentRepository implements DocumentRepository {
       rejectionReason: null,
     );
     
+    debugPrint('Обновляем документ со статусом: ${updatedDocument.status}');
     // Обновляем состояние
     ref.read(mockDocumentsStateProvider.notifier).updateDocument(updatedDocument);
+    debugPrint('Состояние обновлено');
   }
 
   @override

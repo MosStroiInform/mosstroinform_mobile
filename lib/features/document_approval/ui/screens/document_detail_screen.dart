@@ -40,14 +40,21 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   }
 
   Future<void> _handleApprove(String documentId) async {
-    if (_isProcessing) return;
+    if (_isProcessing) {
+      debugPrint('Обработка уже идет, пропускаем');
+      return;
+    }
 
+    debugPrint('=== _handleApprove ===');
+    debugPrint('documentId: $documentId');
     setState(() => _isProcessing = true);
 
     try {
+      debugPrint('Вызываем approveDocument');
       await ref
           .read(documentNotifierProvider(documentId).notifier)
           .approveDocument(documentId);
+      debugPrint('approveDocument выполнен успешно');
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
