@@ -33,6 +33,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     }
 
     try {
+      debugPrint('Инициализация видео: ${widget.camera.streamUrl}');
+      
       // VideoPlayerController.networkUrl поддерживает потоковое видео:
       // - HLS потоки (.m3u8) - стандарт для потокового видео (поддерживается из коробки)
       // - DASH потоки
@@ -44,17 +46,23 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       );
 
       await _controller!.initialize();
+      
+      debugPrint('Видео инициализировано успешно');
+      debugPrint('Длительность: ${_controller!.value.duration}');
+      debugPrint('Разрешение: ${_controller!.value.size}');
+      debugPrint('AspectRatio: ${_controller!.value.aspectRatio}');
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-        // Для потокового видео не нужен looping, так как поток непрерывный
-        _controller!.play();
-        // setLooping не нужен для live streams
+        // Автоматически запускаем воспроизведение
+        await _controller!.play();
+        debugPrint('Воспроизведение запущено');
       }
     } catch (e, stackTrace) {
       debugPrint('Ошибка инициализации видео: $e');
+      debugPrint('Тип ошибки: ${e.runtimeType}');
       debugPrint('Stack trace: $stackTrace');
       debugPrint('URL потока: ${widget.camera.streamUrl}');
       if (mounted) {
@@ -210,6 +218,19 @@ class _VideoErrorWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
+          const SizedBox(height: 16),
+          // Показываем URL для отладки
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'URL: ${camera.streamUrl}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontFamily: 'monospace',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );

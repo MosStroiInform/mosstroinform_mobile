@@ -21,10 +21,10 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam1',
           'name': 'Камера 1 - Главный вход',
           'description': 'Обзор главного входа и фасада',
-          // Публичный демо видео для тестирования (Big Buck Bunny)
-          // Используем MP4 для надежности, так как HLS потоки могут быть недоступны
+          // Публичный демо видео для тестирования
+          // Используем несколько вариантов URL для надежности
           'streamUrl':
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+1',
         },
@@ -32,9 +32,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam2',
           'name': 'Камера 2 - Стройплощадка',
           'description': 'Обзор строительной площадки',
-          // Публичный демо видео (Sintel)
+          // Публичный демо видео - альтернативный источник
           'streamUrl':
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+2',
         },
@@ -42,7 +42,7 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam3',
           'name': 'Камера 3 - Задний двор',
           'description': 'Обзор заднего двора',
-          // Альтернативный демо поток (Elephant's Dream)
+          // Альтернативный демо поток
           'streamUrl':
               'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
           'isActive': false,
