@@ -109,16 +109,14 @@ class ProjectCard extends StatelessWidget {
                   // Характеристики
                   Row(
                     children: [
-                      _buildInfoChip(
-                        context,
-                        Icons.square_foot,
-                        '${project.area.toInt()} м²',
+                      _InfoChip(
+                        icon: Icons.square_foot,
+                        text: '${project.area.toInt()} м²',
                       ),
                       const SizedBox(width: 8),
-                      _buildInfoChip(
-                        context,
-                        Icons.layers,
-                        '${project.floors} ${project.floors > 1 ? l10n.floors : l10n.floor}',
+                      _InfoChip(
+                        icon: Icons.layers,
+                        text: '${project.floors} ${project.floors > 1 ? l10n.floors : l10n.floor}',
                       ),
                       const Spacer(),
                       Text(
@@ -139,7 +137,7 @@ class ProjectCard extends StatelessWidget {
                       style: theme.textTheme.labelMedium,
                     ),
                     const SizedBox(height: 8),
-                    _buildStagesIndicator(context, project.stages),
+                    _StagesIndicator(stages: project.stages),
                   ],
                 ],
               ),
@@ -150,7 +148,28 @@ class ProjectCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+  String _formatPrice(int price) {
+    if (price >= 1000000) {
+      return '${(price / 1000000).toStringAsFixed(1)} млн';
+    } else if (price >= 1000) {
+      return '${(price / 1000).toStringAsFixed(0)} тыс';
+    }
+    return price.toString();
+  }
+}
+
+/// Виджет информационного чипа
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _InfoChip({
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -164,11 +183,16 @@ class ProjectCard extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildStagesIndicator(
-    BuildContext context,
-    List<ConstructionStage> stages,
-  ) {
+/// Виджет индикатора этапов строительства
+class _StagesIndicator extends StatelessWidget {
+  final List<ConstructionStage> stages;
+
+  const _StagesIndicator({required this.stages});
+
+  @override
+  Widget build(BuildContext context) {
     final completedCount = stages.where((s) => s.status == StageStatus.completed).length;
     final inProgressCount = stages.where((s) => s.status == StageStatus.inProgress).length;
     final totalCount = stages.length;
@@ -207,15 +231,6 @@ class ProjectCard extends StatelessWidget {
           ),
       ],
     );
-  }
-
-  String _formatPrice(int price) {
-    if (price >= 1000000) {
-      return '${(price / 1000000).toStringAsFixed(1)} млн';
-    } else if (price >= 1000) {
-      return '${(price / 1000).toStringAsFixed(0)} тыс';
-    }
-    return price.toString();
   }
 }
 

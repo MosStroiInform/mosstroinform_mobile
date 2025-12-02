@@ -183,7 +183,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                       const SizedBox(height: 24),
 
                       // Характеристики
-                      _buildCharacteristicsSection(context, project),
+                      _CharacteristicsSection(project: project),
                       const SizedBox(height: 24),
 
                       // Этапы строительства
@@ -307,45 +307,68 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
     );
   }
 
-  Widget _buildCharacteristicsSection(BuildContext context, Project project) {
+  static String _formatPrice(int price) {
+    if (price >= 1000000) {
+      return '${(price / 1000000).toStringAsFixed(1)} млн';
+    } else if (price >= 1000) {
+      return '${(price / 1000).toStringAsFixed(0)} тыс';
+    }
+    return price.toString();
+  }
+}
+
+/// Виджет секции характеристик проекта
+class _CharacteristicsSection extends StatelessWidget {
+  final Project project;
+
+  const _CharacteristicsSection({required this.project});
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildCharacteristicRow(
-              context,
-              l10n.area,
-              '${project.area.toInt()} м²',
-              Icons.square_foot,
+            _CharacteristicRow(
+              label: l10n.area,
+              value: '${project.area.toInt()} м²',
+              icon: Icons.square_foot,
             ),
             const Divider(),
-            _buildCharacteristicRow(
-              context,
-              l10n.floors,
-              '${project.floors} ${project.floors > 1 ? l10n.floorsPlural : l10n.floor}',
-              Icons.layers,
+            _CharacteristicRow(
+              label: l10n.floors,
+              value: '${project.floors} ${project.floors > 1 ? l10n.floorsPlural : l10n.floor}',
+              icon: Icons.layers,
             ),
             const Divider(),
-            _buildCharacteristicRow(
-              context,
-              l10n.price,
-              '${_formatPrice(project.price)} ₽',
-              Icons.attach_money,
+            _CharacteristicRow(
+              label: l10n.price,
+              value: '${_ProjectDetailScreenState._formatPrice(project.price)} ₽',
+              icon: Icons.attach_money,
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildCharacteristicRow(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
+/// Виджет строки характеристики
+class _CharacteristicRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+
+  const _CharacteristicRow({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Row(
@@ -361,14 +384,5 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         ),
       ],
     );
-  }
-
-  String _formatPrice(int price) {
-    if (price >= 1000000) {
-      return '${(price / 1000000).toStringAsFixed(1)} млн';
-    } else if (price >= 1000) {
-      return '${(price / 1000).toStringAsFixed(0)} тыс';
-    }
-    return price.toString();
   }
 }
