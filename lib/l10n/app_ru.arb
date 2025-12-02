@@ -217,5 +217,74 @@
   "inactive": "Неактивна",
   "@inactive": {
     "description": "Статус камеры - неактивна"
+  },
+  
+  "constructionCompletion": "Завершение строительства",
+  "@constructionCompletion": {
+    "description": "Заголовок экрана завершения строительства"
+  },
+  "completionStatus": "Статус завершения",
+  "@completionStatus": {
+    "description": "Заголовок статуса завершения"
+  },
+  "finalDocuments": "Финальные документы",
+  "@finalDocuments": {
+    "description": "Заголовок списка финальных документов"
+  },
+  "noFinalDocuments": "Нет финальных документов",
+  "@noFinalDocuments": {
+    "description": "Сообщение когда финальных документов нет"
+  },
+  "finalDocument": "Финальный документ",
+  "@finalDocument": {
+    "description": "Заголовок экрана финального документа"
+  },
+  "finalDocumentNotFound": "Финальный документ не найден",
+  "@finalDocumentNotFound": {
+    "description": "Сообщение когда финальный документ не найден"
+  },
+  "signDocument": "Подписать документ",
+  "@signDocument": {
+    "description": "Кнопка подписания документа"
+  },
+  "documentSigned": "Документ успешно подписан",
+  "@documentSigned": {
+    "description": "Сообщение об успешном подписании документа"
+  },
+  "signed": "Подписан",
+  "@signed": {
+    "description": "Статус документа - подписан"
+  },
+  "signedAt": "Подписан",
+  "@signedAt": {
+    "description": "Метка даты подписания"
+  },
+  "allDocumentsSigned": "Все документы подписаны",
+  "@allDocumentsSigned": {
+    "description": "Сообщение что все документы подписаны"
+  },
+  "constructionCompleted": "Строительство завершено",
+  "@constructionCompleted": {
+    "description": "Сообщение о завершении строительства"
+  },
+  "errorLoadingCompletionStatus": "Ошибка загрузки статуса завершения",
+  "@errorLoadingCompletionStatus": {
+    "description": "Заголовок ошибки загрузки статуса"
+  },
+  "errorLoadingFinalDocuments": "Ошибка загрузки финальных документов",
+  "@errorLoadingFinalDocuments": {
+    "description": "Заголовок ошибки загрузки финальных документов"
+  },
+  "errorLoadingFinalDocument": "Ошибка загрузки финального документа",
+  "@errorLoadingFinalDocument": {
+    "description": "Заголовок ошибки загрузки финального документа"
+  },
+  "completionDate": "Дата завершения",
+  "@completionDate": {
+    "description": "Метка даты завершения строительства"
+  },
+  "signature": "Подпись",
+  "@signature": {
+    "description": "Метка подписи"
   }
 }

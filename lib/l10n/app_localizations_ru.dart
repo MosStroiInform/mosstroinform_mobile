@@ -167,4 +167,58 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get inactive => 'Неактивна';
+
+  @override
+  String get constructionCompletion => 'Завершение строительства';
+
+  @override
+  String get completionStatus => 'Статус завершения';
+
+  @override
+  String get finalDocuments => 'Финальные документы';
+
+  @override
+  String get noFinalDocuments => 'Нет финальных документов';
+
+  @override
+  String get finalDocument => 'Финальный документ';
+
+  @override
+  String get finalDocumentNotFound => 'Финальный документ не найден';
+
+  @override
+  String get signDocument => 'Подписать документ';
+
+  @override
+  String get documentSigned => 'Документ успешно подписан';
+
+  @override
+  String get signed => 'Подписан';
+
+  @override
+  String get signedAt => 'Подписан';
+
+  @override
+  String get allDocumentsSigned => 'Все документы подписаны';
+
+  @override
+  String get constructionCompleted => 'Строительство завершено';
+
+  @override
+  String get errorLoadingCompletionStatus =>
+      'Ошибка загрузки статуса завершения';
+
+  @override
+  String get errorLoadingFinalDocuments =>
+      'Ошибка загрузки финальных документов';
+
+  @override
+  String get errorLoadingFinalDocument =>
+      'Ошибка загрузки финального документа';
+
+  @override
+  String get completionDate => 'Дата завершения';
+
+  @override
+  String get signature => 'Подпись';
 }

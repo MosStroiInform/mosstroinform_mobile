@@ -405,6 +405,108 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Неактивна'**
   String get inactive;
+
+  /// Заголовок экрана завершения строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершение строительства'**
+  String get constructionCompletion;
+
+  /// Заголовок статуса завершения
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус завершения'**
+  String get completionStatus;
+
+  /// Заголовок списка финальных документов
+  ///
+  /// In ru, this message translates to:
+  /// **'Финальные документы'**
+  String get finalDocuments;
+
+  /// Сообщение когда финальных документов нет
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет финальных документов'**
+  String get noFinalDocuments;
+
+  /// Заголовок экрана финального документа
+  ///
+  /// In ru, this message translates to:
+  /// **'Финальный документ'**
+  String get finalDocument;
+
+  /// Сообщение когда финальный документ не найден
+  ///
+  /// In ru, this message translates to:
+  /// **'Финальный документ не найден'**
+  String get finalDocumentNotFound;
+
+  /// Кнопка подписания документа
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписать документ'**
+  String get signDocument;
+
+  /// Сообщение об успешном подписании документа
+  ///
+  /// In ru, this message translates to:
+  /// **'Документ успешно подписан'**
+  String get documentSigned;
+
+  /// Статус документа - подписан
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписан'**
+  String get signed;
+
+  /// Метка даты подписания
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписан'**
+  String get signedAt;
+
+  /// Сообщение что все документы подписаны
+  ///
+  /// In ru, this message translates to:
+  /// **'Все документы подписаны'**
+  String get allDocumentsSigned;
+
+  /// Сообщение о завершении строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство завершено'**
+  String get constructionCompleted;
+
+  /// Заголовок ошибки загрузки статуса
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка загрузки статуса завершения'**
+  String get errorLoadingCompletionStatus;
+
+  /// Заголовок ошибки загрузки финальных документов
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка загрузки финальных документов'**
+  String get errorLoadingFinalDocuments;
+
+  /// Заголовок ошибки загрузки финального документа
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка загрузки финального документа'**
+  String get errorLoadingFinalDocument;
+
+  /// Метка даты завершения строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Дата завершения'**
+  String get completionDate;
+
+  /// Метка подписи
+  ///
+  /// In ru, this message translates to:
+  /// **'Подпись'**
+  String get signature;
 }
 
 class _AppLocalizationsDelegate
