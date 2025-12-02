@@ -7,7 +7,7 @@ part of 'construction_site_notifier.dart';
 // **************************************************************************
 
 String _$constructionSiteNotifierHash() =>
-    r'f36dd24f8560419f46f3d104de97c47e00b07364';
+    r'f0d839a7154635dacd608f39f660197f47a0f459';
 
 /// Copied from Dart SDK
 class _SystemHash {

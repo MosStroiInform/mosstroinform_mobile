@@ -15,7 +15,7 @@ part 'document_repository_provider.g.dart';
 DocumentRepository documentRepository(DocumentRepositoryRef ref) {
   final config = ref.watch(appConfigSimpleProvider);
   if (config.useMocks) {
-    return MockDocumentRepository();
+    return MockDocumentRepository(ref);
   }
   final remoteDataSource = ref.watch(documentRemoteDataSourceProvider);
   return DocumentRepositoryImpl(remoteDataSource: remoteDataSource);

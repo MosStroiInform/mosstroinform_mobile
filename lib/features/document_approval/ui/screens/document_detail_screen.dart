@@ -52,7 +52,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         final messenger = ScaffoldMessenger.of(context);
-        final navigator = context;
         
         // Перезагружаем список документов для проверки статуса
         await ref.read(documentsNotifierProvider.notifier).loadDocuments();
@@ -77,7 +76,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                     textColor: Colors.white,
                     onPressed: () {
                       // Переходим к стройке первого проекта (для демо)
-                      navigator.push('/construction/1');
+                      context.push('/construction/1');
                     },
                   )
                 : null,

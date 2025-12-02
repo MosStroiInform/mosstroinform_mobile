@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/data/models/construction_site_model.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/domain/entities/construction_site.dart';

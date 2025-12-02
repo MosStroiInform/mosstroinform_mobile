@@ -6,7 +6,7 @@ part of 'project_repository_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$projectRepositoryHash() => r'522f47d9d7a3fc0514b17d7b6f608c51244562f1';
+String _$projectRepositoryHash() => r'58a83a6dc1b6df1625ecd9756dcca7a5684aaaf1';
 
 /// Провайдер для репозитория проектов
 /// Возвращает интерфейс, а не имплементацию
