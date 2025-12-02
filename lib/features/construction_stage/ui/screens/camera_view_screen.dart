@@ -30,8 +30,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   }
 
   void _addVideoListener() {
-    _controller?.addListener(() {
-      if (_controller != null) {
+    _videoListener = () {
+      if (_controller != null && mounted) {
         final value = _controller!.value;
         debugPrint('=== Состояние видео изменилось ===');
         debugPrint('isInitialized: ${value.isInitialized}');
@@ -69,7 +69,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
           });
         }
       }
-    });
+    };
+    _controller?.addListener(_videoListener!);
   }
 
   Future<void> _initializeVideo() async {
@@ -143,8 +144,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    debugPrint('=== CameraViewScreen dispose ===');
+    // Останавливаем воспроизведение перед освобождением ресурсов
+    if (_controller != null) {
+      try {
+        if (_controller!.value.isInitialized && _controller!.value.isPlaying) {
+          debugPrint('Останавливаем воспроизведение видео');
+          _controller!.pause();
+        }
+        // Удаляем слушатель перед dispose
+        if (_videoListener != null) {
+          _controller!.removeListener(_videoListener!);
+          debugPrint('Слушатель удален');
+        }
+        debugPrint('Освобождаем ресурсы видеоплеера');
+        _controller!.dispose();
+        _controller = null;
+      } catch (e) {
+        debugPrint('Ошибка при освобождении видеоплеера: $e');
+        // Все равно пытаемся освободить ресурсы
+        _controller?.dispose();
+        _controller = null;
+      }
+    }
     super.dispose();
+    debugPrint('=== CameraViewScreen dispose завершен ===');
   }
 
   @override
