@@ -25,7 +25,7 @@ mixin _$DocumentModel {
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   String? get fileUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'status')
+  @JsonKey(name: 'status', defaultValue: 'pending')
   String get statusString => throw _privateConstructorUsedError;
   DateTime? get submittedAt => throw _privateConstructorUsedError;
   DateTime? get approvedAt => throw _privateConstructorUsedError;
@@ -53,7 +53,7 @@ abstract class $DocumentModelCopyWith<$Res> {
     String title,
     String description,
     String? fileUrl,
-    @JsonKey(name: 'status') String statusString,
+    @JsonKey(name: 'status', defaultValue: 'pending') String statusString,
     DateTime? submittedAt,
     DateTime? approvedAt,
     String? rejectionReason,
@@ -138,7 +138,7 @@ abstract class _$$DocumentModelImplCopyWith<$Res>
     String title,
     String description,
     String? fileUrl,
-    @JsonKey(name: 'status') String statusString,
+    @JsonKey(name: 'status', defaultValue: 'pending') String statusString,
     DateTime? submittedAt,
     DateTime? approvedAt,
     String? rejectionReason,
@@ -215,7 +215,8 @@ class _$DocumentModelImpl implements _DocumentModel {
     required this.title,
     required this.description,
     this.fileUrl,
-    @JsonKey(name: 'status') this.statusString = 'pending',
+    @JsonKey(name: 'status', defaultValue: 'pending')
+    this.statusString = 'pending',
     this.submittedAt,
     this.approvedAt,
     this.rejectionReason,
@@ -233,7 +234,7 @@ class _$DocumentModelImpl implements _DocumentModel {
   @override
   final String? fileUrl;
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: 'status', defaultValue: 'pending')
   final String statusString;
   @override
   final DateTime? submittedAt;
@@ -301,7 +302,7 @@ abstract class _DocumentModel implements DocumentModel {
     required final String title,
     required final String description,
     final String? fileUrl,
-    @JsonKey(name: 'status') final String statusString,
+    @JsonKey(name: 'status', defaultValue: 'pending') final String statusString,
     final DateTime? submittedAt,
     final DateTime? approvedAt,
     final String? rejectionReason,
@@ -319,7 +320,7 @@ abstract class _DocumentModel implements DocumentModel {
   @override
   String? get fileUrl;
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: 'status', defaultValue: 'pending')
   String get statusString;
   @override
   DateTime? get submittedAt;
