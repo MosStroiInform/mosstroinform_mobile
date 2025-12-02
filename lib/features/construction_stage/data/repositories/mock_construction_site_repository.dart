@@ -21,10 +21,10 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam1',
           'name': 'Камера 1 - Главный вход',
           'description': 'Обзор главного входа и фасада',
-          // Публичный демо видео для тестирования
-          // Используем несколько вариантов URL для надежности
+          // Публичный HLS поток для тестирования (Big Buck Bunny)
+          // HLS (HTTP Live Streaming) - стандартный формат для потокового видео
           'streamUrl':
-              'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+              'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+1',
         },
@@ -32,9 +32,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam2',
           'name': 'Камера 2 - Стройплощадка',
           'description': 'Обзор строительной площадки',
-          // Публичный демо видео - альтернативный источник
+          // Публичный HLS поток (Apple демо)
           'streamUrl':
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+              'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+2',
         },
@@ -42,9 +42,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam3',
           'name': 'Камера 3 - Задний двор',
           'description': 'Обзор заднего двора',
-          // Альтернативный демо поток
+          // Альтернативный HLS поток (Unified Streaming демо)
           'streamUrl':
-              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+              'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
           'isActive': false,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+3',
         },

@@ -47,10 +47,12 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       
       // VideoPlayerController.networkUrl поддерживает потоковое видео:
       // - HLS потоки (.m3u8) - стандарт для потокового видео (поддерживается из коробки)
+      //   Используется для live streaming и адаптивного потокового видео
       // - DASH потоки
       // - Обычные видеофайлы через HTTP
       // Примечание: Для RTSP потоков может потребоваться дополнительный пакет
       // (например, flutter_vlc_player или media_kit)
+      debugPrint('Тип потока: ${widget.camera.streamUrl.endsWith('.m3u8') ? 'HLS (потоковое)' : 'HTTP (файл)'}');
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(widget.camera.streamUrl),
       );
