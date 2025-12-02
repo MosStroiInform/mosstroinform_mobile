@@ -41,7 +41,7 @@ class _ConstructionSiteScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.constructionSiteTitle ?? l10n.constructionStage),
+        title: Text(l10n.constructionStage),
         actions: [
           // Кнопка перехода к завершению строительства
           IconButton(
