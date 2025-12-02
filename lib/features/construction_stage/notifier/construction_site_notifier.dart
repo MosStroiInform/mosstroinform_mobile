@@ -36,6 +36,8 @@ class ConstructionSiteNotifier extends _$ConstructionSiteNotifier {
 
   /// Загрузить информацию о строительной площадке
   Future<void> loadConstructionSite() async {
+    debugPrint('=== ConstructionSiteNotifier.loadConstructionSite ===');
+    debugPrint('projectId: $projectId');
     state = const AsyncValue.loading();
     try {
       final repository = ref.read(constructionSiteRepositoryProvider);

@@ -9,6 +9,8 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
   Future<ConstructionSite> getConstructionSiteByProjectId(
     String projectId,
   ) async {
+    debugPrint('=== MockConstructionSiteRepository.getConstructionSiteByProjectId ===');
+    debugPrint('projectId: $projectId');
     await Future.delayed(const Duration(milliseconds: 500));
 
     final mockData = {
@@ -53,11 +55,21 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
       'progress': 0.45,
     };
 
-    return ConstructionSiteModel.fromJson(mockData).toEntity();
+    final site = ConstructionSiteModel.fromJson(mockData).toEntity();
+    debugPrint('=== MockConstructionSiteRepository: возвращаем площадку ===');
+    debugPrint('ID: ${site.id}');
+    debugPrint('Название: ${site.projectName}');
+    debugPrint('Камер: ${site.cameras.length}');
+    for (var camera in site.cameras) {
+      debugPrint('  - ${camera.name}: ${camera.isActive ? "активна" : "неактивна"}');
+    }
+    return site;
   }
 
   @override
   Future<List<Camera>> getCameras(String siteId) async {
+    debugPrint('=== MockConstructionSiteRepository.getCameras ===');
+    debugPrint('siteId: $siteId');
     await Future.delayed(const Duration(milliseconds: 500));
 
     final site = await getConstructionSiteByProjectId('1');

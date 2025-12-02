@@ -14,9 +14,13 @@ part 'construction_site_repository_provider.g.dart';
 @riverpod
 ConstructionSiteRepository constructionSiteRepository(ConstructionSiteRepositoryRef ref) {
   final config = ref.watch(appConfigSimpleProvider);
+  debugPrint('=== constructionSiteRepositoryProvider ===');
+  debugPrint('useMocks: ${config.useMocks}');
   if (config.useMocks) {
+    debugPrint('Используем MockConstructionSiteRepository');
     return MockConstructionSiteRepository();
   }
+  debugPrint('Используем ConstructionSiteRepositoryImpl');
   final remoteDataSource = ref.watch(constructionSiteRemoteDataSourceProvider);
   return ConstructionSiteRepositoryImpl(remoteDataSource: remoteDataSource);
 }

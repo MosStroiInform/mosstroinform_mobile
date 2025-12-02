@@ -22,7 +22,10 @@ class _ConstructionSiteScreenState
   @override
   void initState() {
     super.initState();
+    debugPrint('=== ConstructionSiteScreen.initState ===');
+    debugPrint('projectId: ${widget.projectId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint('=== ConstructionSiteScreen: загружаем площадку ===');
       ref
           .read(constructionSiteNotifierProvider(widget.projectId).notifier)
           .loadConstructionSite();
