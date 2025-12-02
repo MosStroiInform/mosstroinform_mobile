@@ -53,7 +53,10 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         _controller!.play();
         // setLooping не нужен для live streams
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Ошибка инициализации видео: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('URL потока: ${widget.camera.streamUrl}');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -107,9 +110,14 @@ class _VideoPlayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Используем aspectRatio из контроллера, если он доступен, иначе 16/9 по умолчанию
+    final aspectRatio = controller.value.aspectRatio > 0
+        ? controller.value.aspectRatio
+        : 16 / 9;
+    
     return Center(
       child: AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
+        aspectRatio: aspectRatio,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -172,10 +180,7 @@ class _VideoErrorWidget extends StatelessWidget {
   final Camera camera;
   final AppLocalizations l10n;
 
-  const _VideoErrorWidget({
-    required this.camera,
-    required this.l10n,
-  });
+  const _VideoErrorWidget({required this.camera, required this.l10n});
 
   @override
   Widget build(BuildContext context) {

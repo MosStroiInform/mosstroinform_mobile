@@ -21,9 +21,10 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam1',
           'name': 'Камера 1 - Главный вход',
           'description': 'Обзор главного входа и фасада',
-          // Публичный демо HLS поток для тестирования
+          // Публичный демо видео для тестирования (Big Buck Bunny)
+          // Используем MP4 для надежности, так как HLS потоки могут быть недоступны
           'streamUrl':
-              'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+1',
         },
@@ -31,9 +32,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam2',
           'name': 'Камера 2 - Стройплощадка',
           'description': 'Обзор строительной площадки',
-          // Публичный демо HLS поток (Big Buck Bunny)
+          // Публичный демо видео (Sintel)
           'streamUrl':
-              'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+2',
         },
@@ -41,9 +42,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam3',
           'name': 'Камера 3 - Задний двор',
           'description': 'Обзор заднего двора',
-          // Альтернативный демо поток
+          // Альтернативный демо поток (Elephant's Dream)
           'streamUrl':
-              'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+              'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
           'isActive': false,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+3',
         },

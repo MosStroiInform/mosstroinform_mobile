@@ -1,6 +1,6 @@
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
-import 'package:mosstroinform_mobile/features/project_selection/domain/providers/project_repository_provider.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
+import 'package:mosstroinform_mobile/features/project_selection/domain/providers/project_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'project_notifier.g.dart';

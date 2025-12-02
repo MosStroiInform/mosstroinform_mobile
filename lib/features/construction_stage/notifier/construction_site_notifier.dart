@@ -1,6 +1,6 @@
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
-import 'package:mosstroinform_mobile/features/construction_stage/domain/providers/construction_site_repository_provider.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/domain/entities/construction_site.dart';
+import 'package:mosstroinform_mobile/features/construction_stage/domain/providers/construction_site_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'construction_site_notifier.g.dart';
@@ -11,11 +11,7 @@ class ConstructionSiteState {
   final bool isLoading;
   final Failure? error;
 
-  const ConstructionSiteState({
-    this.site,
-    this.isLoading = false,
-    this.error,
-  });
+  const ConstructionSiteState({this.site, this.isLoading = false, this.error});
 
   ConstructionSiteState copyWith({
     ConstructionSite? site,
@@ -94,9 +90,7 @@ class CamerasNotifier extends _$CamerasNotifier {
     try {
       final repository = ref.read(constructionSiteRepositoryProvider);
       final cameras = await repository.getCameras(siteId);
-      state = AsyncValue.data(
-        CamerasState(cameras: cameras, isLoading: false),
-      );
+      state = AsyncValue.data(CamerasState(cameras: cameras, isLoading: false));
     } on Failure catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     } catch (e, s) {
@@ -104,4 +98,3 @@ class CamerasNotifier extends _$CamerasNotifier {
     }
   }
 }
-
