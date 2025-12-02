@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/domain/entities/construction_site.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:video_player/video_player.dart';
 
 /// Экран просмотра видеопотока камеры
 class CameraViewScreen extends StatefulWidget {
   final Camera camera;
 
-  const CameraViewScreen({
-    super.key,
-    required this.camera,
-  });
+  const CameraViewScreen({super.key, required this.camera});
 
   @override
   State<CameraViewScreen> createState() => _CameraViewScreenState();
@@ -47,7 +44,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       );
 
       await _controller!.initialize();
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -77,14 +74,12 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.camera.name),
-      ),
+      appBar: AppBar(title: Text(widget.camera.name)),
       body: _hasError
           ? _buildErrorWidget(context, l10n)
           : _isInitialized && _controller != null
-              ? _buildVideoPlayer(context, theme)
-              : _buildLoadingWidget(context, theme),
+          ? _buildVideoPlayer(context, theme)
+          : _buildLoadingWidget(context, theme),
     );
   }
 
@@ -103,7 +98,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
               right: 16,
               child: VideoProgressIndicator(
                 _controller!,
-                allowScrubbing: false, // Для live streams скроллинг не имеет смысла
+                allowScrubbing:
+                    false, // Для live streams скроллинг не имеет смысла
                 colors: VideoProgressColors(
                   playedColor: theme.colorScheme.primary,
                   bufferedColor: theme.colorScheme.primaryContainer,
@@ -124,9 +120,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                   });
                 },
                 child: Icon(
-                  _controller!.value.isPlaying
-                      ? Icons.pause
-                      : Icons.play_arrow,
+                  _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
                 ),
               ),
             ),
@@ -143,10 +137,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
-          Text(
-            'Загрузка видеопотока...',
-            style: theme.textTheme.bodyLarge,
-          ),
+          Text('Загрузка видеопотока...', style: theme.textTheme.bodyLarge),
         ],
       ),
     );
@@ -184,4 +175,3 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     );
   }
 }
-

@@ -21,8 +21,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam1',
           'name': 'Камера 1 - Главный вход',
           'description': 'Обзор главного входа и фасада',
-          // Пример URL для HLS потока (стандарт для потокового видео)
-          'streamUrl': 'https://example.com/streams/camera1.m3u8',
+          // Публичный демо HLS поток для тестирования
+          'streamUrl':
+              'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+1',
         },
@@ -30,8 +31,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam2',
           'name': 'Камера 2 - Стройплощадка',
           'description': 'Обзор строительной площадки',
-          // Пример URL для HLS потока
-          'streamUrl': 'https://example.com/streams/camera2.m3u8',
+          // Публичный демо HLS поток (Big Buck Bunny)
+          'streamUrl':
+              'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
           'isActive': true,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+2',
         },
@@ -39,8 +41,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
           'id': 'cam3',
           'name': 'Камера 3 - Задний двор',
           'description': 'Обзор заднего двора',
-          // Пример URL для HLS потока
-          'streamUrl': 'https://example.com/streams/camera3.m3u8',
+          // Альтернативный демо поток
+          'streamUrl':
+              'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
           'isActive': false,
           'thumbnailUrl': 'https://via.placeholder.com/320x240?text=Камера+3',
         },
