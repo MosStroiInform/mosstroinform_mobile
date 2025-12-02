@@ -44,9 +44,9 @@ ProjectRepository projectRepository(ProjectRepositoryRef ref) {
 ```
 lib/features/{feature}/
 ├── data/
-│   ├── providers/          # Провайдеры данных (Dio, DataSource, Repository)
-│   │   └── {feature}_data_providers.dart
-│   ├── datasources/        # Источники данных
+│   ├── providers/          # Провайдеры data source (Retrofit)
+│   │   └── {feature}_data_source_provider.dart
+│   ├── datasources/        # Источники данных (Retrofit интерфейсы)
 │   ├── models/            # Модели данных (DTO)
 │   └── repositories/      # Реализация репозиториев
 ├── domain/
