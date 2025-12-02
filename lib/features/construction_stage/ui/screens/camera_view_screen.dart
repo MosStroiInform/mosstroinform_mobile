@@ -42,7 +42,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     }
 
     try {
-      debugPrint('Инициализация видео: ${widget.camera.streamUrl}');
+      debugPrint('=== Создание VideoPlayerController ===');
+      debugPrint('URL: ${widget.camera.streamUrl}');
       
       // VideoPlayerController.networkUrl поддерживает потоковое видео:
       // - HLS потоки (.m3u8) - стандарт для потокового видео (поддерживается из коробки)
@@ -54,23 +55,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         Uri.parse(widget.camera.streamUrl),
       );
 
+      debugPrint('=== Начало инициализации контроллера ===');
       await _controller!.initialize();
+      debugPrint('=== Контроллер инициализирован ===');
       
-      debugPrint('Видео инициализировано успешно');
       debugPrint('Длительность: ${_controller!.value.duration}');
       debugPrint('Разрешение: ${_controller!.value.size}');
       debugPrint('AspectRatio: ${_controller!.value.aspectRatio}');
+      debugPrint('isInitialized: ${_controller!.value.isInitialized}');
 
       if (mounted) {
+        debugPrint('=== Widget mounted, обновляем состояние ===');
         setState(() {
           _isInitialized = true;
         });
         // Автоматически запускаем воспроизведение
+        debugPrint('=== Запуск воспроизведения ===');
         await _controller!.play();
-        debugPrint('Воспроизведение запущено');
+        debugPrint('=== Воспроизведение запущено ===');
+        debugPrint('isPlaying: ${_controller!.value.isPlaying}');
+      } else {
+        debugPrint('=== Widget не mounted, пропускаем обновление ===');
       }
     } catch (e, stackTrace) {
-      debugPrint('Ошибка инициализации видео: $e');
+      debugPrint('=== ОШИБКА инициализации видео ===');
+      debugPrint('Ошибка: $e');
       debugPrint('Тип ошибки: ${e.runtimeType}');
       debugPrint('Stack trace: $stackTrace');
       debugPrint('URL потока: ${widget.camera.streamUrl}');
