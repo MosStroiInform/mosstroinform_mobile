@@ -685,25 +685,34 @@ flutter build ios --release
 
 ### Разработчики
 
-- **castlele** ([@castlele](https://github.com/castlele)) - castlelecs@gmail.com
+- **castlele** ([@castlele](https://github.com/castlele)) - castlelecs@gmail.com (15 коммитов)
   - Полное тестовое покрытие проекта (76 тестов)
   - Unit тесты для notifiers, repositories, use cases
   - Widget тесты для UI компонентов
-  - Документация по тестированию
+  - Документация по тестированию и архитектуре
+  - Рефакторинг виджет-функций в классы виджетов
+  - Документация структуры проекта (ARCHITECTURE.md, README.md)
 
-- **Konkurent** ([@Konkurent](https://github.com/Konkurent)) - kechin.d@gmail.com
+- **Konkurent** ([@Konkurent](https://github.com/Konkurent)) - kechin.d@gmail.com (15 коммитов)
   - Реализация shimmer эффектов для всех экранов загрузки
   - Создание системы логирования (AppLogger)
-  - Улучшение навигации между экранами
-  - Оптимизация видеопотока (удаление контролов для live потоков)
+  - Улучшение навигации между экранами (постоянные кнопки в AppBar)
+  - Оптимизация видеопотока (удаление контролов для live потоков, остановка при выходе)
+  - Настройки платформ для потокового видео (Android Manifest, iOS Info.plist)
+  - Добавление демо-видеопотоков для демонстрации
 
-- **NikBakly** ([@NikBakly](https://github.com/NikBakly)) - baklykov.nikita369@gmail.com
-  - Исправления UI ошибок в модуле согласования документов
-  - Исправление ошибок CardTheme в теме приложения
+- **NikBakly** ([@NikBakly](https://github.com/NikBakly)) - baklykov.nikita369@gmail.com (15 коммитов)
+  - Исправление ошибок UI (CardTheme)
+  - Работа с документами (одобрение отклоненных документов, projectId в Document entity)
+  - Исправления в document_remote_data_source
+  - Реализация интерактивных моков с состоянием через Riverpod
+  - Навигация к стройке после одобрения всех документов
+  - Исправления локализации и навигации
+  - Добавление видеоплеера и навигации между этапами
 
 ### Тимлид
 
-- **Nikita Kovalenko** - nik.koval.89@gmail.com
+- **Nikita Kovalenko** ([@abigotado](https://github.com/abigotado)) - nik.koval.89@gmail.com (21 коммит)
   - Архитектура проекта (DDD, feature-first)
   - Основная функциональность приложения
   - Интеграция всех модулей
