@@ -16,7 +16,7 @@ class MockDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> getDocuments() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     // Получаем текущее состояние из провайдера
     final state = ref.read(mockDocumentsStateProvider);
     return state;
@@ -40,13 +40,15 @@ class MockDocumentRepository implements DocumentRepository {
     debugPrint('=== MockDocumentRepository.approveDocument ===');
     debugPrint('documentId: $documentId');
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     // Получаем текущий документ
     final documents = ref.read(mockDocumentsStateProvider);
     debugPrint('Текущее количество документов: ${documents.length}');
     final document = documents.firstWhere((d) => d.id == documentId);
-    debugPrint('Документ найден: ${document.title}, текущий статус: ${document.status}');
-    
+    debugPrint(
+      'Документ найден: ${document.title}, текущий статус: ${document.status}',
+    );
+
     // Создаем обновленный документ со статусом approved
     final updatedDocument = Document(
       id: document.id,
@@ -59,21 +61,23 @@ class MockDocumentRepository implements DocumentRepository {
       approvedAt: DateTime.now(),
       rejectionReason: null,
     );
-    
+
     debugPrint('Обновляем документ со статусом: ${updatedDocument.status}');
     // Обновляем состояние
-    ref.read(mockDocumentsStateProvider.notifier).updateDocument(updatedDocument);
+    ref
+        .read(mockDocumentsStateProvider.notifier)
+        .updateDocument(updatedDocument);
     debugPrint('Состояние обновлено');
   }
 
   @override
   Future<void> rejectDocument(String documentId, String reason) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     // Получаем текущий документ
     final documents = ref.read(mockDocumentsStateProvider);
     final document = documents.firstWhere((d) => d.id == documentId);
-    
+
     // Создаем обновленный документ со статусом rejected
     final updatedDocument = Document(
       id: document.id,
@@ -86,9 +90,10 @@ class MockDocumentRepository implements DocumentRepository {
       approvedAt: null,
       rejectionReason: reason,
     );
-    
+
     // Обновляем состояние
-    ref.read(mockDocumentsStateProvider.notifier).updateDocument(updatedDocument);
+    ref
+        .read(mockDocumentsStateProvider.notifier)
+        .updateDocument(updatedDocument);
   }
 }
-

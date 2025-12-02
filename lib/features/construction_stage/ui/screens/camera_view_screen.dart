@@ -45,14 +45,14 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         debugPrint('buffered: ${value.buffered}');
         debugPrint('size: ${value.size}');
         debugPrint('aspectRatio: ${value.aspectRatio}');
-        
+
         // Обновляем состояние при изменении
         if (mounted && value.isInitialized && !_isInitialized) {
           setState(() {
             _isInitialized = true;
           });
         }
-        
+
         if (mounted && value.hasError && !_hasError) {
           setState(() {
             _hasError = true;
@@ -65,7 +65,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   Future<void> _initializeVideo() async {
     debugPrint('=== Начало инициализации видео ===');
     debugPrint('isActive: ${widget.camera.isActive}');
-    
+
     if (!widget.camera.isActive) {
       debugPrint('Камера неактивна, показываем ошибку');
       setState(() {
@@ -77,7 +77,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     try {
       debugPrint('=== Создание VideoPlayerController ===');
       debugPrint('URL: ${widget.camera.streamUrl}');
-      
+
       // VideoPlayerController.networkUrl поддерживает потоковое видео:
       // - HLS потоки (.m3u8) - стандарт для потокового видео (поддерживается из коробки)
       //   Используется для live streaming и адаптивного потокового видео
@@ -85,7 +85,9 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       // - Обычные видеофайлы через HTTP
       // Примечание: Для RTSP потоков может потребоваться дополнительный пакет
       // (например, flutter_vlc_player или media_kit)
-      debugPrint('Тип потока: ${widget.camera.streamUrl.endsWith('.m3u8') ? 'HLS (потоковое)' : 'HTTP (файл)'}');
+      debugPrint(
+        'Тип потока: ${widget.camera.streamUrl.endsWith('.m3u8') ? 'HLS (потоковое)' : 'HTTP (файл)'}',
+      );
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(widget.camera.streamUrl),
       );
@@ -96,7 +98,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       debugPrint('=== Начало инициализации контроллера ===');
       await _controller!.initialize();
       debugPrint('=== Контроллер инициализирован ===');
-      
+
       debugPrint('Длительность: ${_controller!.value.duration}');
       debugPrint('Разрешение: ${_controller!.value.size}');
       debugPrint('AspectRatio: ${_controller!.value.aspectRatio}');
@@ -149,42 +151,33 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                   ? _controller?.value.errorDescription
                   : null,
             )
-          : _isInitialized && _controller != null && _controller!.value.isInitialized
-          ? _VideoPlayerWidget(
-              controller: _controller!,
-              onPlayPause: () {
-                setState(() {
-                  if (_controller!.value.isPlaying) {
-                    _controller!.pause();
-                  } else {
-                    _controller!.play();
-                  }
-                });
-              },
-            )
-          : const _VideoLoadingWidget(),
+          : _isInitialized &&
+                _controller != null &&
+                _controller!.value.isInitialized
+              ? _VideoPlayerWidget(controller: _controller!)
+              : const _VideoLoadingWidget(),
     );
   }
 }
 
-/// Виджет видеоплеера
+/// Виджет видеоплеера для live потока
+/// Для live потоков не нужны кнопки паузы/запуска и прогресс-бар
 class _VideoPlayerWidget extends StatelessWidget {
   final VideoPlayerController controller;
-  final VoidCallback onPlayPause;
 
   const _VideoPlayerWidget({
     required this.controller,
-    required this.onPlayPause,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     // Используем aspectRatio из контроллера, если он доступен, иначе 16/9 по умолчанию
     final aspectRatio = controller.value.aspectRatio > 0
         ? controller.value.aspectRatio
         : 16 / 9;
-    
+
     return Center(
       child: AspectRatio(
         aspectRatio: aspectRatio,
@@ -192,31 +185,71 @@ class _VideoPlayerWidget extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             VideoPlayer(controller),
-            // Для потокового видео прогресс-бар показывает буферизацию
+            // Индикатор "LIVE" для потокового видео
             Positioned(
-              bottom: 16,
+              top: 16,
               left: 16,
-              right: 16,
-              child: VideoProgressIndicator(
-                controller,
-                allowScrubbing:
-                    false, // Для live streams скроллинг не имеет смысла
-                colors: VideoProgressColors(
-                  playedColor: theme.colorScheme.primary,
-                  bufferedColor: theme.colorScheme.primaryContainer,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'LIVE',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            Positioned(
-              bottom: 60,
-              child: FloatingActionButton(
-                onPressed: onPlayPause,
-                child: Icon(
-                  controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+            // Индикатор буферизации (показывается только при буферизации)
+            if (controller.value.isBuffering)
+              Positioned(
+                bottom: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.buffering,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -291,9 +324,7 @@ class _VideoErrorWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Ошибка: $errorDescription',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.red,
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
             ),

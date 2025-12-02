@@ -663,6 +663,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Этапы строительства:'**
   String get constructionStagesLabel;
+
+  /// Сообщение о буферизации видеопотока
+  ///
+  /// In ru, this message translates to:
+  /// **'Буферизация...'**
+  String get buffering;
 }
 
 class _AppLocalizationsDelegate

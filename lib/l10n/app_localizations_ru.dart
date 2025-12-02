@@ -301,4 +301,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get constructionStagesLabel => 'Этапы строительства:';
+
+  @override
+  String get buffering => 'Буферизация...';
 }

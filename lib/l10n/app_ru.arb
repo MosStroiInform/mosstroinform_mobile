@@ -406,5 +406,9 @@
   "constructionStagesLabel": "Этапы строительства:",
   "@constructionStagesLabel": {
     "description": "Заголовок этапов строительства"
+  },
+  "buffering": "Буферизация...",
+  "@buffering": {
+    "description": "Сообщение о буферизации видеопотока"
   }
 }
