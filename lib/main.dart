@@ -6,6 +6,7 @@ import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 import 'core/config/app_config_simple.dart';
 import 'core/theme/app_theme.dart';
+import 'features/construction_stage/ui/screens/construction_site_screen.dart';
 import 'features/document_approval/ui/screens/document_detail_screen.dart';
 import 'features/document_approval/ui/screens/document_list_screen.dart';
 import 'features/project_selection/ui/screens/project_detail_screen.dart';
@@ -54,6 +55,13 @@ final _router = GoRouter(
       builder: (context, state) {
         final documentId = state.pathParameters['id']!;
         return DocumentDetailScreen(documentId: documentId);
+      },
+    ),
+    GoRoute(
+      path: '/construction/:projectId',
+      builder: (context, state) {
+        final projectId = state.pathParameters['projectId']!;
+        return ConstructionSiteScreen(projectId: projectId);
       },
     ),
   ],
