@@ -141,9 +141,15 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.camera.name)),
-      body: _hasError
-          ? _VideoErrorWidget(camera: widget.camera, l10n: l10n)
-          : _isInitialized && _controller != null
+      body: _hasError || (_controller?.value.hasError ?? false)
+          ? _VideoErrorWidget(
+              camera: widget.camera,
+              l10n: l10n,
+              errorDescription: _controller?.value.hasError == true
+                  ? _controller?.value.errorDescription
+                  : null,
+            )
+          : _isInitialized && _controller != null && _controller!.value.isInitialized
           ? _VideoPlayerWidget(
               controller: _controller!,
               onPlayPause: () {
