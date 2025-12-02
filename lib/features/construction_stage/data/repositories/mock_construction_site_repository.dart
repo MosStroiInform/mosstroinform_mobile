@@ -10,7 +10,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
   Future<ConstructionSite> getConstructionSiteByProjectId(
     String projectId,
   ) async {
-    debugPrint('=== MockConstructionSiteRepository.getConstructionSiteByProjectId ===');
+    debugPrint(
+      '=== MockConstructionSiteRepository.getConstructionSiteByProjectId ===',
+    );
     debugPrint('projectId: $projectId');
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -62,7 +64,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
     debugPrint('Название: ${site.projectName}');
     debugPrint('Камер: ${site.cameras.length}');
     for (var camera in site.cameras) {
-      debugPrint('  - ${camera.name}: ${camera.isActive ? "активна" : "неактивна"}');
+      debugPrint(
+        '  - ${camera.name}: ${camera.isActive ? "активна" : "неактивна"}',
+      );
     }
     return site;
   }

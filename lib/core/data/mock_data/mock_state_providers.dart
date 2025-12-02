@@ -1,8 +1,8 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:mosstroinform_mobile/features/document_approval/data/models/document_model.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/models/project_model.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mock_state_providers.g.dart';
 
@@ -23,10 +23,13 @@ class MockDocumentsState extends _$MockDocumentsState {
         'id': '1',
         'projectId': '1',
         'title': 'Проектная документация',
-        'description': 'Полный комплект проектной документации для строительства',
+        'description':
+            'Полный комплект проектной документации для строительства',
         'fileUrl': 'https://example.com/docs/project-docs.pdf',
         'status': 'under_review',
-        'submittedAt': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+        'submittedAt': DateTime.now()
+            .subtract(const Duration(days: 2))
+            .toIso8601String(),
         'approvedAt': null,
         'rejectionReason': null,
       },
@@ -37,8 +40,12 @@ class MockDocumentsState extends _$MockDocumentsState {
         'description': 'Официальное разрешение на начало строительных работ',
         'fileUrl': 'https://example.com/docs/building-permit.pdf',
         'status': 'approved',
-        'submittedAt': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
-        'approvedAt': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'submittedAt': DateTime.now()
+            .subtract(const Duration(days: 5))
+            .toIso8601String(),
+        'approvedAt': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
         'rejectionReason': null,
       },
       {
@@ -59,13 +66,17 @@ class MockDocumentsState extends _$MockDocumentsState {
         'description': 'Детальная смета расходов на строительные материалы',
         'fileUrl': 'https://example.com/docs/estimate.pdf',
         'status': 'rejected',
-        'submittedAt': DateTime.now().subtract(const Duration(days: 7)).toIso8601String(),
+        'submittedAt': DateTime.now()
+            .subtract(const Duration(days: 7))
+            .toIso8601String(),
         'approvedAt': null,
         'rejectionReason': 'Требуется уточнение цен на материалы',
       },
     ];
 
-    final models = mockData.map((json) => DocumentModel.fromJson(json)).toList();
+    final models = mockData
+        .map((json) => DocumentModel.fromJson(json))
+        .toList();
     return models.map((model) => model.toEntity()).toList();
   }
 
@@ -166,4 +177,3 @@ class MockProjectsState extends _$MockProjectsState {
     state = _getDefaultProjects();
   }
 }
-

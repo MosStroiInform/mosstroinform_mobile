@@ -72,9 +72,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         );
 
         // Получаем projectId из текущего документа
-        final currentDocument = ref.read(
-          documentNotifierProvider(documentId),
-        );
+        final currentDocument = ref.read(documentNotifierProvider(documentId));
         final projectId = currentDocument.maybeWhen(
           data: (doc) => doc?.projectId,
           orElse: () => null,
@@ -330,8 +328,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                 ],
 
                 // Кнопки действий
+                // Показываем кнопки для pending, underReview и rejected документов
+                // (rejected документы можно одобрить после исправлений)
                 if (document.status == DocumentStatus.pending ||
-                    document.status == DocumentStatus.underReview) ...[
+                    document.status == DocumentStatus.underReview ||
+                    document.status == DocumentStatus.rejected) ...[
                   Row(
                     children: [
                       Expanded(
