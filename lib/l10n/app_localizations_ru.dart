@@ -12,7 +12,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'Стройконтроль Онлайн';
 
   @override
-  String get projectsTitle => 'Объекты';
+  String get projectsTitle => 'Проекты';
 
   @override
   String get projectsNotFound => 'Проекты не найдены';
@@ -25,6 +25,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendConstructionRequest => 'Отправить запрос на строительство';
+
+  @override
+  String get requestConstruction => 'Запрос строительства';
 
   @override
   String get constructionRequestSent =>
@@ -369,4 +372,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get logoutTooltip => 'Выйти из системы';
+
+  @override
+  String get requestedProjectsTitle => 'Запрошенные проекты';
+
+  @override
+  String get requested => 'Запрошен';
+
+  @override
+  String get myObjectsTitle => 'Мои объекты';
+
+  @override
+  String get profileTitle => 'Профиль';
+
+  @override
+  String get searchProjects => 'Поиск проектов';
+
+  @override
+  String get searchHint => 'Введите название или адрес';
+
+  @override
+  String get noRequestedProjects => 'Нет запрошенных проектов';
+
+  @override
+  String get noMyObjects => 'У вас пока нет объектов';
 }

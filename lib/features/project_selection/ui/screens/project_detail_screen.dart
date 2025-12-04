@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/data/mock_data/requested_projects_state.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
-import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
-import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
-import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_stage_item.dart';
+// import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_stage_item.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран детального просмотра проекта
@@ -36,6 +35,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
     final l10n = AppLocalizations.of(context)!;
     final projectAsync = ref.watch(projectProvider);
     final theme = Theme.of(context);
+    final requestedIds = ref.watch(requestedProjectsStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -51,254 +51,273 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
 
               if (projectState == null) return const SizedBox.shrink();
 
-              // Проверяем, был ли уже отправлен запрос на строительство
-              final hasRequestBeenSent = projectState.stages.any(
-                (stage) => stage.status != StageStatus.pending,
-              );
-
-              // Проверяем, все ли документы одобрены
-              final allDocuments = ref.watch(documentsProvider);
-              final allApproved = allDocuments.maybeWhen(
-                data: (docs) =>
-                    docs.isNotEmpty &&
-                    docs.every((doc) => doc.status == DocumentStatus.approved),
-                orElse: () => false,
-              );
-
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Кнопка перехода к строительству (показывается если запрос отправлен и все документы одобрены)
-                  if (hasRequestBeenSent && allApproved)
-                    IconButton(
-                      icon: const Icon(Icons.construction),
-                      tooltip: l10n.toConstruction,
-                      onPressed: () {
-                        if (mounted) {
-                          context.push('/construction/${widget.projectId}');
-                        }
-                      },
-                    ),
-                  // Кнопка перехода к документам (показывается после отправки запроса)
-                  if (hasRequestBeenSent)
-                    IconButton(
-                      icon: const Icon(Icons.description),
-                      tooltip: l10n.toDocuments,
-                      onPressed: () {
-                        if (mounted) {
-                          context.push('/documents');
-                        }
-                      },
-                    ),
-                ],
-              );
+              // TODO: Проверять через ConstructionObjectRepository, существует ли объект для этого проекта
+              // TODO: Показывать кнопки навигации к объекту строительства
+              return const SizedBox.shrink();
             },
           ),
         ],
       ),
-      body: projectAsync.when(
-        data: (state) {
-          // Если проект не загружен и нет ошибки - это начальное состояние, показываем шиммер
-          if (state.project == null && state.error == null) {
-            return const ProjectDetailShimmer();
-          }
+      body: AppAnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: projectAsync.when(
+          data: (state) {
+            // Если проект не загружен и нет ошибки - это начальное состояние, показываем шиммер
+            if (state.project == null && state.error == null) {
+              return const ProjectDetailShimmer(key: ValueKey('shimmer'));
+            }
 
-          // Если проект не найден и есть ошибка - показываем ошибку
-          if (state.project == null) {
-            return Center(child: Text(l10n.projectNotFound));
-          }
+            // Если проект не найден и есть ошибка - показываем ошибку
+            if (state.project == null) {
+              return Center(
+                key: const ValueKey('error'),
+                child: Text(l10n.projectNotFound),
+              );
+            }
 
-          final project = state.project!;
+            final project = state.project!;
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Изображение проекта
-                if (project.imageUrl != null)
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.network(
-                      project.imageUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                  : null,
+            return SingleChildScrollView(
+              key: const ValueKey('content'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Изображение проекта
+                  if (project.imageUrl != null)
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Image.network(
+                        project.imageUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          }
+                          return Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        debugPrint('Ошибка загрузки изображения: $error');
-                        debugPrint('URL: ${project.imageUrl}');
-                        return Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(Icons.image_not_supported, size: 64),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          debugPrint('Ошибка загрузки изображения: $error');
+                          debugPrint('URL: ${project.imageUrl}');
+                          return Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: const Center(
+                              child: Icon(Icons.image_not_supported, size: 64),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: const Center(child: Icon(Icons.home, size: 64)),
+                      ),
                     ),
-                  )
-                else
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: const Center(child: Icon(Icons.home, size: 64)),
+
+                  // Информация о проекте
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Название и адрес
+                        Text(
+                          project.name,
+                          style: theme.textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          project.address,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Описание
+                        Text(
+                          project.description,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Характеристики
+                        _CharacteristicsSection(project: project),
+                        const SizedBox(height: 24),
+
+                        // Цена
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                l10n.price,
+                                style: theme.textTheme.titleLarge,
+                              ),
+                              Text(
+                                _formatPrice(project.price),
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
-                // Информация о проекте
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Название и адрес
-                      Text(project.name, style: theme.textTheme.headlineMedium),
-                      const SizedBox(height: 8),
-                      Text(
-                        project.address,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Описание
-                      Text(
-                        project.description,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Характеристики
-                      _CharacteristicsSection(project: project),
-                      const SizedBox(height: 24),
-
-                      // Этапы строительства
-                      Text(
-                        l10n.constructionStages,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      ...project.stages.map(
-                        (stage) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: ProjectStageItem(stage: stage),
-                        ),
-                      ),
-                    ],
+                ],
+              ),
+            );
+          },
+          loading: () => const ProjectDetailShimmer(),
+          error: (error, stack) {
+            final errorTheme = Theme.of(context);
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    '${l10n.error}: $error',
+                    style: errorTheme.textTheme.bodyLarge,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-        loading: () => const ProjectDetailShimmer(),
-        error: (error, stack) {
-          final errorTheme = Theme.of(context);
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(
-                  '${l10n.error}: $error',
-                  style: errorTheme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ref
-                        .read(projectProvider.notifier)
-                        .loadProject(widget.projectId);
-                  },
-                  child: Text(l10n.retry),
-                ),
-              ],
-            ),
-          );
-        },
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(projectProvider.notifier)
+                          .loadProject(widget.projectId);
+                    },
+                    child: Text(l10n.retry),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: projectAsync.when(
         data: (state) {
           if (state.project == null) return const SizedBox.shrink();
 
-          final project = state.project!;
+          // Проверяем, запрошен ли проект
+          final isRequested = requestedIds.contains(widget.projectId);
+          final isRequesting = state.isRequestingConstruction;
 
-          // Проверяем, был ли уже отправлен запрос на строительство
-          // Если хотя бы один этап имеет статус inProgress или completed,
-          // значит запрос уже был отправлен
-          final hasRequestBeenSent = project.stages.any(
-            (stage) => stage.status != StageStatus.pending,
-          );
+          return AppAnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: isRequested
+                ? const SizedBox.shrink(key: ValueKey('hidden'))
+                : SafeArea(
+                    key: const ValueKey('button'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Tooltip(
+                          message: l10n.sendConstructionRequest,
+                          child: ElevatedButton(
+                            onPressed: isRequesting
+                                ? null
+                                : () async {
+                                    AppLogger.debug(
+                                      'Нажата кнопка "Отправить запрос на строительство"',
+                                    );
+                                    AppLogger.debug(
+                                      'projectId: ${widget.projectId}',
+                                    );
+                                    final messenger = ScaffoldMessenger.of(
+                                      context,
+                                    );
 
-          // Не показываем кнопку, если запрос уже был отправлен
-          if (hasRequestBeenSent) {
-            return const SizedBox.shrink();
-          }
+                                    try {
+                                      await ref
+                                          .read(projectProvider.notifier)
+                                          .requestConstruction(
+                                            widget.projectId,
+                                          );
+                                      AppLogger.info(
+                                        'Запрос на строительство отправлен успешно',
+                                      );
 
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: state.isLoading
-                    ? null
-                    : () async {
-                        AppLogger.debug(
-                          'Нажата кнопка "Отправить запрос на строительство"',
-                        );
-                        AppLogger.debug('projectId: ${widget.projectId}');
-                        final l10n = AppLocalizations.of(context)!;
-                        final messenger = ScaffoldMessenger.of(context);
-
-                        try {
-                          await ref
-                              .read(projectProvider.notifier)
-                              .requestConstruction(widget.projectId);
-                          AppLogger.info(
-                            'Запрос на строительство отправлен успешно',
-                          );
-
-                          if (mounted) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.constructionRequestSent),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          AppLogger.error('Ошибка при отправке запроса', e);
-                          if (mounted) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text('${l10n.error}: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(l10n.sendConstructionRequest),
-              ),
-            ),
+                                      if (mounted) {
+                                        messenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              l10n.constructionRequestSent,
+                                            ),
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      AppLogger.error(
+                                        'Ошибка при отправке запроса',
+                                        e,
+                                      );
+                                      if (mounted) {
+                                        messenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text('${l10n.error}: $e'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: AppAnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: isRequesting
+                                  ? SizedBox(
+                                      key: const ValueKey('loading'),
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              theme.colorScheme.onPrimary,
+                                            ),
+                                      ),
+                                    )
+                                  : Text(
+                                      l10n.requestConstruction,
+                                      key: const ValueKey('text'),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
           );
         },
         loading: () => const SizedBox.shrink(),
@@ -323,6 +342,18 @@ class _CharacteristicsSection extends StatelessWidget {
 
   const _CharacteristicsSection({required this.project});
 
+  String _getBedroomsText(int bedrooms) {
+    if (bedrooms == 1) return 'спальня';
+    if (bedrooms >= 2 && bedrooms <= 4) return 'спальни';
+    return 'спален';
+  }
+
+  String _getBathroomsText(int bathrooms) {
+    if (bathrooms == 1) return 'ванная';
+    if (bathrooms >= 2 && bathrooms <= 4) return 'ванные';
+    return 'ванных';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -345,10 +376,17 @@ class _CharacteristicsSection extends StatelessWidget {
             ),
             const Divider(),
             _CharacteristicRow(
-              label: l10n.price,
+              label: 'Спальни',
               value:
-                  '${_ProjectDetailScreenState._formatPrice(project.price)} ₽',
-              icon: Icons.attach_money,
+                  '${project.bedrooms} ${_getBedroomsText(project.bedrooms)}',
+              icon: Icons.bed,
+            ),
+            const Divider(),
+            _CharacteristicRow(
+              label: 'Ванные',
+              value:
+                  '${project.bathrooms} ${_getBathroomsText(project.bathrooms)}',
+              icon: Icons.bathtub,
             ),
           ],
         ),

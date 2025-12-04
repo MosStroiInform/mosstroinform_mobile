@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// Заголовок экрана списка проектов
   ///
   /// In ru, this message translates to:
-  /// **'Объекты'**
+  /// **'Проекты'**
   String get projectsTitle;
 
   /// Сообщение когда проектов нет
@@ -129,6 +129,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отправить запрос на строительство'**
   String get sendConstructionRequest;
+
+  /// Короткий текст кнопки запроса строительства
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрос строительства'**
+  String get requestConstruction;
 
   /// Сообщение об успешной отправке запроса
   ///
@@ -795,6 +801,54 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Выйти из системы'**
   String get logoutTooltip;
+
+  /// Заголовок экрана запрошенных проектов
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрошенные проекты'**
+  String get requestedProjectsTitle;
+
+  /// No description provided for @requested.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрошен'**
+  String get requested;
+
+  /// Заголовок экрана моих объектов
+  ///
+  /// In ru, this message translates to:
+  /// **'Мои объекты'**
+  String get myObjectsTitle;
+
+  /// Заголовок экрана профиля
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль'**
+  String get profileTitle;
+
+  /// Заголовок поля поиска проектов
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск проектов'**
+  String get searchProjects;
+
+  /// Подсказка для поля поиска
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите название или адрес'**
+  String get searchHint;
+
+  /// Сообщение когда нет запрошенных проектов
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет запрошенных проектов'**
+  String get noRequestedProjects;
+
+  /// Сообщение когда нет объектов
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас пока нет объектов'**
+  String get noMyObjects;
 }
 
 class _AppLocalizationsDelegate

@@ -1,34 +1,21 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/providers/project_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'project_notifier.freezed.dart';
 part 'project_notifier.g.dart';
 
 /// Состояние списка проектов
-class ProjectsState {
-  final List<Project> projects;
-  final bool isLoading;
-  final Failure? error;
-
-  const ProjectsState({
-    required this.projects,
-    this.isLoading = false,
-    this.error,
-  });
-
-  ProjectsState copyWith({
-    List<Project>? projects,
-    bool? isLoading,
-    Failure? error,
-  }) {
-    return ProjectsState(
-      projects: projects ?? this.projects,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+@freezed
+abstract class ProjectsState with _$ProjectsState {
+  const factory ProjectsState({
+    required List<Project> projects,
+    @Default(false) bool isLoading,
+    @Default(null) Failure? error,
+  }) = _ProjectsState;
 }
 
 /// Notifier для управления состоянием списка проектов
@@ -41,14 +28,24 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 
   /// Загрузить список проектов
   Future<void> loadProjects() async {
+    if (!ref.mounted) return;
+    
     AppLogger.info('ProjectsNotifier.loadProjects: начинаем загрузку');
     state = const AsyncValue.loading();
+    
     try {
       final repository = ref.read(projectRepositoryProvider);
       AppLogger.info(
         'ProjectsNotifier.loadProjects: репозиторий получен, тип: ${repository.runtimeType}',
       );
+      
       final projects = await repository.getProjects();
+      
+      if (!ref.mounted) {
+        AppLogger.warning('ProjectsNotifier.loadProjects: провайдер disposed после загрузки проектов');
+        return;
+      }
+      
       AppLogger.info(
         'ProjectsNotifier.loadProjects: получено ${projects.length} проектов',
       );
@@ -56,18 +53,19 @@ class ProjectsNotifier extends _$ProjectsNotifier {
         ProjectsState(projects: projects, isLoading: false),
       );
     } on Failure catch (e) {
+      if (!ref.mounted) return;
       AppLogger.error('ProjectsNotifier.loadProjects: ошибка Failure: $e');
       state = AsyncValue.data(
-        ProjectsState(projects: [], isLoading: false, error: e),
+        const ProjectsState(projects: []).copyWith(isLoading: false, error: e),
       );
     } catch (e, stackTrace) {
+      if (!ref.mounted) return;
       AppLogger.error(
         'ProjectsNotifier.loadProjects: неизвестная ошибка: $e',
         stackTrace,
       );
       state = AsyncValue.data(
-        ProjectsState(
-          projects: [],
+        const ProjectsState(projects: []).copyWith(
           isLoading: false,
           error: UnknownFailure('Неизвестная ошибка: $e'),
         ),
@@ -77,20 +75,14 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 }
 
 /// Состояние проекта
-class ProjectState {
-  final Project? project;
-  final bool isLoading;
-  final Failure? error;
-
-  const ProjectState({this.project, this.isLoading = false, this.error});
-
-  ProjectState copyWith({Project? project, bool? isLoading, Failure? error}) {
-    return ProjectState(
-      project: project ?? this.project,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+@freezed
+abstract class ProjectState with _$ProjectState {
+  const factory ProjectState({
+    @Default(null) Project? project,
+    @Default(false) bool isLoading,
+    @Default(false) bool isRequestingConstruction,
+    @Default(null) Failure? error,
+  }) = _ProjectState;
 }
 
 /// Notifier для управления состоянием конкретного проекта
@@ -103,16 +95,23 @@ class ProjectNotifier extends _$ProjectNotifier {
 
   /// Загрузить проект по ID
   Future<void> loadProject(String id) async {
+    if (!ref.mounted) return;
+    
     state = const AsyncValue.loading();
     try {
       final repository = ref.read(projectRepositoryProvider);
       final project = await repository.getProjectById(id);
+      
+      if (!ref.mounted) return;
+      
       state = AsyncValue.data(ProjectState(project: project, isLoading: false));
     } on Failure catch (e) {
-      state = AsyncValue.data(ProjectState(isLoading: false, error: e));
+      if (!ref.mounted) return;
+      state = AsyncValue.data(const ProjectState().copyWith(isLoading: false, error: e));
     } catch (e) {
+      if (!ref.mounted) return;
       state = AsyncValue.data(
-        ProjectState(
+        const ProjectState().copyWith(
           isLoading: false,
           error: UnknownFailure('Неизвестная ошибка: $e'),
         ),
@@ -122,22 +121,54 @@ class ProjectNotifier extends _$ProjectNotifier {
 
   /// Отправить запрос на строительство
   Future<void> requestConstruction(String projectId) async {
+    if (!ref.mounted) return;
+    
+    // Устанавливаем состояние загрузки запроса
+    final currentState = state.value;
+    state = AsyncValue.data(
+      currentState?.copyWith(
+        isLoading: false,
+        isRequestingConstruction: true,
+        error: null,
+      ) ?? const ProjectState(isRequestingConstruction: true),
+    );
+    
     try {
       final repository = ref.read(projectRepositoryProvider);
       await repository.requestConstruction(projectId);
-      // Перезагружаем проект после отправки запроса
-      await loadProject(projectId);
-    } on Failure catch (e) {
+      
+      if (!ref.mounted) return;
+      
+      // Обновляем состояние: запрос завершен, проект остается тем же
       state = AsyncValue.data(
-        ProjectState(project: state.value?.project, isLoading: false, error: e),
+        currentState?.copyWith(
+          isLoading: false,
+          isRequestingConstruction: false,
+          error: null,
+        ) ?? const ProjectState(),
+      );
+      
+      // Обновляем список проектов, чтобы карточки обновились со статусом
+      if (ref.mounted) {
+        ref.read(projectsProvider.notifier).loadProjects();
+      }
+    } on Failure catch (e) {
+      if (!ref.mounted) return;
+      state = AsyncValue.data(
+        currentState?.copyWith(
+          isLoading: false,
+          isRequestingConstruction: false,
+          error: e,
+        ) ?? ProjectState(error: e),
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = AsyncValue.data(
-        ProjectState(
-          project: state.value?.project,
+        currentState?.copyWith(
           isLoading: false,
+          isRequestingConstruction: false,
           error: UnknownFailure('Неизвестная ошибка: $e'),
-        ),
+        ) ?? ProjectState(error: UnknownFailure('Неизвестная ошибка: $e')),
       );
     }
   }

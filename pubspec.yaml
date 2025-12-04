@@ -38,9 +38,14 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
   shimmer: ^3.0.0
+  sliver_tools: ^0.2.12
 
   # Secure Storage
   flutter_secure_storage: ^9.2.2
+
+  # Logger
+  logger:
+    path: packages/logger
 
 dev_dependencies:
   flutter_test:
@@ -68,3 +73,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
+workspace:
+  - packages/logger

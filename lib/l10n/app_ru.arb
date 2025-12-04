@@ -5,7 +5,7 @@
     "description": "Название приложения"
   },
   
-  "projectsTitle": "Объекты",
+  "projectsTitle": "Проекты",
   "@projectsTitle": {
     "description": "Заголовок экрана списка проектов"
   },
@@ -24,6 +24,10 @@
   "sendConstructionRequest": "Отправить запрос на строительство",
   "@sendConstructionRequest": {
     "description": "Кнопка отправки запроса на строительство"
+  },
+  "requestConstruction": "Запрос строительства",
+  "@requestConstruction": {
+    "description": "Короткий текст кнопки запроса строительства"
   },
   "constructionRequestSent": "Запрос на строительство успешно отправлен",
   "@constructionRequestSent": {
@@ -500,5 +504,34 @@
   "logoutTooltip": "Выйти из системы",
   "@logoutTooltip": {
     "description": "Подсказка для кнопки выхода"
+  },
+  "requestedProjectsTitle": "Запрошенные проекты",
+  "requested": "Запрошен",
+  "@requestedProjectsTitle": {
+    "description": "Заголовок экрана запрошенных проектов"
+  },
+  "myObjectsTitle": "Мои объекты",
+  "@myObjectsTitle": {
+    "description": "Заголовок экрана моих объектов"
+  },
+  "profileTitle": "Профиль",
+  "@profileTitle": {
+    "description": "Заголовок экрана профиля"
+  },
+  "searchProjects": "Поиск проектов",
+  "@searchProjects": {
+    "description": "Заголовок поля поиска проектов"
+  },
+  "searchHint": "Введите название или адрес",
+  "@searchHint": {
+    "description": "Подсказка для поля поиска"
+  },
+  "noRequestedProjects": "Нет запрошенных проектов",
+  "@noRequestedProjects": {
+    "description": "Сообщение когда нет запрошенных проектов"
+  },
+  "noMyObjects": "У вас пока нет объектов",
+  "@noMyObjects": {
+    "description": "Сообщение когда нет объектов"
   }
 }

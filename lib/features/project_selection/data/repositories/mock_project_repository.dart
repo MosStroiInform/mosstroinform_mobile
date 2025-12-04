@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mosstroinform_mobile/core/data/mock_data/mock_state_providers.dart';
+import 'package:mosstroinform_mobile/core/data/mock_data/projects_mock_data.dart';
+import 'package:mosstroinform_mobile/core/data/mock_data/requested_projects_state.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/models/project_model.dart';
@@ -16,72 +17,35 @@ class MockProjectRepository implements ProjectRepository {
 
   @override
   Future<List<Project>> getProjects() async {
+    // Получаем список запрошенных проектов ДО await, чтобы избежать disposed ошибок
+    if (!ref.mounted) {
+      AppLogger.warning('MockProjectRepository.getProjects: ref disposed, возвращаем пустой список');
+      return [];
+    }
+    final requestedProjects = ref.read(requestedProjectsStateProvider);
+    
     // Симуляция задержки сети
     await Future.delayed(const Duration(milliseconds: 500));
 
+    // Проверяем, что ref все еще mounted после await
+    if (!ref.mounted) {
+      AppLogger.warning('MockProjectRepository.getProjects: ref disposed после await, возвращаем пустой список');
+      return [];
+    }
+    
     // Всегда используем данные напрямую из мок-данных
-    // Не используем провайдер здесь, так как он может быть disposed к моменту асинхронного вызова
-    final mockData = [
-      {
-        'id': '1',
-        'name': 'Частный жилой дом',
-        'address': 'ул. Лесная, 15',
-        'description': 'Двухэтажный дом площадью 150 кв.м с гаражом',
-        'area': 150.0,
-        'floors': 2,
-        'price': 8500000,
-        'imageUrl':
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-        'stages': [
-          {'id': '1', 'name': 'Подготовительные работы', 'status': 'completed'},
-          {'id': '2', 'name': 'Фундамент', 'status': 'in_progress'},
-          {'id': '3', 'name': 'Возведение стен', 'status': 'pending'},
-          {'id': '4', 'name': 'Кровля', 'status': 'pending'},
-        ],
-      },
-      {
-        'id': '2',
-        'name': 'Дачный дом',
-        'address': 'с. Луговое, 3',
-        'description': 'Одноэтажный дачный дом площадью 80 кв.м',
-        'area': 80.0,
-        'floors': 1,
-        'price': 4200000,
-        'imageUrl':
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-        'stages': [
-          {'id': '1', 'name': 'Подготовительные работы', 'status': 'completed'},
-          {'id': '2', 'name': 'Фундамент', 'status': 'completed'},
-          {'id': '3', 'name': 'Возведение стен', 'status': 'in_progress'},
-          {'id': '4', 'name': 'Кровля', 'status': 'pending'},
-        ],
-      },
-      {
-        'id': '3',
-        'name': 'Коттедж с мансардой',
-        'address': 'ул. Садовая, 42',
-        'description': 'Дом с мансардой площадью 180 кв.м',
-        'area': 180.0,
-        'floors': 2,
-        'price': 12000000,
-        'imageUrl':
-            'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-        'stages': [
-          {'id': '1', 'name': 'Подготовительные работы', 'status': 'completed'},
-          {'id': '2', 'name': 'Фундамент', 'status': 'completed'},
-          {'id': '3', 'name': 'Возведение стен', 'status': 'completed'},
-          {'id': '4', 'name': 'Кровля', 'status': 'in_progress'},
-        ],
-      },
-    ];
+    final mockData = ProjectsMockData.projects;
 
     // Создаем проекты напрямую из мок-данных
+    // НЕ фильтруем запрошенные - они остаются в списке со статусом
     final models = mockData.map((json) => ProjectModel.fromJson(json)).toList();
-    final projects = models.map((model) => model.toEntity()).toList();
+    final allProjects = models.map((model) => model.toEntity()).toList();
+    
     AppLogger.info(
-      'MockProjectRepository.getProjects: создано ${projects.length} проектов из мок-данных',
+      'MockProjectRepository.getProjects: создано ${allProjects.length} проектов, '
+      'запрошено ${requestedProjects.length}',
     );
-    return Future.value(projects);
+    return allProjects;
   }
 
   @override
@@ -89,71 +53,44 @@ class MockProjectRepository implements ProjectRepository {
     // Симуляция задержки сети
     await Future.delayed(const Duration(milliseconds: 300));
 
-    final projects = await getProjects();
-    try {
-      final project = projects.firstWhere((p) => p.id == id);
-      return project;
-    } catch (e) {
-      throw UnknownFailure('Проект с ID $id не найден');
+    if (!ref.mounted) {
+      throw UnknownFailure('Провайдер disposed');
     }
+
+    // Получаем проект напрямую из мок-данных, не через getProjects()
+    // чтобы избежать проблем с фильтрацией
+    final mockData = ProjectsMockData.projects;
+    final projectData = mockData.firstWhere(
+      (json) => json['id'] == id,
+      orElse: () => throw UnknownFailure('Проект с ID $id не найден'),
+    );
+    
+    final model = ProjectModel.fromJson(projectData);
+    return model.toEntity();
   }
 
   @override
   Future<void> requestConstruction(String projectId) async {
+    // Проверяем mounted ДО await
+    if (!ref.mounted) {
+      AppLogger.warning('MockProjectRepository.requestConstruction: ref disposed, пропускаем запрос');
+      return;
+    }
+    
     // Симуляция задержки сети
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Обновляем состояние проекта: переводим первый этап в статус inProgress
-    final projects = await getProjects();
-    final projectIndex = projects.indexWhere((p) => p.id == projectId);
-
-    if (projectIndex != -1) {
-      final project = projects[projectIndex];
-
-      // Проверяем, что еще не был отправлен запрос (все этапы в pending)
-      final allPending = project.stages.every(
-        (stage) => stage.status == StageStatus.pending,
+    // Добавляем проект в список запрошенных
+    if (ref.mounted) {
+      ref.read(requestedProjectsStateProvider.notifier).addRequestedProject(projectId);
+      AppLogger.info(
+        'MockProjectRepository.requestConstruction: проект $projectId добавлен в запрошенные',
       );
-
-      if (allPending && project.stages.isNotEmpty) {
-        // Обновляем первый этап на inProgress
-        final updatedStages = [
-          ConstructionStage(
-            id: project.stages.first.id,
-            name: project.stages.first.name,
-            status: StageStatus.inProgress,
-          ),
-          ...project.stages.skip(1),
-        ];
-
-        final updatedProject = Project(
-          id: project.id,
-          name: project.name,
-          address: project.address,
-          description: project.description,
-          area: project.area,
-          floors: project.floors,
-          price: project.price,
-          imageUrl: project.imageUrl,
-          stages: updatedStages,
-        );
-
-        // Обновляем состояние через провайдер (если он еще не disposed)
-        try {
-          if (ref.mounted) {
-            ref
-                .read(mockProjectsStateProvider.notifier)
-                .updateProject(updatedProject);
-            AppLogger.info(
-              'MockProjectRepository.requestConstruction: проект обновлен через провайдер',
-            );
-          }
-        } catch (e) {
-          AppLogger.info(
-            'MockProjectRepository.requestConstruction: не удалось обновить через провайдер: $e',
-          );
-        }
-      }
+    } else {
+      AppLogger.warning('MockProjectRepository.requestConstruction: ref disposed после await, пропускаем добавление');
     }
+    
+    // TODO: Реализовать создание объекта строительства через ConstructionObjectRepository
+    // При запросе проекта должен создаваться объект с начальными этапами
   }
 }
