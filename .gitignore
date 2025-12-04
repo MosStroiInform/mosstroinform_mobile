@@ -49,3 +49,6 @@ app.*.map.json
 .env.staging
 .env.prod
 .env*.local
+
+# Working documentation (internal use only)
+xtemp/

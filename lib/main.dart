@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/features/auth/notifier/auth_notifier.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 import 'core/config/app_config_simple.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/notifier/auth_notifier.dart';
+import 'features/auth/ui/screens/login_screen.dart';
+import 'features/auth/ui/screens/register_screen.dart';
 import 'features/chat/ui/screens/chat_detail_screen.dart';
 import 'features/chat/ui/screens/chat_list_screen.dart';
 import 'features/construction_completion/ui/screens/completion_status_screen.dart';
@@ -33,74 +37,124 @@ void main() {
   runApp(ProviderScope(child: MosstroinformApp(config: config)));
 }
 
-/// Роутер приложения
-final _router = GoRouter(
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => const ProjectListScreen()),
-    GoRoute(
-      path: '/projects/:id',
-      builder: (context, state) {
-        final projectId = state.pathParameters['id']!;
-        return ProjectDetailScreen(projectId: projectId);
-      },
-    ),
-    GoRoute(
-      path: '/documents',
-      builder: (context, state) => const DocumentListScreen(),
-    ),
-    GoRoute(
-      path: '/documents/:id',
-      builder: (context, state) {
-        final documentId = state.pathParameters['id']!;
-        return DocumentDetailScreen(documentId: documentId);
-      },
-    ),
-    GoRoute(
-      path: '/construction/:projectId',
-      builder: (context, state) {
-        final projectId = state.pathParameters['projectId']!;
-        return ConstructionSiteScreen(projectId: projectId);
-      },
-    ),
-    GoRoute(
-      path: '/completion/:projectId',
-      builder: (context, state) {
-        final projectId = state.pathParameters['projectId']!;
-        return CompletionStatusScreen(projectId: projectId);
-      },
-    ),
-    GoRoute(
-      path: '/completion/:projectId/documents/:documentId',
-      builder: (context, state) {
-        final projectId = state.pathParameters['projectId']!;
-        final documentId = state.pathParameters['documentId']!;
-        return FinalDocumentDetailScreen(
-          projectId: projectId,
-          documentId: documentId,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/chats',
-      builder: (context, state) => const ChatListScreen(),
-    ),
-    GoRoute(
-      path: '/chats/:chatId',
-      builder: (context, state) {
-        final chatId = state.pathParameters['chatId']!;
-        return ChatDetailScreen(chatId: chatId);
-      },
-    ),
-  ],
-);
+/// Провайдер роутера с защитой роутов
+/// Использует ref.watch для отслеживания изменений авторизации
+final routerProvider = Provider<GoRouter>((ref) {
+  // Подписываемся на изменения авторизации, чтобы роутер пересоздавался при изменении
+  final authState = ref.watch(authProvider);
+  
+  AppLogger.info(
+    'RouterProvider.build: создание роутера, '
+    'authState.isLoading=${authState.isLoading}, '
+    'authState.hasValue=${authState.hasValue}, '
+    'isAuthenticated=${authState.value?.isAuthenticated ?? false}',
+  );
+  
+  return GoRouter(
+    redirect: (context, state) {
+      // Используем текущее значение из замыкания
+      final isAuthenticated = authState.value?.isAuthenticated ?? false;
+      final isLoginRoute = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+      
+      AppLogger.info(
+        'Router.redirect: matchedLocation=${state.matchedLocation}, '
+        'isAuthenticated=$isAuthenticated, isLoginRoute=$isLoginRoute, '
+        'authState.hasValue=${authState.hasValue}',
+      );
 
-class MosstroinformApp extends StatelessWidget {
+      // Если пользователь не авторизован и пытается попасть на защищённый роут
+      if (!isAuthenticated && !isLoginRoute) {
+        AppLogger.info('Router.redirect: не авторизован, редирект на /login');
+        return '/login';
+      }
+
+      // Если пользователь авторизован и пытается попасть на страницу входа
+      if (isAuthenticated && isLoginRoute) {
+        AppLogger.info('Router.redirect: авторизован на странице входа, редирект на /');
+        return '/';
+      }
+
+      AppLogger.info('Router.redirect: разрешена навигация на ${state.matchedLocation}');
+      return null; // Разрешаем навигацию
+    },
+    routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(path: '/', builder: (context, state) => const ProjectListScreen()),
+      GoRoute(
+        path: '/projects/:id',
+        builder: (context, state) {
+          final projectId = state.pathParameters['id']!;
+          return ProjectDetailScreen(projectId: projectId);
+        },
+      ),
+      GoRoute(
+        path: '/documents',
+        builder: (context, state) => const DocumentListScreen(),
+      ),
+      GoRoute(
+        path: '/documents/:id',
+        builder: (context, state) {
+          final documentId = state.pathParameters['id']!;
+          return DocumentDetailScreen(documentId: documentId);
+        },
+      ),
+      GoRoute(
+        path: '/construction/:projectId',
+        builder: (context, state) {
+          final projectId = state.pathParameters['projectId']!;
+          return ConstructionSiteScreen(projectId: projectId);
+        },
+      ),
+      GoRoute(
+        path: '/completion/:projectId',
+        builder: (context, state) {
+          final projectId = state.pathParameters['projectId']!;
+          return CompletionStatusScreen(projectId: projectId);
+        },
+      ),
+      GoRoute(
+        path: '/completion/:projectId/documents/:documentId',
+        builder: (context, state) {
+          final projectId = state.pathParameters['projectId']!;
+          final documentId = state.pathParameters['documentId']!;
+          return FinalDocumentDetailScreen(
+            projectId: projectId,
+            documentId: documentId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/chats',
+        builder: (context, state) => const ChatListScreen(),
+      ),
+      GoRoute(
+        path: '/chats/:chatId',
+        builder: (context, state) {
+          final chatId = state.pathParameters['chatId']!;
+          return ChatDetailScreen(chatId: chatId);
+        },
+      ),
+    ],
+  );
+});
+
+class MosstroinformApp extends ConsumerWidget {
   final AppConfigSimple config;
 
   const MosstroinformApp({super.key, required this.config});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    
     return MaterialApp.router(
       title: config.environmentName == 'Production'
           ? 'Стройконтроль Онлайн'
@@ -114,7 +168,7 @@ class MosstroinformApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('ru', '')],
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
