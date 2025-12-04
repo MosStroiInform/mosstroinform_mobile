@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'document_repository_provider.dart';
+part of 'construction_object_repository_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,67 +8,68 @@ part of 'document_repository_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Провайдер для репозитория документов
+/// Провайдер для репозитория объектов строительства
 /// Возвращает интерфейс, а не имплементацию
 /// Использует моковый репозиторий если включены моки, иначе реальный
 /// Находится в domain слое, так как предоставляет доступ к интерфейсу репозитория
 /// keepAlive: true - репозиторий не должен быть disposed при перестроении виджетов
 
-@ProviderFor(documentRepository)
-const documentRepositoryProvider = DocumentRepositoryProvider._();
+@ProviderFor(constructionObjectRepository)
+const constructionObjectRepositoryProvider =
+    ConstructionObjectRepositoryProvider._();
 
-/// Провайдер для репозитория документов
+/// Провайдер для репозитория объектов строительства
 /// Возвращает интерфейс, а не имплементацию
 /// Использует моковый репозиторий если включены моки, иначе реальный
 /// Находится в domain слое, так как предоставляет доступ к интерфейсу репозитория
 /// keepAlive: true - репозиторий не должен быть disposed при перестроении виджетов
 
-final class DocumentRepositoryProvider
+final class ConstructionObjectRepositoryProvider
     extends
         $FunctionalProvider<
-          DocumentRepository,
-          DocumentRepository,
-          DocumentRepository
+          ConstructionObjectRepository,
+          ConstructionObjectRepository,
+          ConstructionObjectRepository
         >
-    with $Provider<DocumentRepository> {
-  /// Провайдер для репозитория документов
+    with $Provider<ConstructionObjectRepository> {
+  /// Провайдер для репозитория объектов строительства
   /// Возвращает интерфейс, а не имплементацию
   /// Использует моковый репозиторий если включены моки, иначе реальный
   /// Находится в domain слое, так как предоставляет доступ к интерфейсу репозитория
   /// keepAlive: true - репозиторий не должен быть disposed при перестроении виджетов
-  const DocumentRepositoryProvider._()
+  const ConstructionObjectRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'documentRepositoryProvider',
+        name: r'constructionObjectRepositoryProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$documentRepositoryHash();
+  String debugGetCreateSourceHash() => _$constructionObjectRepositoryHash();
 
   @$internal
   @override
-  $ProviderElement<DocumentRepository> $createElement(
+  $ProviderElement<ConstructionObjectRepository> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  DocumentRepository create(Ref ref) {
-    return documentRepository(ref);
+  ConstructionObjectRepository create(Ref ref) {
+    return constructionObjectRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(DocumentRepository value) {
+  Override overrideWithValue(ConstructionObjectRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<DocumentRepository>(value),
+      providerOverride: $SyncValueProvider<ConstructionObjectRepository>(value),
     );
   }
 }
 
-String _$documentRepositoryHash() =>
-    r'5704502d20a26bc5d6350ed236294f8981380f7e';
+String _$constructionObjectRepositoryHash() =>
+    r'f7e122b2ff7b26d095048d9c336fef71e0bb4790';
