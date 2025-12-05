@@ -12,9 +12,9 @@ import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран строительной площадки с камерами
 class ConstructionSiteScreen extends ConsumerStatefulWidget {
-  final String projectId;
+  final String objectId;
 
-  const ConstructionSiteScreen({super.key, required this.projectId});
+  const ConstructionSiteScreen({super.key, required this.objectId});
 
   @override
   ConsumerState<ConstructionSiteScreen> createState() =>
@@ -27,11 +27,11 @@ class _ConstructionSiteScreenState
   void initState() {
     super.initState();
     AppLogger.debug('ConstructionSiteScreen.initState');
-    AppLogger.debug('projectId: ${widget.projectId}');
+    AppLogger.debug('objectId: ${widget.objectId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppLogger.debug('ConstructionSiteScreen: загружаем площадку');
       ref
-          .read(constructionSiteProvider(widget.projectId).notifier)
+          .read(constructionSiteProvider(widget.objectId).notifier)
           .loadConstructionSite();
     });
   }
@@ -39,35 +39,55 @@ class _ConstructionSiteScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final siteAsync = ref.watch(constructionSiteProvider(widget.projectId));
+    final siteAsync = ref.watch(constructionSiteProvider(widget.objectId));
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.constructionStage),
         actions: [
-          // Кнопка перехода к проекту
-          IconButton(
-            icon: const Icon(Icons.home),
-            tooltip: l10n.projectDetails,
-            onPressed: () {
-              context.push('/projects/${widget.projectId}');
-            },
-          ),
-          // Кнопка перехода к завершению строительства
-          IconButton(
-            icon: const Icon(Icons.check_circle_outline),
-            tooltip: l10n.completionTooltip,
-            onPressed: () {
-              context.push('/completion/${widget.projectId}');
-            },
-          ),
-          // Кнопка перехода к чату объекта
-          IconButton(
-            icon: const Icon(Icons.chat_bubble_outline),
-            tooltip: l10n.chatTooltip,
-            onPressed: () {
-              context.push('/construction/${widget.projectId}/chat');
+          // Кнопки навигации (projectId получаем из загруженного объекта)
+          Builder(
+            builder: (context) {
+              final siteState = siteAsync.maybeWhen(
+                data: (state) => state.site,
+                orElse: () => null,
+              );
+              final projectId = siteState?.projectId;
+              
+              if (projectId == null) {
+                return const SizedBox.shrink();
+              }
+              
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Кнопка перехода к проекту
+                  IconButton(
+                    icon: const Icon(Icons.home),
+                    tooltip: l10n.projectDetails,
+                    onPressed: () {
+                      context.push('/projects/$projectId');
+                    },
+                  ),
+                  // Кнопка перехода к завершению строительства
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_outline),
+                    tooltip: l10n.completionTooltip,
+                    onPressed: () {
+                      context.push('/completion/$projectId');
+                    },
+                  ),
+                  // Кнопка перехода к чату объекта
+                  IconButton(
+                    icon: const Icon(Icons.chat_bubble_outline),
+                    tooltip: l10n.chatTooltip,
+                    onPressed: () {
+                      context.push('/construction/$projectId/chat');
+                    },
+                  ),
+                ],
+              );
             },
           ),
         ],
@@ -254,7 +274,7 @@ class _ConstructionSiteScreenState
               ElevatedButton(
                 onPressed: () {
                   ref
-                      .read(constructionSiteProvider(widget.projectId).notifier)
+                      .read(constructionSiteProvider(widget.objectId).notifier)
                       .loadConstructionSite();
                 },
                 child: Text(l10n.retry),

@@ -211,19 +211,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.documentTitle),
-        actions: [
-          // Кнопка перехода к стройке (показывается когда все документы одобрены)
-          if (allApproved && projectId != null)
-            IconButton(
-              icon: const Icon(Icons.construction),
-              tooltip: l10n.toConstruction,
-              onPressed: () {
-                if (mounted) {
-                  context.push('/construction/$projectId');
-                }
-              },
-            ),
-        ],
       ),
       body: documentAsync.when(
         data: (document) {

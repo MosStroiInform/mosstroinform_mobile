@@ -31,18 +31,19 @@ class ConstructionSiteState {
 @riverpod
 class ConstructionSiteNotifier extends _$ConstructionSiteNotifier {
   @override
-  Future<ConstructionSiteState> build(String projectId) async {
+  Future<ConstructionSiteState> build(String objectId) async {
     return const ConstructionSiteState();
   }
 
   /// Загрузить информацию о строительной площадке
   Future<void> loadConstructionSite() async {
     debugPrint('=== ConstructionSiteNotifier.loadConstructionSite ===');
-    debugPrint('projectId: $projectId');
+    final objectId = this.objectId;
+    debugPrint('objectId: $objectId');
     state = const AsyncValue.loading();
     try {
       final repository = ref.read(constructionSiteRepositoryProvider);
-      final site = await repository.getConstructionSiteByProjectId(projectId);
+      final site = await repository.getConstructionSiteByObjectId(objectId);
       state = AsyncValue.data(
         ConstructionSiteState(site: site, isLoading: false),
       );

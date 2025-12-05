@@ -19,7 +19,7 @@ ConstructionSiteRepository constructionSiteRepository(Ref ref) {
   debugPrint('useMocks: ${config.useMocks}');
   if (config.useMocks) {
     debugPrint('Используем MockConstructionSiteRepository');
-    return MockConstructionSiteRepository();
+    return MockConstructionSiteRepository(ref);
   }
   debugPrint('Используем ConstructionSiteRepositoryImpl');
   final remoteDataSource = ref.watch(constructionSiteRemoteDataSourceProvider);

@@ -64,9 +64,8 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                   icon: const Icon(Icons.construction),
                   tooltip: l10n.toConstruction,
                   onPressed: () {
-                    // Навигация к объекту строительства по projectId
-                    // (роутер использует projectId для поиска объекта)
-                    context.push('/construction/${projectState.id}');
+                    // Навигация к объекту строительства по objectId
+                    context.push('/construction/${projectState.objectId}');
                   },
                 );
               }

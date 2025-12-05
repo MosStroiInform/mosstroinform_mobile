@@ -72,8 +72,8 @@ class MyObjectsScreen extends ConsumerWidget {
                     child: ConstructionObjectCard(
                       object: object,
                       onTap: () {
-                        // Переход на страницу объекта (строительной площадки)
-                        context.push('/construction/${object.projectId}');
+                        // Переход на страницу объекта (строительной площадки) по objectId
+                        context.push('/construction/${object.id}');
                       },
                     ),
                   );

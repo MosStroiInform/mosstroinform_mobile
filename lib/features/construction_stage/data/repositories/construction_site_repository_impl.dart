@@ -11,6 +11,19 @@ class ConstructionSiteRepositoryImpl implements ConstructionSiteRepository {
   ConstructionSiteRepositoryImpl({required this.remoteDataSource});
 
   @override
+  Future<ConstructionSite> getConstructionSiteByObjectId(
+    String objectId,
+  ) async {
+    return guard(() async {
+      final model = await remoteDataSource.getConstructionSiteByObjectId(
+        objectId,
+      );
+      return model.toEntity();
+    }, methodName: 'getConstructionSiteByObjectId');
+  }
+
+  @override
+  @Deprecated('Используйте getConstructionSiteByObjectId')
   Future<ConstructionSite> getConstructionSiteByProjectId(
     String projectId,
   ) async {

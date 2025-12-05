@@ -128,10 +128,10 @@ GoRouter router(Ref ref) {
             },
           ),
           GoRoute(
-            path: '/construction/:projectId',
+            path: '/construction/:objectId',
             builder: (context, state) {
-              final projectId = state.pathParameters['projectId']!;
-              return ConstructionSiteScreen(projectId: projectId);
+              final objectId = state.pathParameters['objectId']!;
+              return ConstructionSiteScreen(objectId: objectId);
             },
           ),
           GoRoute(
