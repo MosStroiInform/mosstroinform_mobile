@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
+import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
@@ -66,10 +68,9 @@ class _FinalDocumentDetailScreenState
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.error}: $e'),
+            content: Text(e.toLocalizedMessage(context)),
             backgroundColor: Colors.red,
           ),
         );
@@ -92,21 +93,32 @@ class _FinalDocumentDetailScreenState
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.finalDocument)),
-      body: documentAsync.when(
-        data: (state) {
-          // Если документ не загружен и нет ошибки - это начальное состояние, показываем шиммер
-          if (state.document == null && state.error == null) {
-            return const DocumentDetailShimmer();
-          }
+      body: AppAnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: documentAsync.when(
+          data: (state) {
+            // Если документ не загружен и нет ошибки - это начальное состояние, показываем шиммер
+            if (state.document == null && state.error == null && !state.isLoading) {
+              return const DocumentDetailShimmer(key: ValueKey('shimmer'));
+            }
 
-          // Если документ не найден и есть ошибка - показываем ошибку
-          if (state.document == null) {
-            return Center(child: Text(l10n.finalDocumentNotFound));
-          }
+            // Если документ не найден и есть ошибка - показываем ошибку
+            if (state.document == null && state.error != null) {
+              return Center(
+                key: const ValueKey('error'),
+                child: Text(l10n.finalDocumentNotFound),
+              );
+            }
 
-          final document = state.document!;
+            // Если документ не загружен, но идет загрузка - показываем предыдущие данные или шиммер
+            if (state.document == null) {
+              return const DocumentDetailShimmer(key: ValueKey('shimmer'));
+            }
 
-          return SingleChildScrollView(
+            final document = state.document!;
+
+            return SingleChildScrollView(
+              key: const ValueKey('content'),
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,22 +229,35 @@ class _FinalDocumentDetailScreenState
                 ],
 
                 // Кнопка подписания
-                if (document.status == FinalDocumentStatus.pending) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: _isProcessing ? null : _handleSign,
-                      icon: _isProcessing
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.edit),
-                      label: Text(l10n.signDocument),
-                    ),
-                  ),
-                ],
+                Builder(
+                  builder: (context) {
+                    // Получаем статус завершения строительства
+                    final completionStatusAsync = ref.watch(
+                      completionStatusProvider(widget.projectId),
+                    );
+                    final isCompleted =
+                        completionStatusAsync.value?.status?.isCompleted ?? false;
+
+                    if (document.status == FinalDocumentStatus.pending &&
+                        !isCompleted) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: _isProcessing ? null : _handleSign,
+                          icon: _isProcessing
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.edit),
+                          label: Text(l10n.signDocument),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           );
@@ -250,7 +275,7 @@ class _FinalDocumentDetailScreenState
               ),
               const SizedBox(height: 8),
               Text(
-                error.toString(),
+                error.toLocalizedMessage(context),
                 style: theme.textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
@@ -271,6 +296,7 @@ class _FinalDocumentDetailScreenState
             ],
           ),
         ),
+      ),
       ),
     );
   }

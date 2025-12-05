@@ -1,4 +1,4 @@
-import 'package:mosstroinform_mobile/core/errors/failures.dart';
+import 'package:mosstroinform_mobile/core/utils/extensions/error_guard_extension.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/models/project_model.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/datasources/project_remote_data_source.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
@@ -11,37 +11,52 @@ class ProjectRepositoryImpl implements ProjectRepository {
   ProjectRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<Project>> getProjects() async {
-    try {
-      final models = await remoteDataSource.getProjects();
+  Future<List<Project>> getProjects({int? page, int? limit}) async {
+    return guard(() async {
+      final models = await remoteDataSource.getProjects(page: page, limit: limit);
       return models.map((model) => model.toEntity()).toList();
-    } on Failure {
-      rethrow;
-    } catch (e) {
-      throw UnknownFailure('Ошибка при получении проектов: $e');
-    }
+    }, methodName: 'getProjects');
   }
 
   @override
   Future<Project> getProjectById(String id) async {
-    try {
+    return guard(() async {
       final model = await remoteDataSource.getProjectById(id);
       return model.toEntity();
-    } on Failure {
-      rethrow;
-    } catch (e) {
-      throw UnknownFailure('Ошибка при получении проекта: $e');
-    }
+    }, methodName: 'getProjectById');
   }
 
   @override
   Future<void> requestConstruction(String projectId) async {
-    try {
+    return guard(() async {
       await remoteDataSource.requestConstruction(projectId);
-    } on Failure {
-      rethrow;
-    } catch (e) {
-      throw UnknownFailure('Ошибка при отправке запроса: $e');
-    }
+    }, methodName: 'requestConstruction');
+  }
+
+  @override
+  Future<void> startConstruction(String projectId, String address) async {
+    return guard(() async {
+      await remoteDataSource.startConstruction(
+        projectId,
+        {'address': address} as Map<String, dynamic>,
+      );
+    }, methodName: 'startConstruction');
+  }
+
+  @override
+  Future<List<Project>> getRequestedProjects() async {
+    return guard(() async {
+      final models = await remoteDataSource.getRequestedProjects();
+      return models.map((model) => model.toEntity()).toList();
+    }, methodName: 'getRequestedProjects');
+  }
+
+  @override
+  Future<bool> isProjectRequested(String projectId) async {
+    return guard(() async {
+      // Получаем проект по ID и проверяем его статус
+      final project = await remoteDataSource.getProjectById(projectId);
+      return project.status == 'requested';
+    }, methodName: 'isProjectRequested');
   }
 }

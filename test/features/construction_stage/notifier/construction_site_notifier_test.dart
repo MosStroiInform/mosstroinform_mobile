@@ -28,11 +28,12 @@ void main() {
   });
 
   group('ConstructionSiteNotifier', () {
+    const objectId = 'object1';
     const projectId = 'project1';
 
     test('build возвращает начальное состояние', () async {
       final state = await container.read(
-        constructionSiteProvider(projectId).future,
+        constructionSiteProvider(objectId).future,
       );
 
       expect(state.site, isNull);
@@ -51,23 +52,23 @@ void main() {
       );
 
       when(
-        () => mockRepository.getConstructionSiteByProjectId(projectId),
+        () => mockRepository.getConstructionSiteByObjectId(objectId),
       ).thenAnswer((_) async => site);
 
       final notifier = container.read(
-        constructionSiteProvider(projectId).notifier,
+        constructionSiteProvider(objectId).notifier,
       );
       await notifier.loadConstructionSite();
 
       final state = await container.read(
-        constructionSiteProvider(projectId).future,
+        constructionSiteProvider(objectId).future,
       );
 
       expect(state.site, equals(site));
       expect(state.isLoading, false);
       expect(state.error, isNull);
       verify(
-        () => mockRepository.getConstructionSiteByProjectId(projectId),
+        () => mockRepository.getConstructionSiteByObjectId(objectId),
       ).called(1);
     });
 
@@ -76,18 +77,18 @@ void main() {
 
       // Для асинхронных методов нужно использовать thenAnswer с throw
       when(
-        () => mockRepository.getConstructionSiteByProjectId(projectId),
+        () => mockRepository.getConstructionSiteByObjectId(objectId),
       ).thenAnswer((_) async => throw failure);
 
       final notifier = container.read(
-        constructionSiteProvider(projectId).notifier,
+        constructionSiteProvider(objectId).notifier,
       );
 
       // Вызываем метод - он установит AsyncValue.error
       await notifier.loadConstructionSite();
 
       // Проверяем состояние - AsyncValue.error устанавливается синхронно внутри catch
-      final state = container.read(constructionSiteProvider(projectId));
+      final state = container.read(constructionSiteProvider(objectId));
 
       // ConstructionSiteNotifier использует AsyncValue.error для ошибок
       expect(
@@ -97,7 +98,7 @@ void main() {
       );
       expect(state.error, isA<NetworkFailure>());
       verify(
-        () => mockRepository.getConstructionSiteByProjectId(projectId),
+        () => mockRepository.getConstructionSiteByObjectId(objectId),
       ).called(1);
     });
   });

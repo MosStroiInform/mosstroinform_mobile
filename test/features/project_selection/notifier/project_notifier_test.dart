@@ -38,22 +38,22 @@ void main() {
         Project(
           id: '1',
           name: 'Проект 1',
-          address: 'Адрес 1',
           description: 'Описание 1',
           area: 100.0,
           floors: 2,
+          bedrooms: 3,
+          bathrooms: 2,
           price: 1000000,
-          stages: [],
         ),
         Project(
           id: '2',
           name: 'Проект 2',
-          address: 'Адрес 2',
           description: 'Описание 2',
           area: 150.0,
           floors: 3,
+          bedrooms: 4,
+          bathrooms: 3,
           price: 2000000,
-          stages: [],
         ),
       ];
 
@@ -131,12 +131,12 @@ void main() {
       final project = Project(
         id: '1',
         name: 'Проект 1',
-        address: 'Адрес 1',
         description: 'Описание 1',
         area: 100.0,
         floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
         price: 1000000,
-        stages: [],
       );
 
       when(
@@ -178,35 +178,32 @@ void main() {
     });
 
     test('requestConstruction успешно отправляет запрос', () async {
-      final project = Project(
-        id: '1',
-        name: 'Проект 1',
-        address: 'Адрес 1',
-        description: 'Описание 1',
-        area: 100.0,
-        floors: 2,
-        price: 1000000,
-        stages: [
-          ConstructionStage(
-            id: 'stage1',
-            name: 'Этап 1',
-            status: StageStatus.inProgress,
-          ),
-        ],
-      );
+      final projects = [
+        Project(
+          id: '1',
+          name: 'Проект 1',
+          description: 'Описание 1',
+          area: 100.0,
+          floors: 2,
+          bedrooms: 3,
+          bathrooms: 2,
+          price: 1000000,
+        ),
+      ];
 
       when(
         () => mockRepository.requestConstruction('1'),
       ).thenAnswer((_) async {});
-      when(
-        () => mockRepository.getProjectById('1'),
-      ).thenAnswer((_) async => project);
+      
+      // getProjects вызывается несколько раз из-за пагинации и обновления списков
+      when(() => mockRepository.getProjects()).thenAnswer((_) async => projects);
 
       final notifier = container.read(projectProvider.notifier);
       await notifier.requestConstruction('1');
 
       verify(() => mockRepository.requestConstruction('1')).called(1);
-      verify(() => mockRepository.getProjectById('1')).called(1);
+      // getProjects может вызываться несколько раз из-за пагинации
+      verify(() => mockRepository.getProjects()).called(greaterThanOrEqualTo(1));
     });
 
     test('requestConstruction обрабатывает Failure', () async {

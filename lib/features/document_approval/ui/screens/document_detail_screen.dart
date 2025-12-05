@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
@@ -58,8 +58,19 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         final l10n = AppLocalizations.of(context)!;
         final messenger = ScaffoldMessenger.of(context);
 
-        // Перезагружаем список документов для проверки статуса
-        await ref.read(documentsProvider.notifier).loadDocuments();
+        // Получаем projectId для обновления списка документов проекта
+        final currentDocument = ref.read(documentProvider(documentId));
+        final projectId = currentDocument.maybeWhen(
+          data: (doc) => doc?.projectId,
+          orElse: () => null,
+        );
+
+        // Обновляем список документов для проекта (не все документы)
+        if (projectId != null) {
+          await ref
+              .read(documentsProvider.notifier)
+              .loadDocumentsForProject(projectId);
+        }
 
         if (!mounted) return;
 
@@ -75,10 +86,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.error}: $e'),
+            content: Text(e.toLocalizedMessage(context)),
             backgroundColor: Colors.red,
           ),
         );
@@ -124,10 +134,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.error}: $e'),
+            content: Text(e.toLocalizedMessage(context)),
             backgroundColor: Colors.red,
           ),
         );
@@ -182,38 +191,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Проверяем, все ли документы одобрены для показа кнопки перехода
-    final allDocuments = ref.watch(documentsProvider);
-    final allApproved = allDocuments.maybeWhen(
-      data: (docs) =>
-          docs.isNotEmpty &&
-          docs.every((doc) => doc.status == DocumentStatus.approved),
-      orElse: () => false,
-    );
-
-    // Получаем projectId из текущего документа
-    final currentDocument = ref.read(documentProvider(widget.documentId));
-    final projectId = currentDocument.maybeWhen(
-      data: (doc) => doc?.projectId,
-      orElse: () => null,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.documentTitle),
-        actions: [
-          // Кнопка перехода к стройке (показывается когда все документы одобрены)
-          if (allApproved && projectId != null)
-            IconButton(
-              icon: const Icon(Icons.construction),
-              tooltip: l10n.toConstruction,
-              onPressed: () {
-                if (mounted) {
-                  context.push('/construction/$projectId');
-                }
-              },
-            ),
-        ],
       ),
       body: documentAsync.when(
         data: (document) {
@@ -222,6 +202,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             return const DocumentDetailShimmer();
           }
 
+          // Показываем документ с кнопками (кнопки будут некликабельными и с лоадером при _isProcessing)
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -357,11 +338,14 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                               ? null
                               : () => _handleApprove(document.id),
                           icon: _isProcessing
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(
+                                  child: CircularProgressIndicator.adaptive(
                                     strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      colorScheme.onPrimary,
+                                    ),
                                   ),
                                 )
                               : const Icon(Icons.check),
@@ -388,7 +372,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                error.toString(),
+                error.toLocalizedMessage(context),
                 style: theme.textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),

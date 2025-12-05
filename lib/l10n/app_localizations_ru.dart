@@ -12,7 +12,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'Стройконтроль Онлайн';
 
   @override
-  String get projectsTitle => 'Объекты';
+  String get projectsTitle => 'Проекты';
 
   @override
   String get projectsNotFound => 'Проекты не найдены';
@@ -25,6 +25,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendConstructionRequest => 'Отправить запрос на строительство';
+
+  @override
+  String get requestConstruction => 'Запрос строительства';
 
   @override
   String get constructionRequestSent =>
@@ -120,16 +123,58 @@ class AppLocalizationsRu extends AppLocalizations {
   String get area => 'Площадь';
 
   @override
-  String get floors => 'этажа';
+  String get floorsLabel => 'Этажность';
 
   @override
   String get price => 'Стоимость';
 
   @override
-  String get floor => 'этаж';
+  String floors(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'этажей',
+      many: 'этажей',
+      few: 'этажа',
+      one: 'этаж',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get floorsPlural => 'этажа';
+  String bedrooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'спален',
+      many: 'спален',
+      few: 'спальни',
+      one: 'спальня',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bathrooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ванных',
+      many: 'ванных',
+      few: 'ванные',
+      one: 'ванная',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get million => 'млн';
+
+  @override
+  String get thousand => 'тыс';
+
+  @override
+  String get ruble => '₽';
 
   @override
   String get constructionStage => 'Этап строительства';
@@ -179,6 +224,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noFinalDocuments => 'Нет финальных документов';
+
+  @override
+  String documentsSignedCount(int signed, int total) {
+    return 'Подписано: $signed/$total документов';
+  }
 
   @override
   String get finalDocument => 'Финальный документ';
@@ -247,6 +297,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorLoadingMessages => 'Ошибка загрузки сообщений';
 
   @override
+  String get chatNotFound => 'Чат для этого объекта не найден';
+
+  @override
   String get errorSendingMessage => 'Ошибка отправки сообщения';
 
   @override
@@ -304,4 +357,129 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get buffering => 'Буферизация...';
+
+  @override
+  String get loginTitle => 'Вход в систему';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Пароль';
+
+  @override
+  String get loginButton => 'Войти';
+
+  @override
+  String get noAccount => 'Нет аккаунта? Зарегистрироваться';
+
+  @override
+  String get registerTitle => 'Регистрация';
+
+  @override
+  String get nameLabel => 'Имя';
+
+  @override
+  String get phoneLabel => 'Телефон (необязательно)';
+
+  @override
+  String get confirmPasswordLabel => 'Подтвердите пароль';
+
+  @override
+  String get registerButton => 'Зарегистрироваться';
+
+  @override
+  String get hasAccount => 'Уже есть аккаунт? Войти';
+
+  @override
+  String get enterEmail => 'Введите email';
+
+  @override
+  String get enterValidEmail => 'Введите корректный email';
+
+  @override
+  String get enterPassword => 'Введите пароль';
+
+  @override
+  String get passwordMinLength => 'Пароль должен содержать минимум 6 символов';
+
+  @override
+  String get enterName => 'Введите имя';
+
+  @override
+  String get confirmPassword => 'Подтвердите пароль';
+
+  @override
+  String get passwordsDoNotMatch => 'Пароли не совпадают';
+
+  @override
+  String errorOccurred(String error) {
+    return 'Произошла ошибка: $error';
+  }
+
+  @override
+  String get logout => 'Выход';
+
+  @override
+  String get logoutTooltip => 'Выйти из системы';
+
+  @override
+  String get requestedProjectsTitle => 'Запрошенные проекты';
+
+  @override
+  String get requested => 'Запрошен';
+
+  @override
+  String get underConstruction => 'Строительство';
+
+  @override
+  String get myObjectsTitle => 'Мои объекты';
+
+  @override
+  String get profileTitle => 'Профиль';
+
+  @override
+  String get searchProjects => 'Поиск проектов';
+
+  @override
+  String get searchHint => 'Введите название или адрес';
+
+  @override
+  String get noRequestedProjects => 'Нет запрошенных проектов';
+
+  @override
+  String get noMyObjects => 'У вас пока нет объектов';
+
+  @override
+  String get constructionProgress => 'Прогресс строительства';
+
+  @override
+  String get stagesCompleted => 'этапов завершено';
+
+  @override
+  String get startConstruction => 'Начать';
+
+  @override
+  String get constructionAddressTitle => 'Адрес строительства';
+
+  @override
+  String get enterConstructionAddress => 'Введите адрес строительства';
+
+  @override
+  String get constructionStarted => 'Строительство начато!';
+
+  @override
+  String get completeConstruction => 'Завершить строительство';
+
+  @override
+  String get constructionCompletedSuccess => 'Строительство успешно завершено!';
+
+  @override
+  String get networkError => 'Ошибка сети. Проверьте подключение к интернету';
+
+  @override
+  String get serverError => 'Ошибка сервера';
+
+  @override
+  String get cacheError => 'Ошибка сохранения данных';
 }

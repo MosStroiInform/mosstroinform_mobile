@@ -59,7 +59,7 @@ final class ConstructionSiteNotifierProvider
 }
 
 String _$constructionSiteNotifierHash() =>
-    r'f0d839a7154635dacd608f39f660197f47a0f459';
+    r'd3c6a014526039413c9661cc2dd639a2a617c3f0';
 
 /// Notifier для управления состоянием строительной площадки
 
@@ -83,8 +83,8 @@ final class ConstructionSiteNotifierFamily extends $Family
 
   /// Notifier для управления состоянием строительной площадки
 
-  ConstructionSiteNotifierProvider call(String projectId) =>
-      ConstructionSiteNotifierProvider._(argument: projectId, from: this);
+  ConstructionSiteNotifierProvider call(String objectId) =>
+      ConstructionSiteNotifierProvider._(argument: objectId, from: this);
 
   @override
   String toString() => r'constructionSiteProvider';
@@ -95,9 +95,9 @@ final class ConstructionSiteNotifierFamily extends $Family
 abstract class _$ConstructionSiteNotifier
     extends $AsyncNotifier<ConstructionSiteState> {
   late final _$args = ref.$arg as String;
-  String get projectId => _$args;
+  String get objectId => _$args;
 
-  FutureOr<ConstructionSiteState> build(String projectId);
+  FutureOr<ConstructionSiteState> build(String objectId);
   @$mustCallSuper
   @override
   void runBuild() {

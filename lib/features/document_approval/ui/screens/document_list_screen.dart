@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
+import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
@@ -9,7 +11,9 @@ import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран списка документов
 class DocumentListScreen extends ConsumerStatefulWidget {
-  const DocumentListScreen({super.key});
+  final String? projectId;
+
+  const DocumentListScreen({super.key, this.projectId});
 
   @override
   ConsumerState<DocumentListScreen> createState() => _DocumentListScreenState();
@@ -21,7 +25,11 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
     super.initState();
     // Загружаем документы при открытии экрана
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(documentsProvider.notifier).loadDocuments();
+      if (widget.projectId != null) {
+        ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
+      } else {
+        ref.read(documentsProvider.notifier).loadDocuments();
+      }
     });
   }
 
@@ -31,7 +39,7 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
     final documentsAsync = ref.watch(documentsProvider);
 
     // Проверяем, все ли документы одобрены для показа кнопки перехода к строительству
-    final allApproved = documentsAsync.maybeWhen(
+    documentsAsync.maybeWhen(
       data: (docs) =>
           docs.isNotEmpty &&
           docs.every((doc) => doc.status == DocumentStatus.approved),
@@ -39,7 +47,7 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
     );
 
     // Получаем projectId из первого документа (все документы относятся к одному проекту)
-    final projectId = documentsAsync.maybeWhen(
+    documentsAsync.maybeWhen(
       data: (docs) => docs.isNotEmpty ? docs.first.projectId : null,
       orElse: () => null,
     );
@@ -48,94 +56,99 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
       appBar: AppBar(
         title: Text(l10n.documentApprovalTitle),
         actions: [
-          // Кнопка перехода к строительству (показывается когда все документы одобрены)
-          if (allApproved && projectId != null)
-            IconButton(
-              icon: const Icon(Icons.construction),
-              tooltip: l10n.toConstruction,
-              onPressed: () {
-                if (mounted) {
-                  context.push('/construction/$projectId');
-                }
-              },
-            ),
+        // Ничего не показываем - кнопка "Начать строительство" теперь на экране проекта
         ],
       ),
-      body: documentsAsync.when(
-        data: (documents) {
-          // Если список пустой - это начальное состояние, показываем шиммер
-          // (начальное состояние возвращается как data с пустым списком)
-          if (documents.isEmpty) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: DocumentCardShimmer(),
-                );
-              },
-            );
-          }
+      body: AppAnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: documentsAsync.when(
+          data: (documents) {
+            // Если список пустой - это начальное состояние, показываем шиммер
+            // (начальное состояние возвращается как data с пустым списком)
+            if (documents.isEmpty) {
+              return ListView.builder(
+                key: const ValueKey('shimmer'),
+                padding: const EdgeInsets.all(16),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: DocumentCardShimmer(),
+                  );
+                },
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              await ref.read(documentsProvider.notifier).loadDocuments();
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: documents.length,
-              itemBuilder: (context, index) {
-                final document = documents[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: DocumentCard(
-                    document: document,
-                    onTap: () {
-                      context.push('/documents/${document.id}');
-                    },
-                  ),
-                );
+            return RefreshIndicator(
+              key: ValueKey('list-${documents.length}'),
+              onRefresh: () async {
+                if (widget.projectId != null) {
+                  await ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
+                } else {
+                  await ref.read(documentsProvider.notifier).loadDocuments();
+                }
               },
-            ),
-          );
-        },
-        loading: () => ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: 4,
-          itemBuilder: (context, index) {
-            return const Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: DocumentCardShimmer(),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: documents.length,
+                itemBuilder: (context, index) {
+                  final document = documents[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: DocumentCard(
+                      document: document,
+                      onTap: () {
+                        context.push('/documents/${document.id}');
+                      },
+                    ),
+                  );
+                },
+              ),
             );
           },
-        ),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                l10n.errorLoadingDocuments,
+          loading: () => ListView.builder(
+            key: const ValueKey('loading'),
+            padding: const EdgeInsets.all(16),
+            itemCount: 4,
+            itemBuilder: (context, index) {
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: DocumentCardShimmer(),
+              );
+            },
+          ),
+          error: (error, stackTrace) => Center(
+            key: const ValueKey('error'),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.errorLoadingDocuments,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                error.toString(),
+                error.toLocalizedMessage(context),
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref.read(documentsProvider.notifier).loadDocuments();
+                  if (widget.projectId != null) {
+                    ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
+                  } else {
+                    ref.read(documentsProvider.notifier).loadDocuments();
+                  }
                 },
                 child: Text(l10n.retry),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -94,175 +94,181 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('ru')];
 
-  /// Название приложения
+  /// No description provided for @appTitle.
   ///
   /// In ru, this message translates to:
   /// **'Стройконтроль Онлайн'**
   String get appTitle;
 
-  /// Заголовок экрана списка проектов
+  /// No description provided for @projectsTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Объекты'**
+  /// **'Проекты'**
   String get projectsTitle;
 
-  /// Сообщение когда проектов нет
+  /// No description provided for @projectsNotFound.
   ///
   /// In ru, this message translates to:
   /// **'Проекты не найдены'**
   String get projectsNotFound;
 
-  /// Заголовок экрана деталей проекта
+  /// No description provided for @projectDetails.
   ///
   /// In ru, this message translates to:
   /// **'Детали проекта'**
   String get projectDetails;
 
-  /// Сообщение когда проект не найден
+  /// No description provided for @projectNotFound.
   ///
   /// In ru, this message translates to:
   /// **'Проект не найден'**
   String get projectNotFound;
 
-  /// Кнопка отправки запроса на строительство
+  /// No description provided for @sendConstructionRequest.
   ///
   /// In ru, this message translates to:
   /// **'Отправить запрос на строительство'**
   String get sendConstructionRequest;
 
-  /// Сообщение об успешной отправке запроса
+  /// No description provided for @requestConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрос строительства'**
+  String get requestConstruction;
+
+  /// No description provided for @constructionRequestSent.
   ///
   /// In ru, this message translates to:
   /// **'Запрос на строительство успешно отправлен'**
   String get constructionRequestSent;
 
-  /// Заголовок ошибки загрузки проектов
+  /// No description provided for @errorLoadingProjects.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки проектов'**
   String get errorLoadingProjects;
 
-  /// Кнопка повтора действия
+  /// No description provided for @retry.
   ///
   /// In ru, this message translates to:
   /// **'Повторить'**
   String get retry;
 
-  /// Заголовок экрана согласования документов
+  /// No description provided for @documentApprovalTitle.
   ///
   /// In ru, this message translates to:
   /// **'Согласование документов'**
   String get documentApprovalTitle;
 
-  /// Сообщение когда документов нет
+  /// No description provided for @noDocumentsToApprove.
   ///
   /// In ru, this message translates to:
   /// **'Нет документов для согласования'**
   String get noDocumentsToApprove;
 
-  /// Заголовок экрана документа
+  /// No description provided for @documentTitle.
   ///
   /// In ru, this message translates to:
   /// **'Документ'**
   String get documentTitle;
 
-  /// Сообщение когда документ не найден
+  /// No description provided for @documentNotFound.
   ///
   /// In ru, this message translates to:
   /// **'Документ не найден'**
   String get documentNotFound;
 
-  /// Заголовок секции описания
+  /// No description provided for @description.
   ///
   /// In ru, this message translates to:
   /// **'Описание'**
   String get description;
 
-  /// Метка даты отправки
+  /// No description provided for @submitted.
   ///
   /// In ru, this message translates to:
   /// **'Отправлен'**
   String get submitted;
 
-  /// Метка даты одобрения
+  /// No description provided for @approved.
   ///
   /// In ru, this message translates to:
   /// **'Одобрен'**
   String get approved;
 
-  /// Заголовок причины отклонения
+  /// No description provided for @rejectionReason.
   ///
   /// In ru, this message translates to:
   /// **'Причина отклонения'**
   String get rejectionReason;
 
-  /// Кнопка скачивания документа
+  /// No description provided for @downloadDocument.
   ///
   /// In ru, this message translates to:
   /// **'Скачать документ'**
   String get downloadDocument;
 
-  /// Кнопка отклонения документа
+  /// No description provided for @reject.
   ///
   /// In ru, this message translates to:
   /// **'Отклонить'**
   String get reject;
 
-  /// Кнопка одобрения документа
+  /// No description provided for @approve.
   ///
   /// In ru, this message translates to:
   /// **'Одобрить'**
   String get approve;
 
-  /// Заголовок диалога отклонения документа
+  /// No description provided for @rejectDocumentTitle.
   ///
   /// In ru, this message translates to:
   /// **'Отклонить документ'**
   String get rejectDocumentTitle;
 
-  /// Подсказка для поля причины отклонения
+  /// No description provided for @rejectReasonHint.
   ///
   /// In ru, this message translates to:
   /// **'Укажите причину отклонения'**
   String get rejectReasonHint;
 
-  /// Кнопка отмены
+  /// No description provided for @cancel.
   ///
   /// In ru, this message translates to:
   /// **'Отмена'**
   String get cancel;
 
-  /// Сообщение об успешном одобрении документа
+  /// No description provided for @documentApproved.
   ///
   /// In ru, this message translates to:
   /// **'Документ успешно одобрен'**
   String get documentApproved;
 
-  /// Сообщение об отклонении документа
+  /// No description provided for @documentRejected.
   ///
   /// In ru, this message translates to:
   /// **'Документ отклонён'**
   String get documentRejected;
 
-  /// Заголовок ошибки
+  /// No description provided for @error.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка'**
   String get error;
 
-  /// Заголовок ошибки загрузки документов
+  /// No description provided for @errorLoadingDocuments.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки документов'**
   String get errorLoadingDocuments;
 
-  /// Заголовок ошибки загрузки документа
+  /// No description provided for @errorLoadingDocument.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки документа'**
   String get errorLoadingDocument;
 
-  /// Сообщение о необходимости указать причину отклонения
+  /// No description provided for @specifyRejectionReason.
   ///
   /// In ru, this message translates to:
   /// **'Укажите причину отклонения'**
@@ -274,319 +280,355 @@ abstract class AppLocalizations {
   /// **'Открыть файл: {url}'**
   String openFile(String url);
 
-  /// Статус документа - ожидает
+  /// No description provided for @documentStatusPending.
   ///
   /// In ru, this message translates to:
   /// **'Ожидает'**
   String get documentStatusPending;
 
-  /// Статус документа - на рассмотрении
+  /// No description provided for @documentStatusUnderReview.
   ///
   /// In ru, this message translates to:
   /// **'На рассмотрении'**
   String get documentStatusUnderReview;
 
-  /// Статус документа - одобрен
+  /// No description provided for @documentStatusApproved.
   ///
   /// In ru, this message translates to:
   /// **'Одобрен'**
   String get documentStatusApproved;
 
-  /// Статус документа - отклонён
+  /// No description provided for @documentStatusRejected.
   ///
   /// In ru, this message translates to:
   /// **'Отклонён'**
   String get documentStatusRejected;
 
-  /// Заголовок секции этапов строительства
+  /// No description provided for @constructionStages.
   ///
   /// In ru, this message translates to:
   /// **'Этапы строительства'**
   String get constructionStages;
 
-  /// Метка площади
+  /// No description provided for @area.
   ///
   /// In ru, this message translates to:
   /// **'Площадь'**
   String get area;
 
-  /// Слово этажа (множественное число)
+  /// No description provided for @floorsLabel.
   ///
   /// In ru, this message translates to:
-  /// **'этажа'**
-  String get floors;
+  /// **'Этажность'**
+  String get floorsLabel;
 
-  /// Метка стоимости
+  /// No description provided for @price.
   ///
   /// In ru, this message translates to:
   /// **'Стоимость'**
   String get price;
 
-  /// Слово этаж (единственное число)
+  /// Множественное число для этажей
   ///
   /// In ru, this message translates to:
-  /// **'этаж'**
-  String get floor;
+  /// **'{count, plural, =1{этаж} few{этажа} many{этажей} other{этажей}}'**
+  String floors(int count);
 
-  /// Слово этажа (множественное)
+  /// Множественное число для спален
   ///
   /// In ru, this message translates to:
-  /// **'этажа'**
-  String get floorsPlural;
+  /// **'{count, plural, =1{спальня} few{спальни} many{спален} other{спален}}'**
+  String bedrooms(int count);
 
-  /// Заголовок экрана этапа строительства
+  /// Множественное число для ванных
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, =1{ванная} few{ванные} many{ванных} other{ванных}}'**
+  String bathrooms(int count);
+
+  /// No description provided for @million.
+  ///
+  /// In ru, this message translates to:
+  /// **'млн'**
+  String get million;
+
+  /// No description provided for @thousand.
+  ///
+  /// In ru, this message translates to:
+  /// **'тыс'**
+  String get thousand;
+
+  /// No description provided for @ruble.
+  ///
+  /// In ru, this message translates to:
+  /// **'₽'**
+  String get ruble;
+
+  /// No description provided for @constructionStage.
   ///
   /// In ru, this message translates to:
   /// **'Этап строительства'**
   String get constructionStage;
 
-  /// Заголовок списка камер
+  /// No description provided for @cameras.
   ///
   /// In ru, this message translates to:
   /// **'Камеры'**
   String get cameras;
 
-  /// Заголовок экрана камеры
+  /// No description provided for @camera.
   ///
   /// In ru, this message translates to:
   /// **'Камера'**
   String get camera;
 
-  /// Сообщение когда камер нет
+  /// No description provided for @noCameras.
   ///
   /// In ru, this message translates to:
   /// **'Нет доступных камер'**
   String get noCameras;
 
-  /// Сообщение о неактивной камере
+  /// No description provided for @cameraNotActive.
   ///
   /// In ru, this message translates to:
   /// **'Камера неактивна'**
   String get cameraNotActive;
 
-  /// Заголовок ошибки загрузки стройки
+  /// No description provided for @errorLoadingConstructionSite.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки информации о стройке'**
   String get errorLoadingConstructionSite;
 
-  /// Заголовок ошибки загрузки камер
+  /// No description provided for @errorLoadingCameras.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки камер'**
   String get errorLoadingCameras;
 
-  /// Метка прогресса строительства
+  /// No description provided for @progress.
   ///
   /// In ru, this message translates to:
   /// **'Прогресс'**
   String get progress;
 
-  /// Метка даты начала
+  /// No description provided for @startDate.
   ///
   /// In ru, this message translates to:
   /// **'Дата начала'**
   String get startDate;
 
-  /// Метка ожидаемой даты завершения
+  /// No description provided for @expectedCompletion.
   ///
   /// In ru, this message translates to:
   /// **'Ожидаемое завершение'**
   String get expectedCompletion;
 
-  /// Статус камеры - активна
+  /// No description provided for @active.
   ///
   /// In ru, this message translates to:
   /// **'Активна'**
   String get active;
 
-  /// Статус камеры - неактивна
+  /// No description provided for @inactive.
   ///
   /// In ru, this message translates to:
   /// **'Неактивна'**
   String get inactive;
 
-  /// Заголовок экрана завершения строительства
+  /// No description provided for @constructionCompletion.
   ///
   /// In ru, this message translates to:
   /// **'Завершение строительства'**
   String get constructionCompletion;
 
-  /// Заголовок статуса завершения
+  /// No description provided for @completionStatus.
   ///
   /// In ru, this message translates to:
   /// **'Статус завершения'**
   String get completionStatus;
 
-  /// Заголовок списка финальных документов
+  /// No description provided for @finalDocuments.
   ///
   /// In ru, this message translates to:
   /// **'Финальные документы'**
   String get finalDocuments;
 
-  /// Сообщение когда финальных документов нет
+  /// No description provided for @noFinalDocuments.
   ///
   /// In ru, this message translates to:
   /// **'Нет финальных документов'**
   String get noFinalDocuments;
 
-  /// Заголовок экрана финального документа
+  /// Количество подписанных документов из общего количества
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписано: {signed}/{total} документов'**
+  String documentsSignedCount(int signed, int total);
+
+  /// No description provided for @finalDocument.
   ///
   /// In ru, this message translates to:
   /// **'Финальный документ'**
   String get finalDocument;
 
-  /// Сообщение когда финальный документ не найден
+  /// No description provided for @finalDocumentNotFound.
   ///
   /// In ru, this message translates to:
   /// **'Финальный документ не найден'**
   String get finalDocumentNotFound;
 
-  /// Кнопка подписания документа
+  /// No description provided for @signDocument.
   ///
   /// In ru, this message translates to:
   /// **'Подписать документ'**
   String get signDocument;
 
-  /// Сообщение об успешном подписании документа
+  /// No description provided for @documentSigned.
   ///
   /// In ru, this message translates to:
   /// **'Документ успешно подписан'**
   String get documentSigned;
 
-  /// Статус документа - подписан
+  /// No description provided for @signed.
   ///
   /// In ru, this message translates to:
   /// **'Подписан'**
   String get signed;
 
-  /// Метка даты подписания
+  /// No description provided for @signedAt.
   ///
   /// In ru, this message translates to:
   /// **'Подписан'**
   String get signedAt;
 
-  /// Сообщение что все документы подписаны
+  /// No description provided for @allDocumentsSigned.
   ///
   /// In ru, this message translates to:
   /// **'Все документы подписаны'**
   String get allDocumentsSigned;
 
-  /// Сообщение о завершении строительства
+  /// No description provided for @constructionCompleted.
   ///
   /// In ru, this message translates to:
   /// **'Строительство завершено'**
   String get constructionCompleted;
 
-  /// Заголовок ошибки загрузки статуса
+  /// No description provided for @errorLoadingCompletionStatus.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки статуса завершения'**
   String get errorLoadingCompletionStatus;
 
-  /// Заголовок ошибки загрузки финальных документов
+  /// No description provided for @errorLoadingFinalDocuments.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки финальных документов'**
   String get errorLoadingFinalDocuments;
 
-  /// Заголовок ошибки загрузки финального документа
+  /// No description provided for @errorLoadingFinalDocument.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки финального документа'**
   String get errorLoadingFinalDocument;
 
-  /// Метка даты завершения строительства
+  /// No description provided for @completionDate.
   ///
   /// In ru, this message translates to:
   /// **'Дата завершения'**
   String get completionDate;
 
-  /// Метка подписи
+  /// No description provided for @signature.
   ///
   /// In ru, this message translates to:
   /// **'Подпись'**
   String get signature;
 
-  /// Заголовок списка чатов
+  /// No description provided for @chats.
   ///
   /// In ru, this message translates to:
   /// **'Чаты'**
   String get chats;
 
-  /// Заголовок экрана чата
+  /// No description provided for @chat.
   ///
   /// In ru, this message translates to:
   /// **'Чат'**
   String get chat;
 
-  /// Сообщение когда чатов нет
+  /// No description provided for @noChats.
   ///
   /// In ru, this message translates to:
   /// **'Нет чатов'**
   String get noChats;
 
-  /// Сообщение когда сообщений нет
+  /// No description provided for @noMessages.
   ///
   /// In ru, this message translates to:
   /// **'Нет сообщений'**
   String get noMessages;
 
-  /// Подсказка для поля ввода сообщения
+  /// No description provided for @typeMessage.
   ///
   /// In ru, this message translates to:
   /// **'Введите сообщение...'**
   String get typeMessage;
 
-  /// Кнопка отправки сообщения
+  /// No description provided for @send.
   ///
   /// In ru, this message translates to:
   /// **'Отправить'**
   String get send;
 
-  /// Заголовок ошибки загрузки чатов
+  /// No description provided for @errorLoadingChats.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки чатов'**
   String get errorLoadingChats;
 
-  /// Заголовок ошибки загрузки сообщений
+  /// No description provided for @errorLoadingMessages.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки сообщений'**
   String get errorLoadingMessages;
 
-  /// Заголовок ошибки отправки сообщения
+  /// No description provided for @chatNotFound.
+  ///
+  /// In ru, this message translates to:
+  /// **'Чат для этого объекта не найден'**
+  String get chatNotFound;
+
+  /// No description provided for @errorSendingMessage.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка отправки сообщения'**
   String get errorSendingMessage;
 
-  /// Сообщение об успешной отправке
+  /// No description provided for @messageSent.
   ///
   /// In ru, this message translates to:
   /// **'Сообщение отправлено'**
   String get messageSent;
 
-  /// Метка непрочитанных сообщений
+  /// No description provided for @unread.
   ///
   /// In ru, this message translates to:
   /// **'Непрочитано'**
   String get unread;
 
-  /// Слово да
+  /// No description provided for @yes.
   ///
   /// In ru, this message translates to:
   /// **'Да'**
   String get yes;
 
-  /// Слово нет
+  /// No description provided for @no.
   ///
   /// In ru, this message translates to:
   /// **'Нет'**
   String get no;
 
-  /// Заголовок статуса документа
+  /// No description provided for @documentStatus.
   ///
   /// In ru, this message translates to:
   /// **'Статус документа'**
@@ -598,77 +640,323 @@ abstract class AppLocalizations {
   /// **'Ошибка открытия файла: {url}'**
   String errorOpeningFile(String url);
 
-  /// Сообщение об ошибке загрузки подписи
+  /// No description provided for @errorLoadingSignature.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки подписи'**
   String get errorLoadingSignature;
 
-  /// Сообщение при загрузке видеопотока
+  /// No description provided for @loadingVideoStream.
   ///
   /// In ru, this message translates to:
   /// **'Загрузка видеопотока...'**
   String get loadingVideoStream;
 
-  /// Сообщение об ошибке загрузки видеопотока
+  /// No description provided for @errorLoadingVideoStream.
   ///
   /// In ru, this message translates to:
   /// **'Ошибка загрузки видеопотока'**
   String get errorLoadingVideoStream;
 
-  /// Кнопка перехода к стройке
+  /// No description provided for @toConstruction.
   ///
   /// In ru, this message translates to:
   /// **'К стройке'**
   String get toConstruction;
 
-  /// Кнопка перехода к документам
+  /// No description provided for @toDocuments.
   ///
   /// In ru, this message translates to:
   /// **'К документам'**
   String get toDocuments;
 
-  /// Подсказка для кнопки завершения строительства
+  /// No description provided for @completionTooltip.
   ///
   /// In ru, this message translates to:
   /// **'Завершение строительства'**
   String get completionTooltip;
 
-  /// Подсказка для кнопки чата
+  /// No description provided for @chatTooltip.
   ///
   /// In ru, this message translates to:
   /// **'Чат со специалистом'**
   String get chatTooltip;
 
-  /// Статус этапа - завершён
+  /// No description provided for @completed.
   ///
   /// In ru, this message translates to:
   /// **'Завершён'**
   String get completed;
 
-  /// Статус этапа - в процессе
+  /// No description provided for @inProgress.
   ///
   /// In ru, this message translates to:
   /// **'В процессе'**
   String get inProgress;
 
-  /// Статус этапа - ожидает
+  /// No description provided for @waiting.
   ///
   /// In ru, this message translates to:
   /// **'Ожидает'**
   String get waiting;
 
-  /// Заголовок этапов строительства
+  /// No description provided for @constructionStagesLabel.
   ///
   /// In ru, this message translates to:
   /// **'Этапы строительства:'**
   String get constructionStagesLabel;
 
-  /// Сообщение о буферизации видеопотока
+  /// No description provided for @buffering.
   ///
   /// In ru, this message translates to:
   /// **'Буферизация...'**
   String get buffering;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вход в систему'**
+  String get loginTitle;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пароль'**
+  String get passwordLabel;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Войти'**
+  String get loginButton;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет аккаунта? Зарегистрироваться'**
+  String get noAccount;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Регистрация'**
+  String get registerTitle;
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Имя'**
+  String get nameLabel;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Телефон (необязательно)'**
+  String get phoneLabel;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подтвердите пароль'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @registerButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Зарегистрироваться'**
+  String get registerButton;
+
+  /// No description provided for @hasAccount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уже есть аккаунт? Войти'**
+  String get hasAccount;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите email'**
+  String get enterEmail;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите корректный email'**
+  String get enterValidEmail;
+
+  /// No description provided for @enterPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите пароль'**
+  String get enterPassword;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пароль должен содержать минимум 6 символов'**
+  String get passwordMinLength;
+
+  /// No description provided for @enterName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите имя'**
+  String get enterName;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подтвердите пароль'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пароли не совпадают'**
+  String get passwordsDoNotMatch;
+
+  /// Сообщение об ошибке
+  ///
+  /// In ru, this message translates to:
+  /// **'Произошла ошибка: {error}'**
+  String errorOccurred(String error);
+
+  /// No description provided for @logout.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выход'**
+  String get logout;
+
+  /// No description provided for @logoutTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выйти из системы'**
+  String get logoutTooltip;
+
+  /// No description provided for @requestedProjectsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрошенные проекты'**
+  String get requestedProjectsTitle;
+
+  /// No description provided for @requested.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрошен'**
+  String get requested;
+
+  /// No description provided for @underConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство'**
+  String get underConstruction;
+
+  /// No description provided for @myObjectsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мои объекты'**
+  String get myObjectsTitle;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль'**
+  String get profileTitle;
+
+  /// No description provided for @searchProjects.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск проектов'**
+  String get searchProjects;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите название или адрес'**
+  String get searchHint;
+
+  /// No description provided for @noRequestedProjects.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет запрошенных проектов'**
+  String get noRequestedProjects;
+
+  /// No description provided for @noMyObjects.
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас пока нет объектов'**
+  String get noMyObjects;
+
+  /// No description provided for @constructionProgress.
+  ///
+  /// In ru, this message translates to:
+  /// **'Прогресс строительства'**
+  String get constructionProgress;
+
+  /// No description provided for @stagesCompleted.
+  ///
+  /// In ru, this message translates to:
+  /// **'этапов завершено'**
+  String get stagesCompleted;
+
+  /// No description provided for @startConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начать'**
+  String get startConstruction;
+
+  /// No description provided for @constructionAddressTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес строительства'**
+  String get constructionAddressTitle;
+
+  /// No description provided for @enterConstructionAddress.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите адрес строительства'**
+  String get enterConstructionAddress;
+
+  /// No description provided for @constructionStarted.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство начато!'**
+  String get constructionStarted;
+
+  /// No description provided for @completeConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершить строительство'**
+  String get completeConstruction;
+
+  /// No description provided for @constructionCompletedSuccess.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство успешно завершено!'**
+  String get constructionCompletedSuccess;
+
+  /// No description provided for @networkError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка сети. Проверьте подключение к интернету'**
+  String get networkError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка сервера'**
+  String get serverError;
+
+  /// No description provided for @cacheError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка сохранения данных'**
+  String get cacheError;
 }
 
 class _AppLocalizationsDelegate

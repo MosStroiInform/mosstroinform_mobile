@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/entities/chat.dart';
 import 'package:mosstroinform_mobile/features/chat/notifier/chat_notifier.dart';
@@ -21,8 +22,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   @override
   void initState() {
     super.initState();
+    // Сообщения загружаются автоматически в build методе MessagesNotifier
+    // Здесь только отмечаем как прочитанные
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(messagesProvider(widget.chatId).notifier).loadMessages();
       ref.read(messagesProvider(widget.chatId).notifier).markAsRead();
     });
   }
@@ -66,8 +68,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           Expanded(
             child: messagesAsync.when(
               data: (state) {
-                // Если список пустой и нет ошибки - это начальное состояние, показываем шиммер
-                if (state.messages.isEmpty && state.error == null) {
+                // Если загрузка еще идет - показываем загрузчик
+                if (state.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -106,7 +108,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      error.toString(),
+                      error.toLocalizedMessage(context),
                       style: theme.textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),

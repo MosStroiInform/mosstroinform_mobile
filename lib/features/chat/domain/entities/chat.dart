@@ -19,6 +19,11 @@ class Chat {
     required this.unreadCount,
     required this.isActive,
   });
+
+  @override
+  String toString() {
+    return 'Chat(id: $id, projectId: $projectId, specialistName: $specialistName, unreadCount: $unreadCount, isActive: $isActive)';
+  }
 }
 
 /// Сущность сообщения
@@ -38,4 +43,10 @@ class Message {
     required this.isFromSpecialist,
     required this.isRead,
   });
+
+  @override
+  String toString() {
+    final textPreview = text.length > 50 ? '${text.substring(0, 50)}...' : text;
+    return 'Message(id: $id, chatId: $chatId, text: $textPreview, sentAt: $sentAt, isFromSpecialist: $isFromSpecialist, isRead: $isRead)';
+  }
 }

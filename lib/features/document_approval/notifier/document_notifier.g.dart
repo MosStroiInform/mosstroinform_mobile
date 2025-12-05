@@ -36,7 +36,7 @@ final class DocumentsNotifierProvider
   DocumentsNotifier create() => DocumentsNotifier();
 }
 
-String _$documentsNotifierHash() => r'7246db5cae980a3f2cd0f54b678473a1079add4b';
+String _$documentsNotifierHash() => r'199670653d5ccbcb866095a0239f9391d65e7f67';
 
 /// Notifier для управления состоянием списка документов
 
@@ -104,7 +104,7 @@ final class DocumentNotifierProvider
   }
 }
 
-String _$documentNotifierHash() => r'395ca2c330aa9bbd73dcaf8ee66c7dfa53c6fb96';
+String _$documentNotifierHash() => r'e87f36e977db45ac7e1008e6f0fc201d1767b9aa';
 
 /// Notifier для управления состоянием отдельного документа
 

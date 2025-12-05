@@ -14,6 +14,13 @@ abstract class ConstructionSiteRemoteDataSource
       _ConstructionSiteRemoteDataSource;
 
   @override
+  @GET('/construction-sites/object/{objectId}')
+  Future<ConstructionSiteModel> getConstructionSiteByObjectId(
+    @Path('objectId') String objectId,
+  );
+
+  @override
+  @Deprecated('Используйте getConstructionSiteByObjectId')
   @GET('/construction-sites/project/{projectId}')
   Future<ConstructionSiteModel> getConstructionSiteByProjectId(
     @Path('projectId') String projectId,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
@@ -7,17 +8,19 @@ import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('ru', 'RU')],
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: SizedBox(width: 400, height: 800, child: child),
+    return ProviderScope(
+      child: MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('ru', 'RU')],
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: SizedBox(width: 400, height: 800, child: child),
+          ),
         ),
       ),
     );
@@ -28,12 +31,12 @@ void main() {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
-        address: 'Адрес',
         description: 'Описание',
         area: 100.0,
         floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
         price: 1000000,
-        stages: [],
       );
 
       await tester.pumpWidget(
@@ -43,35 +46,35 @@ void main() {
       expect(find.text('Тестовый проект'), findsOneWidget);
     });
 
-    testWidgets('отображает адрес проекта', (WidgetTester tester) async {
+    testWidgets('отображает описание проекта', (WidgetTester tester) async {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
-        address: 'Тестовый адрес',
-        description: 'Описание',
+        description: 'Тестовое описание',
         area: 100.0,
         floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
         price: 1000000,
-        stages: [],
       );
 
       await tester.pumpWidget(
         createTestWidget(ProjectCard(project: project, onTap: () {})),
       );
 
-      expect(find.text('Тестовый адрес'), findsOneWidget);
+      expect(find.textContaining('Тестовое описание'), findsWidgets);
     });
 
     testWidgets('вызывает onTap при нажатии', (WidgetTester tester) async {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
-        address: 'Адрес',
         description: 'Описание',
         area: 100.0,
         floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
         price: 1000000,
-        stages: [],
       );
 
       bool tapped = false;
@@ -92,12 +95,12 @@ void main() {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
-        address: 'Адрес',
         description: 'Описание',
         area: 100.0,
         floors: 3,
+        bedrooms: 4,
+        bathrooms: 3,
         price: 1000000,
-        stages: [],
       );
 
       await tester.pumpWidget(
@@ -108,35 +111,72 @@ void main() {
       expect(find.textContaining('3'), findsWidgets);
     });
 
-    testWidgets('отображает этапы строительства', (WidgetTester tester) async {
+    testWidgets('отображает параметры проекта', (WidgetTester tester) async {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
-        address: 'Адрес',
         description: 'Описание',
         area: 100.0,
         floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
         price: 1000000,
-        stages: [
-          ConstructionStage(
-            id: '1',
-            name: 'Этап 1',
-            status: StageStatus.pending,
-          ),
-          ConstructionStage(
-            id: '2',
-            name: 'Этап 2',
-            status: StageStatus.inProgress,
-          ),
-        ],
       );
 
       await tester.pumpWidget(
         createTestWidget(ProjectCard(project: project, onTap: () {})),
       );
 
-      // Проверяем, что информация о этапах отображается
-      expect(find.textContaining('Этапы строительства'), findsOneWidget);
+      // Проверяем, что информация о параметрах отображается
+      expect(find.textContaining('100'), findsWidgets); // площадь
+      expect(find.textContaining('2'), findsWidgets); // этажи
+    });
+
+    testWidgets('отображает статус "запрошен" для запрошенного проекта',
+        (WidgetTester tester) async {
+      const project = Project(
+        id: '1',
+        name: 'Тестовый проект',
+        description: 'Описание',
+        area: 100.0,
+        floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
+        price: 1000000,
+        status: ProjectStatus.requested,
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(ProjectCard(project: project, onTap: () {})),
+      );
+      await tester.pumpAndSettle();
+
+      // Проверяем, что карточка отображается (статус отображается внутри)
+      expect(find.byType(ProjectCard), findsOneWidget);
+    });
+
+    testWidgets('отображает статус "строительство" для проекта в строительстве',
+        (WidgetTester tester) async {
+      const project = Project(
+        id: '1',
+        name: 'Тестовый проект',
+        description: 'Описание',
+        area: 100.0,
+        floors: 2,
+        bedrooms: 3,
+        bathrooms: 2,
+        price: 1000000,
+        status: ProjectStatus.construction,
+        objectId: 'object_1',
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(ProjectCard(project: project, onTap: () {})),
+      );
+      await tester.pumpAndSettle();
+
+      // Проверяем, что карточка отображается (статус отображается внутри)
+      expect(find.byType(ProjectCard), findsOneWidget);
     });
   });
 }

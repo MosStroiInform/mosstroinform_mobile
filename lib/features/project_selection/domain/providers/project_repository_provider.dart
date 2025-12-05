@@ -11,11 +11,12 @@ part 'project_repository_provider.g.dart';
 /// Возвращает интерфейс, а не имплементацию
 /// Использует моковый репозиторий если включены моки, иначе реальный
 /// Находится в domain слое, так как предоставляет доступ к интерфейсу репозитория
-@riverpod
+/// keepAlive: true - репозиторий не должен быть disposed при перестроении виджетов
+@Riverpod(keepAlive: true)
 ProjectRepository projectRepository(Ref ref) {
   final config = ref.watch(appConfigSimpleProvider);
   if (config.useMocks) {
-    return MockProjectRepository(ref);
+    return MockProjectRepository();
   }
   final remoteDataSource = ref.watch(projectRemoteDataSourceProvider);
   return ProjectRepositoryImpl(remoteDataSource: remoteDataSource);

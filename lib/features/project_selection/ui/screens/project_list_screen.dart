@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_card.dart';
+import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 
-/// Экран списка проектов
+/// Экран списка проектов с поиском и пагинацией
 class ProjectListScreen extends ConsumerStatefulWidget {
   const ProjectListScreen({super.key});
 
@@ -15,6 +17,12 @@ class ProjectListScreen extends ConsumerStatefulWidget {
 }
 
 class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  String _searchQuery = '';
+  int _currentPage = 0;
+  static const int _itemsPerPage = 10;
+
   @override
   void initState() {
     super.initState();
@@ -22,132 +30,222 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(projectsProvider.notifier).loadProjects();
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      // Загружаем следующую страницу при достижении 80% прокрутки
+      _loadNextPage();
+    }
+  }
+
+  void _loadNextPage() {
+    final projectsAsync = ref.read(projectsProvider);
+    projectsAsync.maybeWhen(
+      data: (state) {
+        final filteredProjects = _filterProjects(state.projects);
+        final totalPages = (filteredProjects.length / _itemsPerPage).ceil();
+        if (_currentPage < totalPages - 1) {
+          setState(() {
+            _currentPage++;
+          });
+        }
+      },
+      orElse: () {},
+    );
+  }
+
+  List<Project> _filterProjects(List<Project> projects) {
+    if (_searchQuery.isEmpty) {
+      return projects;
+    }
+    final query = _searchQuery.toLowerCase();
+    return projects.where((project) {
+      return project.name.toLowerCase().contains(query) ||
+          project.description.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  List<Project> _getPaginatedProjects(List<Project> projects) {
+    final filtered = _filterProjects(projects);
+    final startIndex = _currentPage * _itemsPerPage;
+    final endIndex = (startIndex + _itemsPerPage).clamp(0, filtered.length);
+    return filtered.sublist(0, endIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final projectsAsync = ref.watch(projectsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.projectsTitle),
-        // Кнопка для быстрого перехода к экрану камер (для тестирования)
-        actions: [
-          Builder(
-            builder: (context) {
-              final projectsAsync = ref.watch(projectsProvider);
-              return projectsAsync.maybeWhen(
-                data: (state) {
-                  final firstProject = state.projects.isNotEmpty
-                      ? state.projects.first
-                      : null;
-                  return IconButton(
-                    icon: const Icon(Icons.videocam),
-                    tooltip: firstProject != null
-                        ? 'Перейти к камерам: ${firstProject.name}'
-                        : 'Перейти к камерам',
-                    onPressed: firstProject != null
-                        ? () {
-                            context.push('/construction/${firstProject.id}');
-                          }
-                        : null,
-                  );
-                },
-                orElse: () => const SizedBox.shrink(),
-              );
-            },
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: l10n.searchHint,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchQuery = '';
+                            _currentPage = 0;
+                            _searchController.clear();
+                          });
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                  _currentPage = 0;
+                });
+              },
+            ),
           ),
-        ],
+        ),
       ),
       body: projectsAsync.when(
         data: (state) {
-          // Если список пустой и нет ошибки - это начальное состояние, показываем шиммер
-          // (начальное состояние возвращается как data с пустым списком)
-          if (state.projects.isEmpty && state.error == null) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: ProjectCardShimmer(),
-                );
-              },
+          // Если список пустой и загружается - показываем шиммер
+          if (state.projects.isEmpty && state.isLoading) {
+            return AppAnimatedSwitcher(
+              child: ListView.builder(
+                key: const ValueKey('shimmer'),
+                padding: const EdgeInsets.all(16),
+                itemCount: 3, // Фиксированное количество для шиммеров
+                itemBuilder: (context, index) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: ProjectCardShimmer(),
+                  );
+                },
+              ),
             );
           }
 
           // Если список пустой после загрузки (с ошибкой) - показываем сообщение
           if (state.projects.isEmpty && !state.isLoading) {
-            return Center(child: Text(l10n.projectsNotFound));
-          }
-
-          if (state.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${l10n.error}: ${state.error!.message}',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.read(projectsProvider.notifier).loadProjects();
-                    },
-                    child: Text(l10n.retry),
-                  ),
-                ],
+            return AppAnimatedSwitcher(
+              child: Center(
+                key: const ValueKey('empty'),
+                child: Text(l10n.projectsNotFound),
               ),
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              await ref.read(projectsProvider.notifier).loadProjects();
-            },
-            child: state.isLoading
-                ? ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: 3,
-                    itemBuilder: (context, index) {
-                      return const Padding(
-                        padding: EdgeInsets.only(bottom: 16),
-                        child: ProjectCardShimmer(),
-                      );
-                    },
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.projects.length,
-                    itemBuilder: (context, index) {
-                      final project = state.projects[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: ProjectCard(
-                          project: project,
-                          onTap: () {
-                            context.push('/projects/${project.id}');
+          if (state.error != null) {
+            return AppAnimatedSwitcher(
+              child: Center(
+                key: const ValueKey('error'),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text(
+                      '${l10n.error}: ${state.error!.message}',
+                      style: theme.textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.read(projectsProvider.notifier).loadProjects();
+                      },
+                      child: Text(l10n.retry),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final paginatedProjects = _getPaginatedProjects(state.projects);
+          final filteredProjects = _filterProjects(state.projects);
+          final hasMore = paginatedProjects.length < filteredProjects.length;
+
+          return AppAnimatedSwitcher(
+            child: RefreshIndicator(
+              key: ValueKey('list-${paginatedProjects.length}'),
+              onRefresh: () async {
+                setState(() {
+                  _currentPage = 0;
+                });
+                await ref.read(projectsProvider.notifier).loadProjects();
+              },
+              child: state.isLoading && paginatedProjects.isEmpty
+                  ? ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: 3, // Фиксированное количество для шиммеров
+                      itemBuilder: (context, index) {
+                        return const Padding(
+                          padding: EdgeInsets.only(bottom: 16),
+                          child: ProjectCardShimmer(),
+                        );
+                      },
+                    )
+                  : paginatedProjects.isEmpty
+                      ? Center(child: Text(l10n.projectsNotFound))
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: paginatedProjects.length + (hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == paginatedProjects.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
+                            final project = paginatedProjects[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: ProjectCard(
+                                project: project,
+                                onTap: () {
+                                  context.push('/projects/${project.id}');
+                                },
+                              ),
+                            );
                           },
                         ),
-                      );
-                    },
-                  ),
+            ),
           );
         },
-        loading: () => ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: 3,
-          itemBuilder: (context, index) {
-            return const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: ProjectCardShimmer(),
-            );
-          },
+        loading: () => AppAnimatedSwitcher(
+          child: ListView.builder(
+            key: const ValueKey('loading'),
+            padding: const EdgeInsets.all(16),
+            itemCount: 3, // Фиксированное количество для шиммеров
+            itemBuilder: (context, index) {
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: ProjectCardShimmer(),
+              );
+            },
+          ),
         ),
         error: (error, stack) => Center(
           child: Column(
@@ -157,7 +255,7 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
               const SizedBox(height: 16),
               Text(
                 '${l10n.error}: $error',
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: theme.textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),

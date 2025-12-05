@@ -3,6 +3,7 @@ import 'package:mosstroinform_mobile/features/document_approval/data/providers/d
 import 'package:mosstroinform_mobile/features/document_approval/data/repositories/document_repository_impl.dart';
 import 'package:mosstroinform_mobile/features/document_approval/data/repositories/mock_document_repository.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/repositories/document_repository.dart';
+import 'package:mosstroinform_mobile/features/project_selection/domain/providers/project_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'document_repository_provider.g.dart';
@@ -11,11 +12,13 @@ part 'document_repository_provider.g.dart';
 /// Возвращает интерфейс, а не имплементацию
 /// Использует моковый репозиторий если включены моки, иначе реальный
 /// Находится в domain слое, так как предоставляет доступ к интерфейсу репозитория
-@riverpod
+/// keepAlive: true - репозиторий не должен быть disposed при перестроении виджетов
+@Riverpod(keepAlive: true)
 DocumentRepository documentRepository(Ref ref) {
   final config = ref.watch(appConfigSimpleProvider);
   if (config.useMocks) {
-    return MockDocumentRepository(ref);
+    final projectRepository = ref.read(projectRepositoryProvider);
+    return MockDocumentRepository(projectRepository: projectRepository);
   }
   final remoteDataSource = ref.watch(documentRemoteDataSourceProvider);
   return DocumentRepositoryImpl(remoteDataSource: remoteDataSource);

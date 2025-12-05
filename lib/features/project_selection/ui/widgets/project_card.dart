@@ -1,146 +1,232 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
-/// Виджет карточки проекта
-class ProjectCard extends StatelessWidget {
+/// Виджет карточки проекта (компактная версия для GridView)
+class ProjectCard extends ConsumerWidget {
   final Project project;
   final VoidCallback onTap;
 
   const ProjectCard({super.key, required this.project, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Изображение проекта
-            if (project.imageUrl != null)
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  project.imageUrl!,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return Container(
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: onTap,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Изображение проекта
+                if (project.imageUrl != null)
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      project.imageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Container(
+                          color: colorScheme.surfaceContainerHighest,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: colorScheme.surfaceContainerHighest,
+                          child: const Center(
+                            child: Icon(Icons.image_not_supported, size: 32),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Container(
                       color: colorScheme.surfaceContainerHighest,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                              : null,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported, size: 48),
-                      ),
-                    );
-                  },
-                ),
-              )
-            else
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  color: colorScheme.surfaceContainerHighest,
-                  child: const Center(child: Icon(Icons.home, size: 48)),
-                ),
-              ),
-
-            // Информация о проекте
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Название и адрес
-                  Text(project.name, style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 4),
-                  Text(
-                    project.address,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+                      child: const Center(child: Icon(Icons.home, size: 32)),
                     ),
                   ),
-                  const SizedBox(height: 8),
 
-                  // Описание
-                  Text(
-                    project.description,
-                    style: theme.textTheme.bodyMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Характеристики
-                  Row(
+                // Информация о проекте
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _InfoChip(
-                        icon: Icons.square_foot,
-                        text: '${project.area.toInt()} м²',
-                      ),
-                      const SizedBox(width: 8),
-                      _InfoChip(
-                        icon: Icons.layers,
-                        text:
-                            '${project.floors} ${project.floors > 1 ? l10n.floors : l10n.floor}',
-                      ),
-                      const Spacer(),
+                      // Название
                       Text(
-                        '${_formatPrice(project.price)} ₽',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        project.name,
+                        style: theme.textTheme.titleMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
+
+                      // Описание
+                      Text(
+                        project.description,
+                        style: theme.textTheme.bodySmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Параметры
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          _InfoChip(
+                            icon: Icons.square_foot,
+                            text: '${project.area.toInt()} м²',
+                          ),
+                          _InfoChip(
+                            icon: Icons.layers,
+                            text:
+                                '${project.floors} ${l10n.floors(project.floors)}',
+                          ),
+                          _InfoChip(
+                            icon: Icons.bed,
+                            text:
+                                '${project.bedrooms} ${l10n.bedrooms(project.bedrooms)}',
+                          ),
+                          _InfoChip(
+                            icon: Icons.bathtub,
+                            text:
+                                '${project.bathrooms} ${l10n.bathrooms(project.bathrooms)}',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Цена
+                      Text(
+                        _formatPrice(project.price, l10n),
+                        style: theme.textTheme.titleSmall?.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-
-                  // Этапы строительства
-                  if (project.stages.isNotEmpty) ...[
-                    Text(
-                      l10n.constructionStagesLabel,
-                      style: theme.textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    _StagesIndicator(stages: project.stages),
-                  ],
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Наклейка статуса
+          Positioned(
+            top: 8,
+            right: 8,
+            child: AppAnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _buildStatusBadge(project, theme, colorScheme, l10n),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  String _formatPrice(int price) {
+  String _formatPrice(int price, AppLocalizations l10n) {
     if (price >= 1000000) {
-      return '${(price / 1000000).toStringAsFixed(1)} млн';
+      return '${(price / 1000000).toStringAsFixed(1)} ${l10n.million} ${l10n.ruble}';
     } else if (price >= 1000) {
-      return '${(price / 1000).toStringAsFixed(0)} тыс';
+      return '${(price / 1000).toStringAsFixed(0)} ${l10n.thousand} ${l10n.ruble}';
     }
-    return price.toString();
+    return '$price ${l10n.ruble}';
+  }
+
+  Widget _buildStatusBadge(
+    Project project,
+    ThemeData theme,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
+    switch (project.status) {
+      case ProjectStatus.requested:
+        // Оранжевый цвет для статуса "запрошен"
+        return Container(
+          key: const ValueKey('requested'),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.tertiaryContainer,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colorScheme.tertiary, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.pending_actions,
+                size: 14,
+                color: colorScheme.onTertiaryContainer,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                l10n.requested,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onTertiaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case ProjectStatus.construction:
+        // Синий/зеленый цвет для статуса "строительство"
+        return Container(
+          key: const ValueKey('construction'),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colorScheme.primary, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.construction,
+                size: 14,
+                color: colorScheme.onPrimaryContainer,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                l10n.underConstruction,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case ProjectStatus.available:
+        return const SizedBox.shrink(key: ValueKey('empty'));
+    }
   }
 }
 
@@ -157,64 +243,9 @@ class _InfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
+        Icon(icon, size: 14, color: theme.colorScheme.onSurfaceVariant),
         const SizedBox(width: 4),
-        Text(text, style: theme.textTheme.bodySmall),
-      ],
-    );
-  }
-}
-
-/// Виджет индикатора этапов строительства
-class _StagesIndicator extends StatelessWidget {
-  final List<ConstructionStage> stages;
-
-  const _StagesIndicator({required this.stages});
-
-  @override
-  Widget build(BuildContext context) {
-    final completedCount = stages
-        .where((s) => s.status == StageStatus.completed)
-        .length;
-    final inProgressCount = stages
-        .where((s) => s.status == StageStatus.inProgress)
-        .length;
-    final totalCount = stages.length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Прогресс бар
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: completedCount / totalCount,
-            minHeight: 8,
-            backgroundColor: Colors.grey[300],
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Текущий этап
-        if (inProgressCount > 0)
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                stages
-                    .firstWhere((s) => s.status == StageStatus.inProgress)
-                    .name,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
+        Text(text, style: theme.textTheme.bodySmall?.copyWith(fontSize: 11)),
       ],
     );
   }
