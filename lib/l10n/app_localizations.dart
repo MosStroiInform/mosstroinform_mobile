@@ -921,6 +921,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Строительство начато!'**
   String get constructionStarted;
+
+  /// No description provided for @completeConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершить строительство'**
+  String get completeConstruction;
+
+  /// No description provided for @constructionCompletedSuccess.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство успешно завершено!'**
+  String get constructionCompletedSuccess;
 }
 
 class _AppLocalizationsDelegate

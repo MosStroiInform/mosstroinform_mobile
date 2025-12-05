@@ -462,4 +462,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get constructionStarted => 'Строительство начато!';
+
+  @override
+  String get completeConstruction => 'Завершить строительство';
+
+  @override
+  String get constructionCompletedSuccess => 'Строительство успешно завершено!';
 }

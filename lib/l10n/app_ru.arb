@@ -185,5 +185,7 @@
   "startConstruction": "Начать",
   "constructionAddressTitle": "Адрес строительства",
   "enterConstructionAddress": "Введите адрес строительства",
-  "constructionStarted": "Строительство начато!"
+  "constructionStarted": "Строительство начато!",
+  "completeConstruction": "Завершить строительство",
+  "constructionCompletedSuccess": "Строительство успешно завершено!"
 }

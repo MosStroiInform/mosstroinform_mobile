@@ -1,6 +1,7 @@
 import 'package:mosstroinform_mobile/core/database/hive_service.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/core/database/adapters/construction_object_adapter.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/construction_object.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/repositories/construction_object_repository.dart';
 
@@ -56,5 +57,52 @@ class MockConstructionObjectRepository implements ConstructionObjectRepository {
       return obj.stages.isNotEmpty &&
           obj.stages.every((stage) => stage.status == StageStatus.completed);
     }).toList();
+  }
+
+  @override
+  Future<void> completeConstruction(String objectId) async {
+    // Симуляция задержки сети
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Получаем объект из базы
+    final objectsBox = HiveService.constructionObjectsBox;
+    final objectAdapter = objectsBox.get(objectId);
+
+    if (objectAdapter == null) {
+      throw UnknownFailure('Объект с ID $objectId не найден');
+    }
+
+    // Помечаем все этапы как completed
+    final completedStages = objectAdapter.stages.map((stageAdapter) {
+      return ConstructionStageAdapter(
+        id: stageAdapter.id,
+        name: stageAdapter.name,
+        statusString: 'completed',
+      );
+    }).toList();
+
+    // Создаем обновленный адаптер
+    final updatedAdapter = ConstructionObjectAdapter(
+      id: objectAdapter.id,
+      projectId: objectAdapter.projectId,
+      name: objectAdapter.name,
+      address: objectAdapter.address,
+      description: objectAdapter.description,
+      area: objectAdapter.area,
+      floors: objectAdapter.floors,
+      bedrooms: objectAdapter.bedrooms,
+      bathrooms: objectAdapter.bathrooms,
+      price: objectAdapter.price,
+      imageUrl: objectAdapter.imageUrl,
+      stages: completedStages,
+      chatId: objectAdapter.chatId,
+    );
+
+    // Сохраняем обновленный объект
+    await objectsBox.put(objectId, updatedAdapter);
+
+    AppLogger.info(
+      'MockConstructionObjectRepository.completeConstruction: строительство объекта $objectId завершено',
+    );
   }
 }

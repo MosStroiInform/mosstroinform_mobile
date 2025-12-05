@@ -13,5 +13,8 @@ abstract class ConstructionObjectRepository {
 
   /// Получить завершенные объекты (все этапы completed)
   Future<List<ConstructionObject>> getCompletedObjects();
+
+  /// Завершить строительство объекта (после подписания всех документов)
+  Future<void> completeConstruction(String objectId);
 }
 

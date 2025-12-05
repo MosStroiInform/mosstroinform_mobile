@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
@@ -8,6 +9,8 @@ import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/notifier/construction_site_notifier.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/screens/camera_view_screen.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/camera_grid_item.dart';
+import 'package:mosstroinform_mobile/features/construction_completion/notifier/final_document_notifier.dart';
+import 'package:mosstroinform_mobile/features/project_selection/domain/providers/construction_object_repository_provider.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран строительной площадки с камерами
@@ -197,6 +200,76 @@ class _ConstructionSiteScreenState
                   ),
                 ),
 
+                // Кнопка завершения строительства (показывается когда все документы подписаны)
+                Builder(
+                  builder: (context) {
+                    final projectId = site.projectId;
+                    final completionStatusAsync = ref.watch(
+                      completionStatusProvider(projectId),
+                    );
+
+                    return completionStatusAsync.when(
+                      data: (statusState) {
+                        final status = statusState.status;
+                        if (status == null || !status.allDocumentsSigned) {
+                          return const SizedBox.shrink();
+                        }
+
+                        // Проверяем, не завершено ли уже строительство
+                        final isCompleted = status.isCompleted;
+                        if (isCompleted) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.tertiaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.constructionCompleted,
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        color: theme.colorScheme.onTertiaryContainer,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () => _completeConstruction(context, projectId),
+                              icon: const Icon(Icons.check_circle),
+                              label: Text(l10n.completeConstruction),
+                              style: FilledButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+
                 const Divider(),
 
                 // Список камер
@@ -289,5 +362,43 @@ class _ConstructionSiteScreenState
 
   String _formatDate(DateTime date) {
     return '${date.day}.${date.month}.${date.year}';
+  }
+
+  Future<void> _completeConstruction(BuildContext context, String projectId) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      // Получаем объект строительства по projectId
+      final objectRepository = ref.read(constructionObjectRepositoryProvider);
+      final objects = await objectRepository.getObjects();
+      final object = objects.firstWhere(
+        (obj) => obj.projectId == projectId,
+        orElse: () => throw UnknownFailure('Объект строительства не найден'),
+      );
+
+      // Завершаем строительство
+      await objectRepository.completeConstruction(object.id);
+
+      // Обновляем статус завершения
+      ref.invalidate(completionStatusProvider(projectId));
+      ref.invalidate(constructionSiteProvider(widget.objectId));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.constructionCompletedSuccess),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toLocalizedMessage(context)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
