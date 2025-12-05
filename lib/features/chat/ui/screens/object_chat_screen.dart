@@ -1,30 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/entities/chat.dart';
+import 'package:mosstroinform_mobile/features/chat/domain/providers/chat_repository_provider.dart';
 import 'package:mosstroinform_mobile/features/chat/notifier/chat_notifier.dart';
+import 'package:mosstroinform_mobile/features/project_selection/domain/providers/construction_object_repository_provider.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
-/// Экран детального просмотра чата
-class ChatDetailScreen extends ConsumerStatefulWidget {
-  final String chatId;
+/// Экран чата для конкретного объекта строительства
+/// Доступен только со страницы объекта
+class ObjectChatScreen extends ConsumerStatefulWidget {
+  final String projectId;
 
-  const ChatDetailScreen({super.key, required this.chatId});
+  const ObjectChatScreen({super.key, required this.projectId});
 
   @override
-  ConsumerState<ChatDetailScreen> createState() => _ChatDetailScreenState();
+  ConsumerState<ObjectChatScreen> createState() => _ObjectChatScreenState();
 }
 
-class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
+class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  Chat? _chat;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(messagesProvider(widget.chatId).notifier).loadMessages();
-      ref.read(messagesProvider(widget.chatId).notifier).markAsRead();
+      _loadChat();
     });
   }
 
@@ -35,12 +40,58 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     super.dispose();
   }
 
+  Future<void> _loadChat() async {
+    try {
+      // Получаем объект строительства по projectId
+      final objectRepository = ref.read(constructionObjectRepositoryProvider);
+      final objects = await objectRepository.getObjects();
+      final object = objects.firstWhere(
+        (obj) => obj.projectId == widget.projectId,
+        orElse: () => throw UnknownFailure('Объект строительства не найден'),
+      );
+
+      // Получаем chatId из объекта
+      final chatId = object.chatId;
+      if (chatId == null) {
+        throw UnknownFailure('У объекта строительства нет чата');
+      }
+
+      // Загружаем чат по ID
+      final chatRepository = ref.read(chatRepositoryProvider);
+      final chat = await chatRepository.getChatById(chatId);
+
+      setState(() {
+        _chat = chat;
+      });
+
+      // Загружаем сообщения чата
+      ref.read(messagesProvider(chat.id).notifier).loadMessages();
+      ref.read(messagesProvider(chat.id).notifier).markAsRead();
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'ObjectChatScreen._loadChat: ошибка загрузки чата: $e',
+        stackTrace,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e is Failure ? e.message : AppLocalizations.of(context)!.error,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _sendMessage() async {
+    if (_chat == null) return;
+    
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
     _messageController.clear();
-    await ref.read(messagesProvider(widget.chatId).notifier).sendMessage(text);
+    await ref.read(messagesProvider(_chat!.id).notifier).sendMessage(text);
 
     // Прокрутить вниз после отправки
     if (_scrollController.hasClients) {
@@ -55,12 +106,33 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final messagesAsync = ref.watch(messagesProvider(widget.chatId));
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    if (_chat == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.chat)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final messagesAsync = ref.watch(messagesProvider(_chat!.id));
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.chat)),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.chat),
+            Text(
+              _chat!.specialistName,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface.withAlpha((255 * 0.7).round()),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Column(
         children: [
           // Список сообщений
@@ -115,7 +187,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     ElevatedButton(
                       onPressed: () {
                         ref
-                            .read(messagesProvider(widget.chatId).notifier)
+                            .read(messagesProvider(_chat!.id).notifier)
                             .loadMessages();
                       },
                       child: Text(l10n.retry),
@@ -258,3 +330,4 @@ class _MessageBubble extends StatelessWidget {
     return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }
+
