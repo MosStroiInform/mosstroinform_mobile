@@ -8,9 +8,9 @@ class GetConstructionSite {
 
   GetConstructionSite(this.repository);
 
-  Future<ConstructionSite> call(String projectId) async {
+  Future<ConstructionSite> call(String objectId) async {
     try {
-      return await repository.getConstructionSiteByProjectId(projectId);
+      return await repository.getConstructionSiteByObjectId(objectId);
     } on Failure {
       rethrow;
     } catch (e) {
