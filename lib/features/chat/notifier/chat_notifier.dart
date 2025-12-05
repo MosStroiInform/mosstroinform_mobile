@@ -116,7 +116,7 @@ class MessagesNotifier extends _$MessagesNotifier {
         currentState?.copyWith(isLoading: false, error: e) ??
             MessagesState(messages: [], isLoading: false, error: e),
       );
-    } catch (e, s) {
+    } catch (e) {
       state = AsyncValue.data(
         currentState?.copyWith(
               isLoading: false,
@@ -158,7 +158,7 @@ class MessagesNotifier extends _$MessagesNotifier {
       state = AsyncValue.data(
         currentState.copyWith(isSending: false, error: e),
       );
-    } catch (e, s) {
+    } catch (e) {
       state = AsyncValue.data(
         currentState.copyWith(
           isSending: false,
