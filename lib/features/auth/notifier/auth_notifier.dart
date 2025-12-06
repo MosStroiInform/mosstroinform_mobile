@@ -64,7 +64,9 @@ class AuthNotifier extends _$AuthNotifier {
       AppLogger.info('Пользователь успешно авторизован: ${user.email}');
     } on Failure catch (e) {
       AppLogger.error('Ошибка авторизации: ${e.message}');
-      state = AsyncValue.data(const AuthState().copyWith(isAuthenticated: false, error: e));
+      state = AsyncValue.data(
+        const AuthState().copyWith(isAuthenticated: false, error: e),
+      );
       rethrow;
     } catch (e, stackTrace) {
       AppLogger.error('Неизвестная ошибка при авторизации: $e', stackTrace);
@@ -104,7 +106,9 @@ class AuthNotifier extends _$AuthNotifier {
       AppLogger.info('Пользователь успешно зарегистрирован: ${user.email}');
     } on Failure catch (e) {
       AppLogger.error('Ошибка регистрации: ${e.message}');
-      state = AsyncValue.data(const AuthState().copyWith(isAuthenticated: false, error: e));
+      state = AsyncValue.data(
+        const AuthState().copyWith(isAuthenticated: false, error: e),
+      );
       rethrow;
     } catch (e, stackTrace) {
       AppLogger.error('Неизвестная ошибка при регистрации: $e', stackTrace);

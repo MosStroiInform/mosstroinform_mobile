@@ -18,9 +18,9 @@ class DocumentsNotifier extends _$DocumentsNotifier {
   Future<void> loadDocuments() async {
     // Если список пустой, ставим loading, иначе обновляем в фоне
     if (state.value == null || state.value!.isEmpty) {
-       state = const AsyncValue.loading();
+      state = const AsyncValue.loading();
     }
-    
+
     try {
       final repository = ref.read(documentRepositoryProvider);
       final documents = await repository.getDocuments();

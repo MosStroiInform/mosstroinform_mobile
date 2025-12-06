@@ -192,9 +192,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.documentTitle),
-      ),
+      appBar: AppBar(title: Text(l10n.documentTitle)),
       body: documentAsync.when(
         data: (document) {
           // Если документ не загружен - это начальное состояние, показываем шиммер

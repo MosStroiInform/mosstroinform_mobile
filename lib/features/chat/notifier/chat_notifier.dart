@@ -104,7 +104,7 @@ class MessagesNotifier extends _$MessagesNotifier {
     if (showLoading || currentState == null || currentState.messages.isEmpty) {
       state = const AsyncValue.loading();
     }
-    
+
     try {
       final repository = ref.read(chatRepositoryProvider);
       final messages = await repository.getMessages(chatId);
@@ -143,12 +143,12 @@ class MessagesNotifier extends _$MessagesNotifier {
     try {
       final repository = ref.read(chatRepositoryProvider);
       await repository.sendMessage(chatId, text.trim());
-      
+
       // Перезагружаем сообщения вместо добавления вручную,
       // чтобы избежать дублирования (репозиторий уже добавил сообщение)
       // Не показываем loading, так как данные уже есть
       await loadMessages(showLoading: false);
-      
+
       // Обновляем состояние, убирая флаг отправки
       final updatedState = state.value;
       if (updatedState != null) {

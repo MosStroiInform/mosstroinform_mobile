@@ -41,7 +41,8 @@ class TalkerViewAppBar extends StatefulWidget {
   State<TalkerViewAppBar> createState() => _TalkerViewAppBarState();
 }
 
-class _TalkerViewAppBarState extends State<TalkerViewAppBar> with WidgetsBindingObserver {
+class _TalkerViewAppBarState extends State<TalkerViewAppBar>
+    with WidgetsBindingObserver {
   final GlobalKey _groupButtonKey = GlobalKey();
   final GlobalKey _searchTextFieldKey = GlobalKey();
   final _bcontroller = GroupButtonController();
@@ -59,8 +60,10 @@ class _TalkerViewAppBarState extends State<TalkerViewAppBar> with WidgetsBinding
     WidgetsBinding.instance
       ..addObserver(this)
       ..addPostFrameCallback(_addPostFrameCallback);
-    final indexes =
-        widget.talker.filter.enabledKeys.map((e) => widget.keys.indexOf(e)).where((index) => index >= 0).toList();
+    final indexes = widget.talker.filter.enabledKeys
+        .map((e) => widget.keys.indexOf(e))
+        .where((index) => index >= 0)
+        .toList();
     _bcontroller.selectIndexes(indexes);
     super.initState();
   }
@@ -74,15 +77,19 @@ class _TalkerViewAppBarState extends State<TalkerViewAppBar> with WidgetsBinding
   void _addPostFrameCallback(Duration timestamp) => _calculateHeight();
 
   void _calculateHeight() {
-    final groupBtnRenderBox = _groupButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    final groupBtnRenderBox =
+        _groupButtonKey.currentContext?.findRenderObject() as RenderBox?;
     if (groupBtnRenderBox == null) return;
 
-    final searchFieldRenderBox = _searchTextFieldKey.currentContext?.findRenderObject() as RenderBox?;
+    final searchFieldRenderBox =
+        _searchTextFieldKey.currentContext?.findRenderObject() as RenderBox?;
     if (searchFieldRenderBox == null) return;
 
     setState(() {
-      _spaceBarHeight =
-          searchFieldRenderBox.size.height + groupBtnRenderBox.size.height + _defaultToolbarHeight + _padding;
+      _spaceBarHeight = searchFieldRenderBox.size.height +
+          groupBtnRenderBox.size.height +
+          _defaultToolbarHeight +
+          _padding;
     });
   }
 
@@ -151,13 +158,18 @@ class _TalkerViewAppBarState extends State<TalkerViewAppBar> with WidgetsBinding
                     isRadio: false,
                     buttonBuilder: (selected, key, context) {
                       final count = widget.keys.where((e) => e == key).length;
-                      final title = key != null ? widget.talker.settings.getTitleByKey(key) : 'undefined';
+                      final title = key != null
+                          ? widget.talker.settings.getTitleByKey(key)
+                          : 'undefined';
                       return Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          border: Border.all(color: widget.talkerTheme.textColor),
+                          border:
+                              Border.all(color: widget.talkerTheme.textColor),
                           borderRadius: BorderRadius.circular(10),
-                          color: selected ? theme.colorScheme.primaryContainer : widget.talkerTheme.cardColor,
+                          color: selected
+                              ? theme.colorScheme.primaryContainer
+                              : widget.talkerTheme.cardColor,
                         ),
                         child: Row(
                           children: [
@@ -271,7 +283,9 @@ class _MonitorButton extends StatelessWidget {
     return TalkerBuilder(
       talker: talker,
       builder: (context, data) {
-        final haveErrors = data.where((e) => e is TalkerError || e is TalkerException).isNotEmpty;
+        final haveErrors = data
+            .where((e) => e is TalkerError || e is TalkerException)
+            .isNotEmpty;
         return Stack(
           children: [
             Center(

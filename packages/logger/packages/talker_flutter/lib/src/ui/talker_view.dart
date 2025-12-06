@@ -132,7 +132,8 @@ class _TalkerViewState extends State<TalkerView> {
       data.where((e) => _controller.filter.filter(e)).toList();
 
   void _onToggleKey(String key, bool selected) {
-    final action = selected ? _controller.addFilterKey : _controller.removeFilterKey;
+    final action =
+        selected ? _controller.addFilterKey : _controller.removeFilterKey;
     action(key);
   }
 
@@ -140,7 +141,8 @@ class _TalkerViewState extends State<TalkerView> {
     List<TalkerData> filteredElements,
     int i,
   ) {
-    final data = filteredElements[_controller.isLogOrderReversed ? filteredElements.length - 1 - i : i];
+    final data = filteredElements[
+        _controller.isLogOrderReversed ? filteredElements.length - 1 - i : i];
     return data;
   }
 
@@ -173,7 +175,8 @@ class _TalkerViewState extends State<TalkerView> {
   }
 
   void _copyTalkerDataItemText(TalkerData data) {
-    final text = data.generateTextMessage(timeFormat: widget.talker.settings.timeFormat);
+    final text =
+        data.generateTextMessage(timeFormat: widget.talker.settings.timeFormat);
     Clipboard.setData(ClipboardData(text: text));
     _showSnackBar(context, 'Log item is copied in clipboard');
   }
@@ -210,7 +213,9 @@ class _TalkerViewState extends State<TalkerView> {
             TalkerActionItem(
               onTap: _toggleLogsExpanded,
               title: _controller.expandedLogs ? 'Collapse logs' : 'Expand logs',
-              icon: _controller.expandedLogs ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+              icon: _controller.expandedLogs
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
             ),
             TalkerActionItem(
               onTap: _cleanHistory,
@@ -250,7 +255,8 @@ class _TalkerViewState extends State<TalkerView> {
   void _copyAllLogs(BuildContext context) {
     Clipboard.setData(
       ClipboardData(
-        text: widget.talker.history.text(timeFormat: widget.talker.settings.timeFormat),
+        text: widget.talker.history
+            .text(timeFormat: widget.talker.settings.timeFormat),
       ),
     );
     _showSnackBar(context, 'All logs copied in buffer');
@@ -259,7 +265,8 @@ class _TalkerViewState extends State<TalkerView> {
   void _copyFilteredLogs(BuildContext context) {
     Clipboard.setData(
       ClipboardData(
-        text: _getFilteredLogs(widget.talker.history).text(timeFormat: widget.talker.settings.timeFormat),
+        text: _getFilteredLogs(widget.talker.history)
+            .text(timeFormat: widget.talker.settings.timeFormat),
       ),
     );
     _showSnackBar(context, 'All filtered logs copied in buffer');

@@ -50,7 +50,7 @@ class ConstructionSiteNotifier extends _$ConstructionSiteNotifier {
   Future<void> loadConstructionSite() async {
     final objectId = this.objectId;
     final previousState = state.value;
-    
+
     // Если данные уже есть, обновляем в фоне без шиммера
     if (previousState != null && previousState.site != null) {
       state = AsyncValue.data(previousState.copyWith(isLoading: true));
@@ -66,14 +66,18 @@ class ConstructionSiteNotifier extends _$ConstructionSiteNotifier {
       );
     } on Failure catch (e) {
       if (previousState != null && previousState.site != null) {
-        state = AsyncValue.data(previousState.copyWith(error: e, isLoading: false));
+        state = AsyncValue.data(
+          previousState.copyWith(error: e, isLoading: false),
+        );
       } else {
         state = AsyncValue.error(e, StackTrace.current);
       }
     } catch (e, s) {
       final failure = UnknownFailure('Неизвестная ошибка: $e');
       if (previousState != null && previousState.site != null) {
-        state = AsyncValue.data(previousState.copyWith(error: failure, isLoading: false));
+        state = AsyncValue.data(
+          previousState.copyWith(error: failure, isLoading: false),
+        );
       } else {
         state = AsyncValue.error(failure, s);
       }

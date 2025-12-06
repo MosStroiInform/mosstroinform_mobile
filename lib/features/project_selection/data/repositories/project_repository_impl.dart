@@ -13,7 +13,10 @@ class ProjectRepositoryImpl implements ProjectRepository {
   @override
   Future<List<Project>> getProjects({int? page, int? limit}) async {
     return guard(() async {
-      final models = await remoteDataSource.getProjects(page: page, limit: limit);
+      final models = await remoteDataSource.getProjects(
+        page: page,
+        limit: limit,
+      );
       return models.map((model) => model.toEntity()).toList();
     }, methodName: 'getProjects');
   }

@@ -13,9 +13,5 @@ IConstructionObjectRemoteDataSource constructionObjectRemoteDataSource(
 ) {
   final config = ref.watch(appConfigSimpleProvider);
   final dio = ref.watch(dioProvider);
-  return ConstructionObjectRemoteDataSource(
-    dio,
-    baseUrl: config.baseUrl,
-  );
+  return ConstructionObjectRemoteDataSource(dio, baseUrl: config.baseUrl);
 }
-

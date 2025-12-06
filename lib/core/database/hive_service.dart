@@ -41,7 +41,7 @@ class HiveService {
     try {
       await Hive.initFlutter();
       AppLogger.info('HiveService.initialize: Hive инициализирован');
-      
+
       // Открываем settings box для хранения настроек приложения
       await Hive.openBox('settings');
 
@@ -65,12 +65,15 @@ class HiveService {
       // Открываем боксы
       _projectsBox = await Hive.openBox<ProjectAdapter>(_projectsBoxName);
       _documentsBox = await Hive.openBox<DocumentAdapter>(_documentsBoxName);
-      _constructionObjectsBox =
-          await Hive.openBox<ConstructionObjectAdapter>(_constructionObjectsBoxName);
-      _requestedProjectsBox =
-          await Hive.openBox<String>(_requestedProjectsBoxName);
-      _finalDocumentsBox =
-          await Hive.openBox<FinalDocumentAdapter>(_finalDocumentsBoxName);
+      _constructionObjectsBox = await Hive.openBox<ConstructionObjectAdapter>(
+        _constructionObjectsBoxName,
+      );
+      _requestedProjectsBox = await Hive.openBox<String>(
+        _requestedProjectsBoxName,
+      );
+      _finalDocumentsBox = await Hive.openBox<FinalDocumentAdapter>(
+        _finalDocumentsBoxName,
+      );
 
       AppLogger.info('HiveService.initialize: боксы открыты');
 
@@ -93,7 +96,9 @@ class HiveService {
 
     // Загружаем проекты, если база пустая
     if (_projectsBox!.isEmpty) {
-      AppLogger.info('HiveService.ensureProjectsLoaded: загрузка начальных проектов');
+      AppLogger.info(
+        'HiveService.ensureProjectsLoaded: загрузка начальных проектов',
+      );
       final mockData = ProjectsMockData.projects;
       final projects = mockData
           .map((json) => ProjectModel.fromJson(json).toEntity())
@@ -125,7 +130,9 @@ class HiveService {
     }
     if (_constructionObjectsBox != null) {
       await _constructionObjectsBox!.clear();
-      AppLogger.info('HiveService.clearUserData: объекты строительства очищены');
+      AppLogger.info(
+        'HiveService.clearUserData: объекты строительства очищены',
+      );
     }
     if (_requestedProjectsBox != null) {
       await _requestedProjectsBox!.clear();
@@ -135,8 +142,10 @@ class HiveService {
       await _finalDocumentsBox!.clear();
       AppLogger.info('HiveService.clearUserData: финальные документы очищены');
     }
-    
-    AppLogger.info('HiveService.clearUserData: все данные очищены, база будет создана с нуля при следующем логине');
+
+    AppLogger.info(
+      'HiveService.clearUserData: все данные очищены, база будет создана с нуля при следующем логине',
+    );
   }
 
   /// Получить бокс финальных документов
@@ -193,13 +202,17 @@ class HiveService {
   static Future<void> initializeForTests(String testPath) async {
     // Если уже инициализирован, просто возвращаемся
     if (isInitialized) {
-      AppLogger.info('HiveService.initializeForTests: Hive уже инициализирован');
+      AppLogger.info(
+        'HiveService.initializeForTests: Hive уже инициализирован',
+      );
       return;
     }
 
     try {
       Hive.init(testPath);
-      AppLogger.info('HiveService.initializeForTests: Hive инициализирован для тестов');
+      AppLogger.info(
+        'HiveService.initializeForTests: Hive инициализирован для тестов',
+      );
 
       // Регистрируем адаптеры
       if (!Hive.isAdapterRegistered(0)) {
@@ -221,10 +234,12 @@ class HiveService {
       // Открываем боксы
       _projectsBox = await Hive.openBox<ProjectAdapter>(_projectsBoxName);
       _documentsBox = await Hive.openBox<DocumentAdapter>(_documentsBoxName);
-      _constructionObjectsBox =
-          await Hive.openBox<ConstructionObjectAdapter>(_constructionObjectsBoxName);
-      _requestedProjectsBox =
-          await Hive.openBox<String>(_requestedProjectsBoxName);
+      _constructionObjectsBox = await Hive.openBox<ConstructionObjectAdapter>(
+        _constructionObjectsBoxName,
+      );
+      _requestedProjectsBox = await Hive.openBox<String>(
+        _requestedProjectsBoxName,
+      );
 
       AppLogger.info('HiveService.initializeForTests: боксы открыты');
       AppLogger.info('HiveService.initializeForTests: инициализация завершена');
@@ -237,4 +252,3 @@ class HiveService {
     }
   }
 }
-

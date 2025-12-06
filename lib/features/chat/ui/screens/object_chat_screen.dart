@@ -86,7 +86,7 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
 
   Future<void> _sendMessage() async {
     if (_chat == null) return;
-    
+
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
@@ -330,4 +330,3 @@ class _MessageBubble extends StatelessWidget {
     return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }
-

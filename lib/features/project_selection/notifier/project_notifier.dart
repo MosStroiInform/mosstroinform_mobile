@@ -28,7 +28,7 @@ class ProjectsNotifier extends _$ProjectsNotifier {
   Future<ProjectsState> build() async {
     // Следим за состоянием авторизации, чтобы сбрасывать состояние при выходе
     ref.watch(authProvider);
-    
+
     // Начинаем с загрузки, чтобы UI показывал шиммер, а не "нет проектов"
     return const ProjectsState(projects: [], isLoading: true);
   }
@@ -39,10 +39,11 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 
     try {
       final repository = ref.read(projectRepositoryProvider);
-      final projects = await repository.getProjects(); // Без пагинации - получаем все проекты
+      final projects = await repository
+          .getProjects(); // Без пагинации - получаем все проекты
 
       if (state.hasValue || !state.hasError) {
-         state = AsyncValue.data(
+        state = AsyncValue.data(
           ProjectsState(projects: projects, isLoading: false),
         );
       }
@@ -53,7 +54,7 @@ class ProjectsNotifier extends _$ProjectsNotifier {
     } catch (e, _) {
       // Игнорируем ошибку использования disposed ref, если она возникла
       if (e.toString().contains('disposed')) return;
-      
+
       state = AsyncValue.data(
         const ProjectsState(projects: []).copyWith(
           isLoading: false,
@@ -90,7 +91,7 @@ class ProjectNotifier extends _$ProjectNotifier {
     if (showLoading || currentState == null || currentState.project == null) {
       state = const AsyncValue.loading();
     }
-    
+
     try {
       final repository = ref.read(projectRepositoryProvider);
       final project = await repository.getProjectById(id);

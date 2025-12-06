@@ -5,8 +5,7 @@ import 'package:mosstroinform_mobile/features/project_selection/domain/entities/
 import 'package:mosstroinform_mobile/features/project_selection/domain/repositories/construction_object_repository.dart';
 
 /// Реализация репозитория объектов строительства
-class ConstructionObjectRepositoryImpl
-    implements ConstructionObjectRepository {
+class ConstructionObjectRepositoryImpl implements ConstructionObjectRepository {
   final IConstructionObjectRemoteDataSource remoteDataSource;
 
   ConstructionObjectRepositoryImpl({required this.remoteDataSource});
@@ -33,8 +32,11 @@ class ConstructionObjectRepositoryImpl
       // Получаем все объекты и фильтруем по статусу этапов
       final allObjects = await getObjects();
       return allObjects
-          .where((obj) => obj.stages
-              .any((stage) => stage.status == StageStatus.inProgress))
+          .where(
+            (obj) => obj.stages.any(
+              (stage) => stage.status == StageStatus.inProgress,
+            ),
+          )
           .toList();
     }, methodName: 'getRequestedObjects');
   }
@@ -45,9 +47,13 @@ class ConstructionObjectRepositoryImpl
       // Получаем все объекты и фильтруем по статусу этапов
       final allObjects = await getObjects();
       return allObjects
-          .where((obj) =>
-              obj.stages.isNotEmpty &&
-              obj.stages.every((stage) => stage.status == StageStatus.completed))
+          .where(
+            (obj) =>
+                obj.stages.isNotEmpty &&
+                obj.stages.every(
+                  (stage) => stage.status == StageStatus.completed,
+                ),
+          )
           .toList();
     }, methodName: 'getCompletedObjects');
   }
@@ -65,11 +71,9 @@ class ConstructionObjectRepositoryImpl
     bool allDocumentsSigned,
   ) async {
     return guard(() async {
-      await remoteDataSource.updateDocumentsSignedStatus(
-        projectId,
-        {'allDocumentsSigned': allDocumentsSigned},
-      );
+      await remoteDataSource.updateDocumentsSignedStatus(projectId, {
+        'allDocumentsSigned': allDocumentsSigned,
+      });
     }, methodName: 'updateDocumentsSignedStatus');
   }
 }
-

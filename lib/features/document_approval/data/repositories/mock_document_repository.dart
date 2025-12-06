@@ -24,7 +24,9 @@ class MockDocumentRepository implements DocumentRepository {
 
     // Получаем все документы из базы
     final documentsBox = HiveService.documentsBox;
-    final documents = documentsBox.values.map((adapter) => adapter.toDocument()).toList();
+    final documents = documentsBox.values
+        .map((adapter) => adapter.toDocument())
+        .toList();
 
     return documents;
   }
@@ -36,7 +38,7 @@ class MockDocumentRepository implements DocumentRepository {
 
     // Получаем документы для проекта из базы
     final documentsBox = HiveService.documentsBox;
-    
+
     // Используем keys для получения уникальных документов по ID
     // Это гарантирует, что каждый документ будет только один раз
     final documentIds = <String>{};
@@ -45,7 +47,7 @@ class MockDocumentRepository implements DocumentRepository {
         documentIds.add(key);
       }
     }
-    
+
     final documents = documentIds
         .map((id) => documentsBox.get(id))
         .whereType<DocumentAdapter>() // Фильтруем null значения
@@ -104,11 +106,11 @@ class MockDocumentRepository implements DocumentRepository {
     // Обновляем документ в базе, используя тот же ключ (ID)
     // Hive.put с тем же ключом заменяет существующую запись, а не создает новую
     await documentsBox.put(documentId, updatedAdapter);
-    
+
     AppLogger.info(
       'MockDocumentRepository.approveDocument: документ $documentId обновлен со статусом approved',
     );
-    
+
     // Проверяем, что нет дубликатов (по ID должен быть только один документ)
     final documentsWithSameId = documentsBox.values
         .where((adapter) => adapter.id == documentId)
@@ -126,7 +128,8 @@ class MockDocumentRepository implements DocumentRepository {
         .where((adapter) => adapter.projectId == projectId)
         .map((adapter) => adapter.toDocument())
         .toList();
-    final allApproved = projectDocuments.isNotEmpty &&
+    final allApproved =
+        projectDocuments.isNotEmpty &&
         projectDocuments.every((doc) => doc.status == DocumentStatus.approved);
 
     if (allApproved) {
@@ -146,7 +149,7 @@ class MockDocumentRepository implements DocumentRepository {
       if (existingObject == null) {
         // Создаем чат для объекта автоматически (в моковом режиме)
         final chatId = MockChatRepository.createChatForProject(projectId);
-        
+
         // Создаем начальные этапы строительства
         // Для моков все этапы создаются со статусом completed (100% прогресс) для тестирования подписания документов
         final initialStages = [

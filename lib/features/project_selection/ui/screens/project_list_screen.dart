@@ -162,7 +162,11 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       '${l10n.error}: ${state.error!.message}',
@@ -207,30 +211,30 @@ class _ProjectListScreenState extends ConsumerState<ProjectListScreen> {
                       },
                     )
                   : paginatedProjects.isEmpty
-                      ? Center(child: Text(l10n.projectsNotFound))
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
-                          itemCount: paginatedProjects.length + (hasMore ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == paginatedProjects.length) {
-                              return const Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Center(child: CircularProgressIndicator()),
-                              );
-                            }
-                            final project = paginatedProjects[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: ProjectCard(
-                                project: project,
-                                onTap: () {
-                                  context.push('/projects/${project.id}');
-                                },
-                              ),
-                            );
-                          },
-                        ),
+                  ? Center(child: Text(l10n.projectsNotFound))
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: paginatedProjects.length + (hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == paginatedProjects.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                        final project = paginatedProjects[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ProjectCard(
+                            project: project,
+                            onTap: () {
+                              context.push('/projects/${project.id}');
+                            },
+                          ),
+                        );
+                      },
+                    ),
             ),
           );
         },

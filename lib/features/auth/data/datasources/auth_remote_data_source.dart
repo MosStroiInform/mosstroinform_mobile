@@ -34,10 +34,7 @@ class LoginRequest {
 
   LoginRequest({required this.email, required this.password});
 
-  Map<String, dynamic> toJson() => {
-        'email': email,
-        'password': password,
-      };
+  Map<String, dynamic> toJson() => {'email': email, 'password': password};
 }
 
 /// Запрос на регистрацию
@@ -55,11 +52,11 @@ class RegisterRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'email': email,
-        'password': password,
-        'name': name,
-        if (phone != null) 'phone': phone,
-      };
+    'email': email,
+    'password': password,
+    'name': name,
+    if (phone != null) 'phone': phone,
+  };
 }
 
 /// Запрос на обновление токена
@@ -68,9 +65,7 @@ class RefreshTokenRequest {
 
   RefreshTokenRequest({required this.refreshToken});
 
-  Map<String, dynamic> toJson() => {
-        'refresh_token': refreshToken,
-      };
+  Map<String, dynamic> toJson() => {'refresh_token': refreshToken};
 }
 
 /// Ответ с токенами
@@ -93,4 +88,3 @@ class LoginResponse {
     );
   }
 }
-

@@ -29,26 +29,25 @@ extension FailureLocalization on Failure {
   /// Преобразует Failure в локализованное сообщение для пользователя
   String toLocalizedMessage(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     if (this is NetworkFailure) {
       return l10n.networkError;
     }
-    
+
     if (this is ServerFailure) {
       // Для ServerFailure показываем сообщение от сервера, если оно есть
       return message.isNotEmpty ? message : l10n.serverError;
     }
-    
+
     if (this is ValidationFailure) {
       return message;
     }
-    
+
     if (this is CacheFailure) {
       return l10n.cacheError;
     }
-    
+
     // UnknownFailure
     return l10n.error;
   }
 }
-

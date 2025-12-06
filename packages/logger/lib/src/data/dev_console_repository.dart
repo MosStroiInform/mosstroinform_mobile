@@ -7,10 +7,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 final class DevConsoleRepository implements IDevConsoleRepository {
   @override
   Future<DebugInfoEntity> fetchDebugInfo() async {
-    final [packageInfo as PackageInfo, deviceInfo as BaseDeviceInfo] = await Future.wait([
-      _fetchPackageInfo(),
-      _fetchDeviceInfo(),
-    ]);
+    final [packageInfo as PackageInfo, deviceInfo as BaseDeviceInfo] =
+        await Future.wait([_fetchPackageInfo(), _fetchDeviceInfo()]);
 
     // Используем appFlavor из Flutter services или значение по умолчанию
     final flavor = appFlavor ?? 'unknown';

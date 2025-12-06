@@ -157,7 +157,9 @@ class MockDocumentsState extends _$MockDocumentsState {
   bool areAllDocumentsApproved(String projectId) {
     final projectDocuments = getDocumentsForProject(projectId);
     if (projectDocuments.isEmpty) return false;
-    return projectDocuments.every((doc) => doc.status == DocumentStatus.approved);
+    return projectDocuments.every(
+      (doc) => doc.status == DocumentStatus.approved,
+    );
   }
 
   /// Сбросить к дефолту

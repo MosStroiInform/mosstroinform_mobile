@@ -18,4 +18,3 @@ Future<ConstructionObject> constructionObjectByProject(
     orElse: () => throw UnknownFailure('Объект не найден'),
   );
 }
-

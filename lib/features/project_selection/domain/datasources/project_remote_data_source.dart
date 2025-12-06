@@ -19,7 +19,10 @@ abstract class IProjectRemoteDataSource {
   /// POST /projects/{projectId}/start
   /// Body: {"address": "string"}
   /// Возвращает обновленный проект с objectId и chatId
-  Future<ProjectModel> startConstruction(String projectId, Map<String, dynamic> body);
+  Future<ProjectModel> startConstruction(
+    String projectId,
+    Map<String, dynamic> body,
+  );
 
   /// Получить список запрошенных проектов
   /// GET /projects/requested

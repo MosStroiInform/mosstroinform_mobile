@@ -54,7 +54,8 @@ class SnackbarContent extends StatelessWidget {
                       ),
                       Text(
                         message,
-                        style: messageTextStyle ?? const TextStyle(color: Colors.white),
+                        style: messageTextStyle ??
+                            const TextStyle(color: Colors.white),
                       ),
                     ],
                   ),
@@ -67,7 +68,8 @@ class SnackbarContent extends StatelessWidget {
                 onPressed: () => _closeSnackbar(context),
                 child: Text(
                   dismissButtonText ?? 'Undo',
-                  style: messageTextStyle ?? const TextStyle(color: Colors.white),
+                  style:
+                      messageTextStyle ?? const TextStyle(color: Colors.white),
                 ),
               ),
         ],

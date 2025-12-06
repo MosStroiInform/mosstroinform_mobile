@@ -171,7 +171,9 @@ void main() {
       expect(state.isLoading, false);
       expect(state.error, isNull);
       // build вызвал getMessages один раз, loadMessages еще раз
-      verify(() => mockRepository.getMessages(chatId)).called(greaterThanOrEqualTo(1));
+      verify(
+        () => mockRepository.getMessages(chatId),
+      ).called(greaterThanOrEqualTo(1));
     });
 
     test('sendMessage успешно отправляет сообщение', () async {
@@ -209,7 +211,7 @@ void main() {
       when(
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => existingMessages);
-      
+
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
 
@@ -227,7 +229,7 @@ void main() {
       when(
         () => mockRepository.sendMessage(chatId, 'Новое сообщение'),
       ).thenAnswer((_) async => newMessage);
-      
+
       // После отправки сообщения вызывается loadMessages, который вернет обновленный список
       when(
         () => mockRepository.getMessages(chatId),
@@ -270,14 +272,14 @@ void main() {
       when(
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => messages);
-      
+
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
 
       when(
         () => mockRepository.markMessagesAsRead(chatId),
       ).thenAnswer((_) async {});
-      
+
       // После markAsRead вызывается loadMessages
       when(
         () => mockRepository.getMessages(chatId),
@@ -288,7 +290,9 @@ void main() {
 
       verify(() => mockRepository.markMessagesAsRead(chatId)).called(1);
       // build вызвал getMessages один раз, markAsRead -> loadMessages еще раз
-      verify(() => mockRepository.getMessages(chatId)).called(greaterThanOrEqualTo(1));
+      verify(
+        () => mockRepository.getMessages(chatId),
+      ).called(greaterThanOrEqualTo(1));
     });
   });
 }

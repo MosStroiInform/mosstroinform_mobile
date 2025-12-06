@@ -82,4 +82,3 @@ extension ConstructionStageModelX on ConstructionStageModel {
     }
   }
 }
-

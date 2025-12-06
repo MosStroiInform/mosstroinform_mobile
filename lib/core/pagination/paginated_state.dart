@@ -101,4 +101,3 @@ class BasePaginatedState<T> implements PaginatedState<T> {
     );
   }
 }
-

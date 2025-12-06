@@ -23,7 +23,8 @@ class Project {
   final int price;
   final String? imageUrl;
   final ProjectStatus status;
-  final String? objectId; // ID объекта строительства (если проект в статусе строительства)
+  final String?
+  objectId; // ID объекта строительства (если проект в статусе строительства)
 
   const Project({
     required this.id,

@@ -208,10 +208,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
           : _isInitialized &&
                 _controller != null &&
                 _controller!.value.isInitialized
-          ? _VideoPlayerWidget(
-              controller: _controller!,
-              camera: widget.camera,
-            )
+          ? _VideoPlayerWidget(controller: _controller!, camera: widget.camera)
           : const _VideoLoadingWidget(),
     );
   }
@@ -223,10 +220,7 @@ class _VideoPlayerWidget extends StatelessWidget {
   final VideoPlayerController controller;
   final Camera camera;
 
-  const _VideoPlayerWidget({
-    required this.controller,
-    required this.camera,
-  });
+  const _VideoPlayerWidget({required this.controller, required this.camera});
 
   @override
   Widget build(BuildContext context) {

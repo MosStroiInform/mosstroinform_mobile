@@ -28,9 +28,9 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
     final object = await _constructionObjectRepository.getObjectById(objectId);
 
     // Вычисляем прогресс на основе этапов (все этапы должны быть completed для 100%)
-    final completedStages = object.stages.where(
-      (stage) => stage.status == StageStatus.completed,
-    ).length;
+    final completedStages = object.stages
+        .where((stage) => stage.status == StageStatus.completed)
+        .length;
     final progress = object.stages.isEmpty
         ? 0.0
         : completedStages / object.stages.length;
@@ -100,7 +100,7 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
       '=== MockConstructionSiteRepository.getConstructionSiteByProjectId (deprecated) ===',
     );
     debugPrint('projectId: $projectId');
-    
+
     // Пытаемся найти объект по projectId
     final objects = await _constructionObjectRepository.getObjects();
     final object = objects.firstWhere(
@@ -109,7 +109,7 @@ class MockConstructionSiteRepository implements ConstructionSiteRepository {
         'Объект строительства для проекта $projectId не найден',
       ),
     );
-    
+
     return getConstructionSiteByObjectId(object.id);
   }
 

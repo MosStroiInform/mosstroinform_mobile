@@ -28,11 +28,7 @@ class RequestedProjectsNotifier extends _$RequestedProjectsNotifier {
 
 /// Провайдер для проверки, запрошен ли проект
 @riverpod
-Future<bool> isProjectRequested(
-  Ref ref,
-  String projectId,
-) async {
+Future<bool> isProjectRequested(Ref ref, String projectId) async {
   final repository = ref.read(projectRepositoryProvider);
   return await repository.isProjectRequested(projectId);
 }
-

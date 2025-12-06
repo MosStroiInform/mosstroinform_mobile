@@ -9,7 +9,7 @@ class GetConstructionSite {
   GetConstructionSite(this.repository);
 
   /// Получить информацию о строительной площадке
-  /// 
+  ///
   /// [objectId] - ID объекта строительства
   Future<ConstructionSite> call(String objectId) async {
     try {

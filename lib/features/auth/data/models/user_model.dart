@@ -21,12 +21,6 @@ abstract class UserModel with _$UserModel {
 /// Расширение для конвертации модели в сущность
 extension UserModelX on UserModel {
   User toEntity() {
-    return User(
-      id: id,
-      email: email,
-      name: name,
-      phone: phone,
-    );
+    return User(id: id, email: email, name: name, phone: phone);
   }
 }
-

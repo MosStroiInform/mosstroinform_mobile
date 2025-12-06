@@ -18,6 +18,8 @@ abstract class IConstructionObjectRemoteDataSource {
   /// Обновить статус подписания документов для объекта
   /// PATCH /construction-objects/by-project/{projectId}/documents-status
   /// Body: {"allDocumentsSigned": true}
-  Future<void> updateDocumentsSignedStatus(String projectId, Map<String, dynamic> body);
+  Future<void> updateDocumentsSignedStatus(
+    String projectId,
+    Map<String, dynamic> body,
+  );
 }
-

@@ -18,7 +18,8 @@ ConstructionObjectRepository constructionObjectRepository(Ref ref) {
   if (config.useMocks) {
     return MockConstructionObjectRepository();
   }
-  final remoteDataSource = ref.watch(constructionObjectRemoteDataSourceProvider);
+  final remoteDataSource = ref.watch(
+    constructionObjectRemoteDataSourceProvider,
+  );
   return ConstructionObjectRepositoryImpl(remoteDataSource: remoteDataSource);
 }
-

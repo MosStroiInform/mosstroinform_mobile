@@ -4,7 +4,7 @@ import 'package:mosstroinform_mobile/core/pagination/paginated_state.dart';
 /// Миксин для нотифаеров с пагинацией
 /// T - тип элемента списка
 /// S - тип состояния с пагинацией
-/// 
+///
 /// Использование:
 /// ```dart
 /// @riverpod
@@ -14,12 +14,12 @@ import 'package:mosstroinform_mobile/core/pagination/paginated_state.dart';
 ///   Future<MyPaginatedState> build() async {
 ///     return const MyPaginatedState(items: []);
 ///   }
-///   
+///
 ///   @override
 ///   Future<void> loadFirstPage() async {
 ///     // Реализация загрузки первой страницы
 ///   }
-///   
+///
 ///   @override
 ///   Future<void> loadNextPage() async {
 ///     // Реализация загрузки следующей страницы
@@ -29,7 +29,7 @@ import 'package:mosstroinform_mobile/core/pagination/paginated_state.dart';
 mixin PaginatedNotifierMixin<T, S extends PaginatedState<T>> {
   /// State нотифаера (должен быть переопределен в классе)
   AsyncValue<S> get state;
-  
+
   /// Установить state (должен быть переопределен в классе)
   set state(AsyncValue<S> value);
 
@@ -62,4 +62,3 @@ mixin PaginatedNotifierMixin<T, S extends PaginatedState<T>> {
     };
   }
 }
-

@@ -16,7 +16,7 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
     try {
       final settingsBox = Hive.box('settings');
       final savedThemeMode = settingsBox.get(_themeModeKey) as String?;
-      
+
       if (savedThemeMode != null) {
         switch (savedThemeMode) {
           case 'light':
@@ -30,14 +30,14 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
     } catch (_) {
       // Если Hive не инициализирован или произошла ошибка, используем системную тему
     }
-    
+
     return ThemeMode.system;
   }
 
   /// Установить тему
   Future<void> setThemeMode(ThemeMode mode) async {
     state = mode;
-    
+
     // Сохраняем выбор в Hive
     try {
       Box settingsBox;
@@ -46,7 +46,7 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
       } else {
         settingsBox = await Hive.openBox('settings');
       }
-      
+
       String themeModeString;
       switch (mode) {
         case ThemeMode.light:
@@ -59,7 +59,7 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
           themeModeString = 'system';
           break;
       }
-      
+
       await settingsBox.put(_themeModeKey, themeModeString);
     } catch (e) {
       // Игнорируем ошибки сохранения, тема все равно будет работать
@@ -67,4 +67,3 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
     }
   }
 }
-

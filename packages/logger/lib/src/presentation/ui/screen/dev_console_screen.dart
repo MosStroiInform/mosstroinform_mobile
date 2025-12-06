@@ -19,7 +19,9 @@ class DevConsoleScreen extends ConsumerWidget {
 
     return Theme(
       data: theme.copyWith(
-        colorScheme: theme.colorScheme.copyWith(primaryContainer: Colors.purple),
+        colorScheme: theme.colorScheme.copyWith(
+          primaryContainer: Colors.purple,
+        ),
       ),
       child: Scaffold(
         endDrawer: Drawer(
@@ -30,42 +32,50 @@ class DevConsoleScreen extends ConsumerWidget {
                 final debugInfo = state.debugInfoState;
                 return switch (debugInfo) {
                   DebugInfoEntityLoading() => const Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
                   final DebugInfoEntityData data => DefaultTextStyle(
-                      style: theme.textTheme.bodyLarge!
-                          .copyWith(color: _talkerScreenTheme.textColor),
-                      child: SelectableRegion(
-                        selectionControls: MaterialTextSelectionControls(),
-                        child: Column(
-                          spacing: 16,
-                          children: [
-                            DrawerHeader(
-                              child: Text(
-                                s.devConsoleDebugInfo,
-                                style: theme.textTheme.headlineLarge!.copyWith(
-                                  color: _talkerScreenTheme.textColor,
-                                ),
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      color: _talkerScreenTheme.textColor,
+                    ),
+                    child: SelectableRegion(
+                      selectionControls: MaterialTextSelectionControls(),
+                      child: Column(
+                        spacing: 16,
+                        children: [
+                          DrawerHeader(
+                            child: Text(
+                              s.devConsoleDebugInfo,
+                              style: theme.textTheme.headlineLarge!.copyWith(
+                                color: _talkerScreenTheme.textColor,
                               ),
                             ),
-                            Text('${s.devConsoleDebugInfoAppVersion}: ${data.appVersion}'),
-                            Text('${s.devConsoleDebugInfoAppBuildNumber}: ${data.appBuildNumber}'),
-                            Text('${s.devConsoleDebugInfoFlavor}: ${data.flavor}'),
-                            Text('${s.devConsoleDebugInfoDeviceModel}: ${data.deviceModel}'),
-                            Text('${s.devConsoleDebugInfoDeviceOS}: ${data.deviceOS}'),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            '${s.devConsoleDebugInfoAppVersion}: ${data.appVersion}',
+                          ),
+                          Text(
+                            '${s.devConsoleDebugInfoAppBuildNumber}: ${data.appBuildNumber}',
+                          ),
+                          Text(
+                            '${s.devConsoleDebugInfoFlavor}: ${data.flavor}',
+                          ),
+                          Text(
+                            '${s.devConsoleDebugInfoDeviceModel}: ${data.deviceModel}',
+                          ),
+                          Text(
+                            '${s.devConsoleDebugInfoDeviceOS}: ${data.deviceOS}',
+                          ),
+                        ],
                       ),
                     ),
+                  ),
                   _ => Center(child: Text(s.devConsoleDebugInfoNoData)),
                 };
               },
-              loading: () => const Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-              error: (error, stack) => Center(
-                child: Text('Error: $error'),
-              ),
+              loading: () =>
+                  const Center(child: CircularProgressIndicator.adaptive()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
             ),
           ),
         ),
@@ -83,12 +93,9 @@ class DevConsoleScreen extends ConsumerWidget {
               ),
             ],
           ),
-          loading: () => const Center(
-            child: CircularProgressIndicator.adaptive(),
-          ),
-          error: (error, stack) => Center(
-            child: Text('Error: $error'),
-          ),
+          loading: () =>
+              const Center(child: CircularProgressIndicator.adaptive()),
+          error: (error, stack) => Center(child: Text('Error: $error')),
         ),
       ),
     );

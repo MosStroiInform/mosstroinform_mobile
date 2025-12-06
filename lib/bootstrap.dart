@@ -21,9 +21,7 @@ Future<void> bootstrap() async {
   await AppLogger.init(showLogs: kDebugMode || config.useMocks);
 
   // Устанавливаем только вертикальную ориентацию для всего приложения
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // В production можно логировать текущее окружение
   AppLogger.log('Запуск приложения с flavor: $flavor');

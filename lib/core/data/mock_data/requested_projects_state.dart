@@ -32,4 +32,3 @@ class RequestedProjectsState extends _$RequestedProjectsState {
     state = {};
   }
 }
-

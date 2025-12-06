@@ -23,7 +23,8 @@ class _DebugLoggerOverlayState extends State<DebugLoggerOverlay> {
   @override
   void didUpdateWidget(DebugLoggerOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialPosition != null && widget.initialPosition != oldWidget.initialPosition) {
+    if (widget.initialPosition != null &&
+        widget.initialPosition != oldWidget.initialPosition) {
       _position = widget.initialPosition!;
     }
   }
@@ -42,8 +43,14 @@ class _DebugLoggerOverlayState extends State<DebugLoggerOverlay> {
         onPanUpdate: (details) {
           final size = MediaQuery.of(context).size;
           setState(() {
-            final newRight = (_position.dx - details.delta.dx).clamp(0.0, size.width - _buttonSize);
-            final newTop = (_position.dy + details.delta.dy).clamp(0.0, size.height - _buttonSize);
+            final newRight = (_position.dx - details.delta.dx).clamp(
+              0.0,
+              size.width - _buttonSize,
+            );
+            final newTop = (_position.dy + details.delta.dy).clamp(
+              0.0,
+              size.height - _buttonSize,
+            );
             _position = Offset(newRight, newTop);
           });
         },

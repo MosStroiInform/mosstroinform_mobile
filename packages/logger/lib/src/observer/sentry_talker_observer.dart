@@ -2,7 +2,11 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SentryTalkerObserver extends TalkerObserver {
-  SentryTalkerObserver({this.filter, this.levelMapper, this.captureErrors = true});
+  SentryTalkerObserver({
+    this.filter,
+    this.levelMapper,
+    this.captureErrors = true,
+  });
 
   final SentryFilter? filter;
   final LevelMapper? levelMapper;
@@ -18,7 +22,10 @@ class SentryTalkerObserver extends TalkerObserver {
       Sentry.captureException(
         log.error,
         stackTrace: log.stackTrace,
-        hint: Hint.withMap({'logMessage': log.message, 'title': log.title}), // Доп. контекст
+        hint: Hint.withMap({
+          'logMessage': log.message,
+          'title': log.title,
+        }), // Доп. контекст
       );
       return;
     }
@@ -26,7 +33,9 @@ class SentryTalkerObserver extends TalkerObserver {
     Sentry.addBreadcrumb(
       Breadcrumb(
         message: log.generateTextMessage(),
-        level: levelMapper?.call(log.logLevel ?? LogLevel.info) ?? SentryLevel.debug,
+        level:
+            levelMapper?.call(log.logLevel ?? LogLevel.info) ??
+            SentryLevel.debug,
       ),
     );
   }

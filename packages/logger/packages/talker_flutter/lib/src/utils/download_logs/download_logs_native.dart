@@ -4,13 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-Future<void> downloadFile(String logs, {required Rect? sharePositionOrigin}) async {
+Future<void> downloadFile(String logs,
+    {required Rect? sharePositionOrigin}) async {
   final dir = await getTemporaryDirectory();
   final dirPath = dir.path;
   final fmtDate = DateTime.now().toString().replaceAll(':', ' ');
-  final file = await File('$dirPath/talker_logs_$fmtDate.txt').create(recursive: true);
+  final file =
+      await File('$dirPath/talker_logs_$fmtDate.txt').create(recursive: true);
   await file.writeAsString(logs);
   await SharePlus.instance.share(
-    ShareParams(files: <XFile>[XFile(file.path)], sharePositionOrigin: sharePositionOrigin),
+    ShareParams(
+        files: <XFile>[XFile(file.path)],
+        sharePositionOrigin: sharePositionOrigin),
   );
 }

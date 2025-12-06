@@ -172,4 +172,3 @@ class ConstructionObjectAdapter extends HiveObject {
     );
   }
 }
-

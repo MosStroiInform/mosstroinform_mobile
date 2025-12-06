@@ -21,7 +21,9 @@ ConstructionSiteRepository constructionSiteRepository(Ref ref) {
   debugPrint('useMocks: ${config.useMocks}');
   if (config.useMocks) {
     debugPrint('Используем MockConstructionSiteRepository');
-    final constructionObjectRepository = ref.read(constructionObjectRepositoryProvider);
+    final constructionObjectRepository = ref.read(
+      constructionObjectRepositoryProvider,
+    );
     return MockConstructionSiteRepository(
       constructionObjectRepository: constructionObjectRepository,
     );

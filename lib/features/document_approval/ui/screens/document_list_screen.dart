@@ -26,7 +26,9 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
     // Загружаем документы при открытии экрана
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.projectId != null) {
-        ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
+        ref
+            .read(documentsProvider.notifier)
+            .loadDocumentsForProject(widget.projectId!);
       } else {
         ref.read(documentsProvider.notifier).loadDocuments();
       }
@@ -56,7 +58,7 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
       appBar: AppBar(
         title: Text(l10n.documentApprovalTitle),
         actions: [
-        // Ничего не показываем - кнопка "Начать строительство" теперь на экране проекта
+          // Ничего не показываем - кнопка "Начать строительство" теперь на экране проекта
         ],
       ),
       body: AppAnimatedSwitcher(
@@ -83,7 +85,9 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
               key: ValueKey('list-${documents.length}'),
               onRefresh: () async {
                 if (widget.projectId != null) {
-                  await ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
+                  await ref
+                      .read(documentsProvider.notifier)
+                      .loadDocumentsForProject(widget.projectId!);
                 } else {
                   await ref.read(documentsProvider.notifier).loadDocuments();
                 }
@@ -126,29 +130,31 @@ class _DocumentListScreenState extends ConsumerState<DocumentListScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.errorLoadingDocuments,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                error.toLocalizedMessage(context),
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (widget.projectId != null) {
-                    ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId!);
-                  } else {
-                    ref.read(documentsProvider.notifier).loadDocuments();
-                  }
-                },
-                child: Text(l10n.retry),
-              ),
-            ],
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.toLocalizedMessage(context),
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    if (widget.projectId != null) {
+                      ref
+                          .read(documentsProvider.notifier)
+                          .loadDocumentsForProject(widget.projectId!);
+                    } else {
+                      ref.read(documentsProvider.notifier).loadDocuments();
+                    }
+                  },
+                  child: Text(l10n.retry),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

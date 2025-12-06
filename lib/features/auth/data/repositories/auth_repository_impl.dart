@@ -23,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.login(
         LoginRequest(email: email, password: password),
       );
-      
+
       // Сохраняем токены
       await secureStorage.write(
         key: StorageKeys.accessToken,
@@ -37,7 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
         key: StorageKeys.userId,
         value: response.user.id,
       );
-      
+
       return response.accessToken;
     }, methodName: 'login');
   }
@@ -58,7 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
           phone: phone,
         ),
       );
-      
+
       // Сохраняем токены
       await secureStorage.write(
         key: StorageKeys.accessToken,
@@ -72,7 +72,7 @@ class AuthRepositoryImpl implements AuthRepository {
         key: StorageKeys.userId,
         value: response.user.id,
       );
-      
+
       return response.accessToken;
     }, methodName: 'register');
   }
@@ -109,8 +109,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String> refreshToken() async {
     return guard(() async {
-      final refreshTokenValue =
-          await secureStorage.read(key: StorageKeys.refreshToken);
+      final refreshTokenValue = await secureStorage.read(
+        key: StorageKeys.refreshToken,
+      );
       if (refreshTokenValue == null) {
         throw ValidationFailure('Refresh token не найден');
       }
@@ -133,4 +134,3 @@ class AuthRepositoryImpl implements AuthRepository {
     }, methodName: 'refreshToken');
   }
 }
-

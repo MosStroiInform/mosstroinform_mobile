@@ -16,7 +16,9 @@ class MockConstructionObjectRepository implements ConstructionObjectRepository {
 
     // Получаем все объекты из базы
     final objectsBox = HiveService.constructionObjectsBox;
-    final objects = objectsBox.values.map((adapter) => adapter.toObject()).toList();
+    final objects = objectsBox.values
+        .map((adapter) => adapter.toObject())
+        .toList();
 
     AppLogger.info(
       'MockConstructionObjectRepository.getObjects: получено ${objects.length} объектов',
@@ -96,7 +98,8 @@ class MockConstructionObjectRepository implements ConstructionObjectRepository {
       imageUrl: objectAdapter.imageUrl,
       stages: completedStages,
       chatId: objectAdapter.chatId,
-      allDocumentsSigned: objectAdapter.allDocumentsSigned, // Сохраняем статус документов
+      allDocumentsSigned:
+          objectAdapter.allDocumentsSigned, // Сохраняем статус документов
       isCompleted: true, // Устанавливаем true при завершении строительства
     );
 

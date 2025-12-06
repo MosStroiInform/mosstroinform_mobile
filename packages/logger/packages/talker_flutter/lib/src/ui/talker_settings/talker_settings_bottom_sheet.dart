@@ -23,7 +23,8 @@ class TalkerSettingsBottomSheet extends StatefulWidget {
   final List<CustomSettingsGroup> customSettings;
 
   @override
-  State<TalkerSettingsBottomSheet> createState() => _TalkerSettingsBottomSheetState();
+  State<TalkerSettingsBottomSheet> createState() =>
+      _TalkerSettingsBottomSheetState();
 }
 
 class _TalkerSettingsBottomSheetState extends State<TalkerSettingsBottomSheet> {
@@ -101,7 +102,8 @@ class _TalkerSettingsBottomSheetState extends State<TalkerSettingsBottomSheet> {
         (key) => TalkerSettingsCard(
           talkerScreenTheme: widget.talkerScreenTheme,
           title: key,
-          enabled: talker.filter.disabledKeys.isEmpty || !talker.filter.disabledKeys.contains(key),
+          enabled: talker.filter.disabledKeys.isEmpty ||
+              !talker.filter.disabledKeys.contains(key),
           onChanged: (enabled) => _toggleKeySelected(enabled, key),
         ),
       ),

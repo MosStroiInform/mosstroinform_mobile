@@ -13,5 +13,6 @@ sealed class DebugInfoEntity with _$DebugInfoEntity {
     required String deviceOS,
   }) = DebugInfoEntityData;
   const factory DebugInfoEntity.loading() = DebugInfoEntityLoading;
-  const factory DebugInfoEntity.error(String errorMessage) = DebugInfoEntityError;
+  const factory DebugInfoEntity.error(String errorMessage) =
+      DebugInfoEntityError;
 }

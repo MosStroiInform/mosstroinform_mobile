@@ -92,4 +92,3 @@ class ConstructionStage {
 
 /// Статус этапа строительства
 enum StageStatus { pending, inProgress, completed }
-

@@ -24,20 +24,22 @@ class MockProjectRepository implements ProjectRepository {
 
     // Получаем все проекты из базы
     final projectsBox = HiveService.projectsBox;
-    final allProjects = projectsBox.values.map((adapter) => adapter.toProject()).toList();
+    final allProjects = projectsBox.values
+        .map((adapter) => adapter.toProject())
+        .toList();
 
     // Если указаны параметры пагинации, применяем их
     if (page != null && limit != null) {
       final startIndex = page * limit;
       final endIndex = (startIndex + limit).clamp(0, allProjects.length);
-      
+
       if (startIndex >= allProjects.length) {
         AppLogger.info(
           'MockProjectRepository.getProjects: страница $page пуста (всего проектов: ${allProjects.length})',
         );
         return [];
       }
-      
+
       final paginatedProjects = allProjects.sublist(startIndex, endIndex);
       AppLogger.info(
         'MockProjectRepository.getProjects: страница $page, получено ${paginatedProjects.length} из ${allProjects.length} проектов',
@@ -96,7 +98,8 @@ class MockProjectRepository implements ProjectRepository {
         imageUrl: projectAdapter.imageUrl,
         statusString: 'requested',
         constructionAddress: null, // Адрес больше не хранится в проекте
-        objectId: projectAdapter.objectId, // Сохраняем objectId если он был установлен
+        objectId: projectAdapter
+            .objectId, // Сохраняем objectId если он был установлен
       );
       await projectsBox.put(projectId, updatedAdapter);
       AppLogger.info(
@@ -133,11 +136,11 @@ class MockProjectRepository implements ProjectRepository {
       'doc_${projectId}_2',
       'doc_${projectId}_3',
     ];
-    
+
     final existingDocs = docIds
         .where((id) => documentsBox.containsKey(id))
         .toList();
-    
+
     if (existingDocs.isNotEmpty) {
       AppLogger.info(
         'MockProjectRepository._createDocumentsForProject: документы для проекта $projectId уже существуют (найдено ${existingDocs.length} из ${docIds.length})',
@@ -269,7 +272,10 @@ class MockProjectRepository implements ProjectRepository {
 
   /// Создать объект строительства для проекта
   /// Возвращает ID созданного объекта
-  Future<String> _createConstructionObject(String projectId, String address) async {
+  Future<String> _createConstructionObject(
+    String projectId,
+    String address,
+  ) async {
     // Получаем проект для создания объекта
     final projectsBox = HiveService.projectsBox;
     final projectAdapter = projectsBox.get(projectId);
@@ -288,11 +294,31 @@ class MockProjectRepository implements ProjectRepository {
     // Создаем начальные этапы строительства
     // Для моков все этапы создаются со статусом completed (100% прогресс) для тестирования подписания документов
     final initialStages = [
-      const ConstructionStage(id: '1', name: 'Подготовительные работы', status: StageStatus.completed),
-      const ConstructionStage(id: '2', name: 'Фундамент', status: StageStatus.completed),
-      const ConstructionStage(id: '3', name: 'Возведение стен', status: StageStatus.completed),
-      const ConstructionStage(id: '4', name: 'Кровля', status: StageStatus.completed),
-      const ConstructionStage(id: '5', name: 'Отделочные работы', status: StageStatus.completed),
+      const ConstructionStage(
+        id: '1',
+        name: 'Подготовительные работы',
+        status: StageStatus.completed,
+      ),
+      const ConstructionStage(
+        id: '2',
+        name: 'Фундамент',
+        status: StageStatus.completed,
+      ),
+      const ConstructionStage(
+        id: '3',
+        name: 'Возведение стен',
+        status: StageStatus.completed,
+      ),
+      const ConstructionStage(
+        id: '4',
+        name: 'Кровля',
+        status: StageStatus.completed,
+      ),
+      const ConstructionStage(
+        id: '5',
+        name: 'Отделочные работы',
+        status: StageStatus.completed,
+      ),
     ];
 
     // Создаем объект строительства с chatId

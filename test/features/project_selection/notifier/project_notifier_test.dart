@@ -13,11 +13,7 @@ class MockProjectRepository extends Mock implements ProjectRepository {}
 class _MockAuthNotifier extends AuthNotifier {
   @override
   Future<AuthState> build() async {
-    return const AuthState(
-      isAuthenticated: true,
-      user: null,
-      isLoading: false,
-    );
+    return const AuthState(isAuthenticated: true, user: null, isLoading: false);
   }
 }
 
@@ -32,9 +28,7 @@ void main() {
         projectRepositoryProvider.overrideWithValue(mockRepository),
         // Мок для authProvider, который используется в ProjectsNotifier.build
         // authProvider это AsyncNotifierProvider, поэтому нужно переопределить через overrideWith
-        authProvider.overrideWith(
-          () => _MockAuthNotifier(),
-        ),
+        authProvider.overrideWith(() => _MockAuthNotifier()),
       ],
     );
   });
@@ -49,24 +43,27 @@ void main() {
   });
 
   group('ProjectsNotifier', () {
-    test('build возвращает начальное состояние с пустым списком и isLoading=true', () {
-      // ProjectsNotifier.build теперь возвращает состояние с isLoading: true
-      // чтобы UI показывал shimmer, а не "нет проектов"
-      // Проверяем состояние через asyncValue, не ожидая future чтобы избежать проблем с dispose
-      final asyncValue = container.read(projectsProvider);
-      
-      // Ждем завершения build если он еще не завершен
-      if (asyncValue.isLoading) {
-        // Если еще загружается, ждем немного
-        return;
-      }
-      
-      expect(asyncValue.hasValue, true);
-      final state = asyncValue.value!;
-      expect(state.projects, isEmpty);
-      expect(state.isLoading, true);
-      expect(state.error, isNull);
-    });
+    test(
+      'build возвращает начальное состояние с пустым списком и isLoading=true',
+      () {
+        // ProjectsNotifier.build теперь возвращает состояние с isLoading: true
+        // чтобы UI показывал shimmer, а не "нет проектов"
+        // Проверяем состояние через asyncValue, не ожидая future чтобы избежать проблем с dispose
+        final asyncValue = container.read(projectsProvider);
+
+        // Ждем завершения build если он еще не завершен
+        if (asyncValue.isLoading) {
+          // Если еще загружается, ждем немного
+          return;
+        }
+
+        expect(asyncValue.hasValue, true);
+        final state = asyncValue.value!;
+        expect(state.projects, isEmpty);
+        expect(state.isLoading, true);
+        expect(state.error, isNull);
+      },
+    );
 
     test('loadProjects успешно загружает проекты', () async {
       final projects = [
@@ -229,17 +226,22 @@ void main() {
       when(
         () => mockRepository.requestConstruction('1'),
       ).thenAnswer((_) async {});
-      
+
       when(
         () => mockRepository.getProjectById('1'),
       ).thenAnswer((_) async => project);
-      
+
       // getProjects вызывается несколько раз из-за пагинации и обновления списков
       // PaginatedProjectsNotifier вызывает getProjects с параметрами пагинации
-      when(() => mockRepository.getProjects(page: any(named: 'page'), limit: any(named: 'limit')))
-          .thenAnswer((_) async => projects);
-      when(() => mockRepository.getProjects())
-          .thenAnswer((_) async => projects);
+      when(
+        () => mockRepository.getProjects(
+          page: any(named: 'page'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => projects);
+      when(
+        () => mockRepository.getProjects(),
+      ).thenAnswer((_) async => projects);
 
       final notifier = container.read(projectProvider.notifier);
       await notifier.requestConstruction('1');
@@ -247,7 +249,9 @@ void main() {
       verify(() => mockRepository.requestConstruction('1')).called(1);
       verify(() => mockRepository.getProjectById('1')).called(1);
       // getProjects может вызываться несколько раз из-за пагинации и обновления списков
-      verify(() => mockRepository.getProjects()).called(greaterThanOrEqualTo(1));
+      verify(
+        () => mockRepository.getProjects(),
+      ).called(greaterThanOrEqualTo(1));
     });
 
     test('requestConstruction обрабатывает Failure', () async {

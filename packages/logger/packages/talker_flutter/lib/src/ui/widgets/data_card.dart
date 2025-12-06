@@ -108,8 +108,11 @@ class _TalkerDataCardState extends State<TalkerDataCard> {
               if (_expanded)
                 Container(
                   width: double.infinity,
-                  margin: stackTrace != null ? const EdgeInsets.only(top: 8) : null,
-                  padding: stackTrace != null ? const EdgeInsets.all(6) : EdgeInsets.zero,
+                  margin:
+                      stackTrace != null ? const EdgeInsets.only(top: 8) : null,
+                  padding: stackTrace != null
+                      ? const EdgeInsets.all(6)
+                      : EdgeInsets.zero,
                   decoration: stackTrace != null
                       ? BoxDecoration(
                           color: Colors.grey[900],
@@ -189,7 +192,8 @@ class _TalkerDataCardState extends State<TalkerDataCard> {
   }
 
   String? get _errorMessage {
-    var txt = widget.data.exception?.toString() ?? widget.data.error?.toString();
+    var txt =
+        widget.data.exception?.toString() ?? widget.data.error?.toString();
 
     if ((txt?.isNotEmpty ?? false) && txt!.contains('Source stack:')) {
       txt = 'Data: ${txt.split('Source stack:').first.replaceAll('\n', '')}';

@@ -20,7 +20,9 @@ extension ErrorGuard on Object {
     } catch (error, stackTrace) {
       final failure = error.toFailure();
       AppLogger.error(
-        methodName != null ? '$methodName: ${failure.message}' : failure.message,
+        methodName != null
+            ? '$methodName: ${failure.message}'
+            : failure.message,
         failure,
         stackTrace,
       );
@@ -28,4 +30,3 @@ extension ErrorGuard on Object {
     }
   }
 }
-

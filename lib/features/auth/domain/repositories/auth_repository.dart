@@ -35,4 +35,3 @@ abstract class AuthRepository {
   /// Выбрасывает Failure при ошибке
   Future<String> refreshToken();
 }
-

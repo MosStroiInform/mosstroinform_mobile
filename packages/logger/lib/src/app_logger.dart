@@ -37,7 +37,9 @@ class AppLogger {
   /// The Talker instance.
   static Talker get talker {
     if (!_instance._isInitialized) {
-      throw Exception('AppLogger not initialized. Call AppLogger.init() first.');
+      throw Exception(
+        'AppLogger not initialized. Call AppLogger.init() first.',
+      );
     }
     return _instance._talker;
   }
@@ -48,12 +50,16 @@ class AppLogger {
 
   /// The TalkerRiverpodObserver instance.
   /// It is used to log Riverpod providers to the console.
-  static TalkerRiverpodObserver get riverpodObserver => TalkerRiverpodObserver(talker);
+  static TalkerRiverpodObserver get riverpodObserver =>
+      TalkerRiverpodObserver(talker);
 
   /// The TalkerDioLogger instance.
   /// It is used to log dio requests to the console.
   static TalkerDioLogger get dioLogger {
-    final logger = TalkerDioLogger(talker: talker, settings: _instance._dioLoggerSettings);
+    final logger = TalkerDioLogger(
+      talker: talker,
+      settings: _instance._dioLoggerSettings,
+    );
     _instance._registeredDioLoggers.add(logger);
     return logger;
   }
@@ -68,7 +74,8 @@ class AppLogger {
   ///
   /// [compact] will print only the message and the data.
   /// [full] will print the request and response headers and data.
-  static TalkerDioLoggerSettings get dioLoggerSettings => _instance._dioLoggerSettings;
+  static TalkerDioLoggerSettings get dioLoggerSettings =>
+      _instance._dioLoggerSettings;
 
   /// The flag to show debug features.
   ///
@@ -113,7 +120,10 @@ class AppLogger {
     try {
       _instance._talker
         ..configure(
-          observer: SentryTalkerObserver(filter: _sentryFilter, captureErrors: !kDebugMode),
+          observer: SentryTalkerObserver(
+            filter: _sentryFilter,
+            captureErrors: !kDebugMode,
+          ),
         )
         ..info('Talker configured with Sentry and Crashlytics observers.');
     } catch (e, st) {
@@ -150,8 +160,18 @@ class AppLogger {
       LogLevel.info => _instance._talker.info(message, additional),
       LogLevel.warning => _instance._talker.warning(message, additional),
       LogLevel.verbose => _instance._talker.verbose(message, additional),
-      LogLevel.error => logError(message, stackTrace: stackTrace, reason: reason, level: level),
-      LogLevel.critical => logError(message, stackTrace: stackTrace, reason: reason, level: level),
+      LogLevel.error => logError(
+        message,
+        stackTrace: stackTrace,
+        reason: reason,
+        level: level,
+      ),
+      LogLevel.critical => logError(
+        message,
+        stackTrace: stackTrace,
+        reason: reason,
+        level: level,
+      ),
     };
   }
 
@@ -186,7 +206,11 @@ class AppLogger {
     }
     return switch (level) {
       LogLevel.warning => _instance._talker.warning(reason, error, stackTrace),
-      LogLevel.critical => _instance._talker.critical(reason, error, stackTrace),
+      LogLevel.critical => _instance._talker.critical(
+        reason,
+        error,
+        stackTrace,
+      ),
       _ => _instance._talker.error(reason, error, stackTrace),
     };
   }
@@ -249,16 +273,18 @@ class AppLogger {
     }
   }
 
-  static const TalkerDioLoggerSettings _compactDioSettings = TalkerDioLoggerSettings(
-    printResponseData: false,
-    printErrorHeaders: false,
-    printErrorData: false,
-  );
+  static const TalkerDioLoggerSettings _compactDioSettings =
+      TalkerDioLoggerSettings(
+        printResponseData: false,
+        printErrorHeaders: false,
+        printErrorData: false,
+      );
 
-  static const TalkerDioLoggerSettings _fullDioSettings = TalkerDioLoggerSettings(
-    printRequestHeaders: true,
-    printResponseHeaders: true,
-  );
+  static const TalkerDioLoggerSettings _fullDioSettings =
+      TalkerDioLoggerSettings(
+        printRequestHeaders: true,
+        printResponseHeaders: true,
+      );
 
   /// The method to filter the sentry logs.
   ///

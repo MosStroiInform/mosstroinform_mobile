@@ -86,11 +86,16 @@ class ProfileScreen extends ConsumerWidget {
                     ListTile(
                       leading: Icon(Icons.brightness_6),
                       title: Text('Тема приложения'),
-                      subtitle: Text(_getThemeModeText(ref.watch(themeModeProvider))),
+                      subtitle: Text(
+                        _getThemeModeText(ref.watch(themeModeProvider)),
+                      ),
                     ),
                     Divider(height: 1),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: SegmentedButton<ThemeMode>(
                         segments: const [
                           ButtonSegment<ThemeMode>(
@@ -112,7 +117,9 @@ class ProfileScreen extends ConsumerWidget {
                         selected: {ref.watch(themeModeProvider)},
                         onSelectionChanged: (Set<ThemeMode> newSelection) {
                           if (newSelection.isNotEmpty) {
-                            ref.read(themeModeProvider.notifier).setThemeMode(newSelection.first);
+                            ref
+                                .read(themeModeProvider.notifier)
+                                .setThemeMode(newSelection.first);
                           }
                         },
                       ),

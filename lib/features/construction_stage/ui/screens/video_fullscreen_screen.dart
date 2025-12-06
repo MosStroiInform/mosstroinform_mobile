@@ -169,4 +169,3 @@ class _VideoFullscreenScreenState extends State<VideoFullscreenScreen> {
     );
   }
 }
-

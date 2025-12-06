@@ -62,7 +62,8 @@ class TalkerViewController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> downloadLogsFile(String logs, {required Rect? sharePositionOrigin}) async =>
+  Future<void> downloadLogsFile(String logs,
+          {required Rect? sharePositionOrigin}) async =>
       downloadFile(logs, sharePositionOrigin: sharePositionOrigin);
 
   /// Redefinition [notifyListeners]

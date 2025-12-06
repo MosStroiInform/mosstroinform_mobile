@@ -10,26 +10,27 @@ class MockFinalDocumentRepository implements FinalDocumentRepository {
   /// Получить документы для проекта (загружаются из Hive или создаются при первом запросе)
   List<FinalDocument> _getDocumentsForProject(String projectId) {
     final box = HiveService.finalDocumentsBox;
-    
+
     // Пытаемся загрузить документы из Hive
     final existingDocs = box.values
         .where((adapter) => adapter.projectId == projectId)
         .map((adapter) => adapter.toDocument())
         .toList();
-    
+
     if (existingDocs.isNotEmpty) {
       AppLogger.info(
         'MockFinalDocumentRepository._getDocumentsForProject: загружено ${existingDocs.length} документов из Hive для проекта $projectId',
       );
       return existingDocs;
     }
-    
+
     // Если документов нет, создаем начальные
     final initialDocs = [
       FinalDocument(
         id: 'final1_$projectId',
         title: 'Акт приёмки выполненных работ',
-        description: 'Финальный акт приёмки всех выполненных строительных работ',
+        description:
+            'Финальный акт приёмки всех выполненных строительных работ',
         fileUrl: 'https://example.com/act.pdf',
         status: FinalDocumentStatus.pending,
         submittedAt: null,
@@ -58,20 +59,20 @@ class MockFinalDocumentRepository implements FinalDocumentRepository {
         signatureUrl: null,
       ),
     ];
-    
+
     // Сохраняем в Hive
     for (final doc in initialDocs) {
       final adapter = FinalDocumentAdapter.fromDocument(doc, projectId);
       box.put(doc.id, adapter);
     }
-    
+
     AppLogger.info(
       'MockFinalDocumentRepository._getDocumentsForProject: создано ${initialDocs.length} начальных документов для проекта $projectId',
     );
-    
+
     return initialDocs;
   }
-  
+
   /// Сохранить документ в Hive
   void _saveDocument(FinalDocument document, String projectId) {
     final box = HiveService.finalDocumentsBox;
@@ -96,7 +97,7 @@ class MockFinalDocumentRepository implements FinalDocumentRepository {
     // Получаем реальный статус завершения из объекта строительства
     bool isCompleted = false;
     DateTime? completionDate;
-    
+
     try {
       final objectsBox = HiveService.constructionObjectsBox;
       final objectAdapter = objectsBox.values.firstWhere(
@@ -106,7 +107,7 @@ class MockFinalDocumentRepository implements FinalDocumentRepository {
       // В моке не храним дату завершения отдельно, поэтому если завершено - ставим текущую (или надо добавить в адаптер)
       // Для простоты, если завершено, ставим заглушку даты
       if (isCompleted) {
-        completionDate = DateTime.now(); 
+        completionDate = DateTime.now();
       }
     } catch (_) {
       // Если объект не найден, считаем что не завершено

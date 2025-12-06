@@ -21,10 +21,12 @@ class AppTheme {
   static ThemeData get darkTheme {
     // Создаем более контрастную цветовую схему для темной темы
     final baseColorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF42A5F5), // Более яркий синий для лучшей видимости
+      seedColor: const Color(
+        0xFF42A5F5,
+      ), // Более яркий синий для лучшей видимости
       brightness: Brightness.dark,
     );
-    
+
     // Увеличиваем контрастность всех элементов
     final darkColorScheme = baseColorScheme.copyWith(
       primary: const Color(0xFF64B5F6), // Более яркий primary цвет
@@ -33,7 +35,9 @@ class AppTheme {
       onSecondary: Colors.black,
       surface: const Color(0xFF353535), // Более светлый фон для карточек
       onSurface: Colors.white, // Более яркий текст на surface
-      surfaceContainerHighest: const Color(0xFF454545), // Еще более светлый для контейнеров
+      surfaceContainerHighest: const Color(
+        0xFF454545,
+      ), // Еще более светлый для контейнеров
       onSurfaceVariant: const Color(0xFFE0E0E0), // Более яркий вариантный текст
       outline: const Color(0xFF757575), // Более видимые границы
       outlineVariant: const Color(0xFF5A5A5A),
@@ -153,7 +157,9 @@ class AppTheme {
       InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: Color(0xFF757575)), // Более видимые границы
+          borderSide: BorderSide(
+            color: Color(0xFF757575),
+          ), // Более видимые границы
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -161,7 +167,10 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: Color(0xFF64B5F6), width: 2), // Яркая граница при фокусе
+          borderSide: BorderSide(
+            color: Color(0xFF64B5F6),
+            width: 2,
+          ), // Яркая граница при фокусе
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       );

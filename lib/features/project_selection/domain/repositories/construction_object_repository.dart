@@ -18,6 +18,8 @@ abstract class ConstructionObjectRepository {
   Future<void> completeConstruction(String objectId);
 
   /// Обновить статус подписания документов для объекта
-  Future<void> updateDocumentsSignedStatus(String projectId, bool allDocumentsSigned);
+  Future<void> updateDocumentsSignedStatus(
+    String projectId,
+    bool allDocumentsSigned,
+  );
 }
-

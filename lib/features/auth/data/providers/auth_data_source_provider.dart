@@ -13,20 +13,25 @@ part 'auth_data_source_provider.g.dart';
 Dio authDio(Ref ref) {
   final baseDio = ref.watch(dioProvider);
   final secureStorage = ref.watch(secureStorageProvider);
-  
+
   // Создаём новый Dio с interceptor для авторизации
   final dio = Dio(baseDio.options);
-  
+
   // Создаем временный AuthRemoteDataSource для обновления токена
   // (избегаем циклической зависимости с authRepositoryProvider)
-  final tempDataSource = AuthRemoteDataSource(dio, baseUrl: AppConstants.baseUrl);
-  
+  final tempDataSource = AuthRemoteDataSource(
+    dio,
+    baseUrl: AppConstants.baseUrl,
+  );
+
   dio.interceptors.add(
     AuthInterceptor(
       secureStorage: secureStorage,
       refreshTokenCallback: () async {
         // Функция для обновления токена через временный data source
-        final refreshTokenValue = await secureStorage.read(key: StorageKeys.refreshToken);
+        final refreshTokenValue = await secureStorage.read(
+          key: StorageKeys.refreshToken,
+        );
         if (refreshTokenValue == null) {
           throw Exception('Refresh token не найден');
         }
@@ -45,7 +50,7 @@ Dio authDio(Ref ref) {
       },
     ),
   );
-  
+
   return dio;
 }
 
@@ -55,4 +60,3 @@ AuthRemoteDataSource authRemoteDataSource(Ref ref) {
   final dio = ref.watch(authDioProvider);
   return AuthRemoteDataSource(dio, baseUrl: AppConstants.baseUrl);
 }
-

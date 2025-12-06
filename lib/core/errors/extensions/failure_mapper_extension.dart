@@ -11,23 +11,23 @@ extension FailureMapper on Object {
       if (this is Failure) {
         return this as Failure;
       }
-      
+
       if (this is DioException) {
         return _mapDioException(this as DioException);
       }
-      
+
       if (this is FormatException) {
         return UnknownFailure(
           'Ошибка формата данных: ${(this as FormatException).message}',
         );
       }
-      
+
       if (this is IOException) {
         return const NetworkFailure(
           'Ошибка сети. Проверьте подключение к интернету',
         );
       }
-      
+
       return UnknownFailure('Неизвестная ошибка: $this');
     } catch (e, s) {
       return UnknownFailure(
@@ -39,7 +39,8 @@ extension FailureMapper on Object {
   /// Преобразует DioException в соответствующий тип Failure
   Failure _mapDioException(DioException exception) {
     final statusCode = exception.response?.statusCode;
-    final message = exception.response?.data?['message'] as String? ??
+    final message =
+        exception.response?.data?['message'] as String? ??
         exception.message ??
         'Ошибка сети';
 
@@ -49,11 +50,11 @@ extension FailureMapper on Object {
       DioExceptionType.receiveTimeout ||
       DioExceptionType.sendTimeout ||
       DioExceptionType.badCertificate => NetworkFailure(
-          'Ошибка подключения к серверу. Проверьте подключение к интернету',
-        ),
+        'Ошибка подключения к серверу. Проверьте подключение к интернету',
+      ),
       DioExceptionType.connectionError => const NetworkFailure(
-          'Ошибка сети. Проверьте подключение к интернету',
-        ),
+        'Ошибка сети. Проверьте подключение к интернету',
+      ),
       _ => _mapHttpStatusToFailure(statusCode, message),
     };
   }
@@ -66,18 +67,16 @@ extension FailureMapper on Object {
 
     return switch (statusCode) {
       HttpStatus.unauthorized => ValidationFailure(
-          'Требуется авторизация. Войдите в систему',
-        ),
-      HttpStatus.forbidden => ValidationFailure(
-          'Доступ запрещен',
-        ),
+        'Требуется авторизация. Войдите в систему',
+      ),
+      HttpStatus.forbidden => ValidationFailure('Доступ запрещен'),
       HttpStatus.notFound => ValidationFailure('Ресурс не найден'),
       HttpStatus.badRequest => ValidationFailure(message),
       HttpStatus.unprocessableEntity => ValidationFailure(message),
       HttpStatus.conflict => ValidationFailure(message),
       HttpStatus.tooManyRequests => ValidationFailure(
-          'Слишком много запросов. Попробуйте позже',
-        ),
+        'Слишком много запросов. Попробуйте позже',
+      ),
       >= 500 => ServerFailure('Ошибка сервера: $message'),
       >= 400 => ValidationFailure(message),
       _ => NetworkFailure(message),

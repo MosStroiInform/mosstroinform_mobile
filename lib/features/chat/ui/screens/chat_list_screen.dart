@@ -111,17 +111,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   style: Theme.of(context).textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(chatsProvider.notifier).loadChats();
-                },
-                child: Text(l10n.retry),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(chatsProvider.notifier).loadChats();
+                  },
+                  child: Text(l10n.retry),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

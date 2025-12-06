@@ -79,10 +79,13 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
 
       final page = paginationParams['page'] as int;
       final limit = paginationParams['limit'] as int;
-      
+
       // Запрашиваем первую страницу с бэкенда
-      final firstPageItems = await repository.getProjects(page: page, limit: limit);
-      
+      final firstPageItems = await repository.getProjects(
+        page: page,
+        limit: limit,
+      );
+
       // Проверяем, есть ли еще данные (если получили меньше limit, значит это последняя страница)
       final hasMore = firstPageItems.length == limit;
 
@@ -154,13 +157,13 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
 
       final nextPage = currentState.currentPage + 1;
       final limit = currentState.itemsPerPage;
-      
+
       // Запрашиваем следующую страницу с бэкенда
       final nextPageItems = await repository.getProjects(
         page: nextPage,
         limit: limit,
       );
-      
+
       // Проверяем, есть ли еще данные (если получили меньше limit, значит это последняя страница)
       final hasMore = nextPageItems.length == limit;
 

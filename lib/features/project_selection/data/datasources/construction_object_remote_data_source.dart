@@ -34,4 +34,3 @@ abstract class ConstructionObjectRemoteDataSource
     @Body() Map<String, dynamic> body,
   );
 }
-

@@ -13,15 +13,14 @@ part 'auth_repository_provider.g.dart';
 @riverpod
 AuthRepository authRepository(Ref ref) {
   final secureStorage = ref.watch(secureStorageProvider);
-  
+
   if (AppConstants.useMocks) {
     return MockAuthRepository(secureStorage: secureStorage);
   }
-  
+
   final remoteDataSource = ref.watch(authRemoteDataSourceProvider);
   return AuthRepositoryImpl(
     remoteDataSource: remoteDataSource,
     secureStorage: secureStorage,
   );
 }
-

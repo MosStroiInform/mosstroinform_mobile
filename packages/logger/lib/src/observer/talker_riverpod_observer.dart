@@ -8,31 +8,17 @@ final class TalkerRiverpodObserver extends ProviderObserver {
   final Talker talker;
 
   @override
-  void didAddProvider(
-    ProviderObserverContext context,
-    Object? value,
-  ) {
+  void didAddProvider(ProviderObserverContext context, Object? value) {
     super.didAddProvider(context, value);
     talker.logCustom(
-      TalkerProviderLog(
-        context: context,
-        action: 'Added',
-        value: value,
-      ),
+      TalkerProviderLog(context: context, action: 'Added', value: value),
     );
   }
 
   @override
-  void didDisposeProvider(
-    ProviderObserverContext context,
-  ) {
+  void didDisposeProvider(ProviderObserverContext context) {
     super.didDisposeProvider(context);
-    talker.logCustom(
-      TalkerProviderLog(
-        context: context,
-        action: 'Disposed',
-      ),
-    );
+    talker.logCustom(TalkerProviderLog(context: context, action: 'Disposed'));
   }
 
   @override

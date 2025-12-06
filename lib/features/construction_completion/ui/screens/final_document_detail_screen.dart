@@ -98,7 +98,9 @@ class _FinalDocumentDetailScreenState
         child: documentAsync.when(
           data: (state) {
             // Если документ не загружен и нет ошибки - это начальное состояние, показываем шиммер
-            if (state.document == null && state.error == null && !state.isLoading) {
+            if (state.document == null &&
+                state.error == null &&
+                !state.isLoading) {
               return const DocumentDetailShimmer(key: ValueKey('shimmer'));
             }
 
@@ -119,184 +121,187 @@ class _FinalDocumentDetailScreenState
 
             return SingleChildScrollView(
               key: const ValueKey('content'),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Заголовок и статус
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        document.title,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    _StatusChip(status: document.status),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Описание
-                Text(
-                  l10n.description,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(document.description, style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 24),
-
-                // Информация о датах
-                if (document.submittedAt != null) ...[
-                  _InfoRow(
-                    icon: Icons.access_time,
-                    label: l10n.submitted,
-                    value: _formatDateTime(document.submittedAt!),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (document.signedAt != null) ...[
-                  _InfoRow(
-                    icon: Icons.check_circle,
-                    label: l10n.signedAt,
-                    value: _formatDateTime(document.signedAt!),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-
-                // Подпись
-                if (document.signatureUrl != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.verified,
-                          color: colorScheme.onTertiaryContainer,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.signature,
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: colorScheme.onTertiaryContainer,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                document.signatureUrl!,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onTertiaryContainer,
-                                ),
-                              ),
-                            ],
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Заголовок и статус
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          document.title,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
+                      ),
+                      _StatusChip(status: document.status),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Описание
+                  Text(
+                    l10n.description,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(document.description, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 24),
-                ],
 
-                // Ссылка на файл
-                if (document.fileUrl != null) ...[
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      final l10n = AppLocalizations.of(context)!;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.openFile(document.fileUrl!)),
-                        ),
+                  // Информация о датах
+                  if (document.submittedAt != null) ...[
+                    _InfoRow(
+                      icon: Icons.access_time,
+                      label: l10n.submitted,
+                      value: _formatDateTime(document.submittedAt!),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (document.signedAt != null) ...[
+                    _InfoRow(
+                      icon: Icons.check_circle,
+                      label: l10n.signedAt,
+                      value: _formatDateTime(document.signedAt!),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  // Подпись
+                  if (document.signatureUrl != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.verified,
+                            color: colorScheme.onTertiaryContainer,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.signature,
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: colorScheme.onTertiaryContainer,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  document.signatureUrl!,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Ссылка на файл
+                  if (document.fileUrl != null) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        final l10n = AppLocalizations.of(context)!;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n.openFile(document.fileUrl!)),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.file_download),
+                      label: Text(l10n.downloadDocument),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Кнопка подписания
+                  Builder(
+                    builder: (context) {
+                      // Получаем статус завершения строительства
+                      final completionStatusAsync = ref.watch(
+                        completionStatusProvider(widget.projectId),
                       );
+                      final isCompleted =
+                          completionStatusAsync.value?.status?.isCompleted ??
+                          false;
+
+                      if (document.status == FinalDocumentStatus.pending &&
+                          !isCompleted) {
+                        return SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _isProcessing ? null : _handleSign,
+                            icon: _isProcessing
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.edit),
+                            label: Text(l10n.signDocument),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     },
-                    icon: const Icon(Icons.file_download),
-                    label: Text(l10n.downloadDocument),
                   ),
-                  const SizedBox(height: 24),
                 ],
-
-                // Кнопка подписания
-                Builder(
-                  builder: (context) {
-                    // Получаем статус завершения строительства
-                    final completionStatusAsync = ref.watch(
-                      completionStatusProvider(widget.projectId),
-                    );
-                    final isCompleted =
-                        completionStatusAsync.value?.status?.isCompleted ?? false;
-
-                    if (document.status == FinalDocumentStatus.pending &&
-                        !isCompleted) {
-                      return SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _isProcessing ? null : _handleSign,
-                          icon: _isProcessing
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.edit),
-                          label: Text(l10n.signDocument),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
+              ),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.errorLoadingFinalDocument,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.toLocalizedMessage(context),
+                  style: theme.textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    ref
+                        .read(
+                          finalDocumentProvider((
+                            widget.projectId,
+                            widget.documentId,
+                          )).notifier,
+                        )
+                        .loadFinalDocument();
                   },
+                  child: Text(l10n.retry),
                 ),
               ],
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                l10n.errorLoadingFinalDocument,
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                error.toLocalizedMessage(context),
-                style: theme.textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(
-                        finalDocumentProvider((
-                          widget.projectId,
-                          widget.documentId,
-                        )).notifier,
-                      )
-                      .loadFinalDocument();
-                },
-                child: Text(l10n.retry),
-              ),
-            ],
           ),
         ),
-      ),
       ),
     );
   }

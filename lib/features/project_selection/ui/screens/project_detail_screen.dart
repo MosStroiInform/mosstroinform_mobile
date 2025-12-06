@@ -393,7 +393,9 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                                         e,
                                       );
                                       if (mounted && context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
                                               e.toLocalizedMessage(context),

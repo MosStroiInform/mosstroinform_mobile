@@ -20,7 +20,9 @@ class ConstructionObjectCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     // Подсчитываем прогресс строительства
-    final completedStages = object.stages.where((s) => s.status == StageStatus.completed).length;
+    final completedStages = object.stages
+        .where((s) => s.status == StageStatus.completed)
+        .length;
     final totalStages = object.stages.length;
     final progress = totalStages > 0 ? completedStages / totalStages : 0.0;
 
@@ -48,7 +50,7 @@ class ConstructionObjectCard extends StatelessWidget {
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
+                                    loadingProgress.expectedTotalBytes!
                               : null,
                         ),
                       ),
@@ -109,13 +111,17 @@ class ConstructionObjectCard extends StatelessWidget {
                           Text(
                             l10n.constructionProgress,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                           Text(
                             '${(progress * 100).toInt()}%',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                         ],
@@ -143,4 +149,3 @@ class ConstructionObjectCard extends StatelessWidget {
     );
   }
 }
-

@@ -41,10 +41,9 @@ class AuthInterceptor extends Interceptor {
 
       // Если уже обновляем токен, добавляем запрос в очередь
       if (_isRefreshing) {
-        _pendingRequests.add(_PendingRequest(
-          requestOptions: requestOptions,
-          handler: handler,
-        ));
+        _pendingRequests.add(
+          _PendingRequest(requestOptions: requestOptions, handler: handler),
+        );
         return;
       }
 
@@ -86,10 +85,7 @@ class AuthInterceptor extends Interceptor {
         pending.handler.resolve(response);
       } catch (e) {
         pending.handler.reject(
-          DioException(
-            requestOptions: pending.requestOptions,
-            error: e,
-          ),
+          DioException(requestOptions: pending.requestOptions, error: e),
         );
       }
     }
@@ -112,8 +108,5 @@ class _PendingRequest {
   final RequestOptions requestOptions;
   final ErrorInterceptorHandler handler;
 
-  _PendingRequest({
-    required this.requestOptions,
-    required this.handler,
-  });
+  _PendingRequest({required this.requestOptions, required this.handler});
 }

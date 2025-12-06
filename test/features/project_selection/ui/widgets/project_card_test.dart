@@ -132,8 +132,9 @@ void main() {
       expect(find.textContaining('2'), findsWidgets); // этажи
     });
 
-    testWidgets('отображает статус "запрошен" для запрошенного проекта',
-        (WidgetTester tester) async {
+    testWidgets('отображает статус "запрошен" для запрошенного проекта', (
+      WidgetTester tester,
+    ) async {
       const project = Project(
         id: '1',
         name: 'Тестовый проект',
@@ -155,28 +156,30 @@ void main() {
       expect(find.byType(ProjectCard), findsOneWidget);
     });
 
-    testWidgets('отображает статус "строительство" для проекта в строительстве',
-        (WidgetTester tester) async {
-      const project = Project(
-        id: '1',
-        name: 'Тестовый проект',
-        description: 'Описание',
-        area: 100.0,
-        floors: 2,
-        bedrooms: 3,
-        bathrooms: 2,
-        price: 1000000,
-        status: ProjectStatus.construction,
-        objectId: 'object_1',
-      );
+    testWidgets(
+      'отображает статус "строительство" для проекта в строительстве',
+      (WidgetTester tester) async {
+        const project = Project(
+          id: '1',
+          name: 'Тестовый проект',
+          description: 'Описание',
+          area: 100.0,
+          floors: 2,
+          bedrooms: 3,
+          bathrooms: 2,
+          price: 1000000,
+          status: ProjectStatus.construction,
+          objectId: 'object_1',
+        );
 
-      await tester.pumpWidget(
-        createTestWidget(ProjectCard(project: project, onTap: () {})),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(ProjectCard(project: project, onTap: () {})),
+        );
+        await tester.pumpAndSettle();
 
-      // Проверяем, что карточка отображается (статус отображается внутри)
-      expect(find.byType(ProjectCard), findsOneWidget);
-    });
+        // Проверяем, что карточка отображается (статус отображается внутри)
+        expect(find.byType(ProjectCard), findsOneWidget);
+      },
+    );
   });
 }
