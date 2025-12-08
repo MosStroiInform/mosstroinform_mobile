@@ -44,7 +44,7 @@
 Если вы просто хотите установить и использовать приложение без разработки:
 
 1. **Скачайте APK:**
-   - Перейдите на страницу [Releases](https://github.com/abigotado/mosstroinform_mobile/releases/latest)
+   - Перейдите на страницу [Releases](https://github.com/MosStroiInform/mosstroinform_mobile/releases/latest)
    - Скачайте файл `app-release.apk` из последнего релиза
 
 2. **Установите APK на Android устройство:**
@@ -99,7 +99,7 @@
 #### Шаг 3: Клонирование проекта
 
 ```bash
-git clone https://github.com/abigotado/mosstroinform_mobile.git
+git clone https://github.com/MosStroiInform/mosstroinform_mobile.git
 cd mosstroinform_mobile
 ```
 

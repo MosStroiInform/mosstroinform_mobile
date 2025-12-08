@@ -8,7 +8,7 @@
 
 ```bash
 # 1. Клонируйте репозиторий
-git clone https://github.com/abigotado/mosstroinform_mobile.git
+git clone https://github.com/MosStroiInform/mosstroinform_mobile.git
 cd mosstroinform_mobile
 
 # 2. Установите зависимости
@@ -74,7 +74,7 @@ flutter doctor
 ### Шаг 5: Клонирование проекта
 
 ```bash
-git clone https://github.com/abigotado/mosstroinform_mobile.git
+git clone https://github.com/MosStroiInform/mosstroinform_mobile.git
 cd mosstroinform_mobile
 ```
 
