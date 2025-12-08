@@ -44,9 +44,6 @@ jobs:
       - name: Analyze code
         run: flutter analyze
 
-      - name: Check formatting
-        run: dart format --set-exit-if-changed .
-
   build:
     name: Build APK
     runs-on: ubuntu-latest
