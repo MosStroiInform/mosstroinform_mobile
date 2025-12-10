@@ -290,19 +290,29 @@ jobs:
           pattern: web-prod-release
           path: web-builds
 
-      - name: List downloaded files
+      - name: Determine artifact path
+        id: artifact_path
         run: |
+          if [ -d "web-builds/web-prod-release" ]; then
+            echo "path=web-builds/web-prod-release" >> $GITHUB_OUTPUT
+            echo "Artifact is in web-builds/web-prod-release/"
+          else
+            echo "path=web-builds" >> $GITHUB_OUTPUT
+            echo "Artifact is directly in web-builds/"
+          fi
           echo "=== Web build structure ==="
-          find web-builds -type f -name "*.html" | head -5 || echo "No HTML files found"
-          ls -la web-builds/ || echo "web-builds directory not found"
+          find ${{ steps.artifact_path.outputs.path }} -type f -name "*.html" | head -5 || echo "No HTML files found"
+          ls -la ${{ steps.artifact_path.outputs.path }}/ | head -10 || echo "Directory not found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: web-builds/web-prod-release
+          path: ${{ steps.artifact_path.outputs.path }}
 
       - name: Deploy to GitHub Pages
         id: deployment
