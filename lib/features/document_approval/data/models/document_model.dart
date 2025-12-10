@@ -8,12 +8,12 @@ part 'document_model.g.dart';
 @freezed
 abstract class DocumentModel with _$DocumentModel {
   const factory DocumentModel({
-    required String id,
-    required String projectId,
-    required String title,
-    required String description,
+    String? id,
+    String? projectId,
+    String? title,
+    String? description,
     String? fileUrl,
-    @JsonKey(name: 'status') @Default('pending') String statusString,
+    @Default('pending') String statusString,
     DateTime? submittedAt,
     DateTime? approvedAt,
     String? rejectionReason,
@@ -27,10 +27,10 @@ abstract class DocumentModel with _$DocumentModel {
 extension DocumentModelExtension on DocumentModel {
   Document toEntity() {
     return Document(
-      id: id,
-      projectId: projectId,
-      title: title,
-      description: description,
+      id: id ?? '',
+      projectId: projectId ?? '',
+      title: title ?? '',
+      description: description ?? '',
       fileUrl: fileUrl,
       status: _parseStatus(statusString),
       submittedAt: submittedAt,

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:mosstroinform_mobile/app.dart';
 import 'package:mosstroinform_mobile/core/config/app_config_simple.dart';
 import 'package:mosstroinform_mobile/core/database/hive_service.dart';
@@ -21,6 +23,22 @@ Future<void> bootstrap() async {
 
   // Инициализируем логгер перед использованием
   await AppLogger.init(showLogs: kDebugMode || config.useMocks);
+
+  // Инициализируем video_player_media_kit для поддержки RTSP потоков
+  // Это необходимо для воспроизведения RTSP потоков на всех платформах
+  // VideoPlayerMediaKit автоматически перехватывает RTSP потоки и использует media_kit
+  // Примечание: RTSP не поддерживается на вебе из-за ограничений браузеров,
+  // но media_kit включен для веба для поддержки других форматов (HLS, HTTP)
+  MediaKit.ensureInitialized();
+  VideoPlayerMediaKit.ensureInitialized(
+    android: true,
+    iOS: true,
+    macOS: true,
+    windows: true,
+    linux: true,
+    web:
+        true, // media_kit работает на вебе, но RTSP не поддерживается браузерами
+  );
 
   // Устанавливаем только вертикальную ориентацию для всего приложения
   // На вебе это не поддерживается, поэтому пропускаем
@@ -56,9 +74,7 @@ Future<void> bootstrap() async {
 
   // Создаем контейнер для предзагрузки авторизации
   // Этот контейнер будет использоваться на протяжении всего жизненного цикла приложения
-  final container = ProviderContainer(
-    observers: [AppLogger.riverpodObserver],
-  );
+  final container = ProviderContainer(observers: [AppLogger.riverpodObserver]);
 
   // Предзагружаем состояние авторизации до запуска приложения
   // Это позволяет роутеру сразу определить правильный initialLocation
