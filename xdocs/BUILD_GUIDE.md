@@ -249,7 +249,8 @@ flutter build ios --release
     pkg-config \
     libgtk-3-dev \
     liblzma-dev \
-    libsecret-1-dev
+    libsecret-1-dev \
+    libcurl4-openssl-dev
   ```
 
 ### Debug сборка
@@ -573,6 +574,15 @@ sudo apt-get update
 sudo apt-get install -y libgtk-3-dev
 ```
 
+#### Ошибка: "Could NOT find CURL"
+
+Установите библиотеку CURL (требуется для Sentry):
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libcurl4-openssl-dev
+```
+
 #### Ошибка: "CMake Error"
 
 Убедитесь, что установлены все необходимые зависимости:
@@ -586,7 +596,8 @@ sudo apt-get install -y \
   pkg-config \
   libgtk-3-dev \
   liblzma-dev \
-  libsecret-1-dev
+  libsecret-1-dev \
+  libcurl4-openssl-dev
 ```
 
 #### Приложение не запускается
