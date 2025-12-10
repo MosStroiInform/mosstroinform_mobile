@@ -97,7 +97,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       //   Используется для live streaming и адаптивного потокового видео
       // - DASH потоки
       // - Обычные видеофайлы через HTTP
-      // - RTSP потоки - поддерживаются через video_player_media_kit (media_kit)
+      // - RTSP потоки - поддерживаются через media_kit с MediaKitVideoPlayerController
       final streamUrl = widget.camera.streamUrl.toLowerCase();
       final isRTSP = streamUrl.startsWith('rtsp://');
       final isHLS = streamUrl.endsWith('.m3u8');
@@ -112,9 +112,15 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       // благодаря VideoPlayerMediaKit.ensureInitialized() в bootstrap
       // Для HLS и HTTP используется стандартный video_player
       // Примечание: RTSP не работает на вебе из-за ограничений браузеров
-      // На вебе RTSP потоки не будут воспроизводиться, показывается ошибка
+      // Опции libVLC (например, --force-seekable=yes) должны быть настроены
+      // через переменные окружения или глобальную конфигурацию media_kit
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(widget.camera.streamUrl),
+        videoPlayerOptions: VideoPlayerOptions(
+          // Для RTSP потоков может потребоваться дополнительные настройки
+          // но они обычно обрабатываются автоматически через video_player_media_kit
+          mixWithOthers: false,
+        ),
       );
 
       // Добавляем слушатель изменений состояния

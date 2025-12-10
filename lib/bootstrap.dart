@@ -29,6 +29,11 @@ Future<void> bootstrap() async {
   // VideoPlayerMediaKit автоматически перехватывает RTSP потоки и использует media_kit
   // Примечание: RTSP не поддерживается на вебе из-за ограничений браузеров,
   // но media_kit включен для веба для поддержки других форматов (HLS, HTTP)
+  // 
+  // Для RTSP потоков, которые не поддерживают seek, требуется опция --force-seekable=yes
+  // Эта опция должна быть передана через PlayerConfiguration при создании Player
+  // video_player_media_kit создает Player автоматически, поэтому опции передаются
+  // через глобальную конфигурацию или через кастомную фабрику (если поддерживается)
   MediaKit.ensureInitialized();
   VideoPlayerMediaKit.ensureInitialized(
     android: true,
