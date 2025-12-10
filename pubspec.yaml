@@ -109,14 +109,11 @@ flutter_launcher_icons:
 
 # Конфигурация для splash screen
 flutter_native_splash:
-  # Цвет фона splash screen (темно-синий из логотипа)
-  color: "#213c72"
+  # Цвет фона splash screen (светлый голубой)
+  color: "#E0F2F7"
   
   # Изображение логотипа для splash screen
-  image: assets/icons/app_logo.png
-  
-  # Изображение логотипа для splash screen
-  image: assets/icons/app_logo.png
+  image: assets/icons/splash_icon.png
   
   # Настройки для Android
   android: true
