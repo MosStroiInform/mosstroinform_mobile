@@ -279,6 +279,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
+      deployments: write
 
     steps:
       - name: Checkout repository
@@ -303,9 +304,6 @@ jobs:
           echo "=== Web build structure ==="
           find ${{ steps.artifact_path.outputs.path }} -type f -name "*.html" | head -5 || echo "No HTML files found"
           ls -la ${{ steps.artifact_path.outputs.path }}/ | head -10 || echo "Directory not found"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
