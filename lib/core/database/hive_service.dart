@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/models/project_model.dart';
@@ -28,7 +29,16 @@ class HiveService {
   /// Инициализация только settings box для хранения настроек приложения
   /// Используется в любом режиме (mock и production) для сохранения темы и других настроек
   /// Идемпотентный метод - можно вызывать несколько раз без ошибок
+  /// На вебе Hive не поддерживается, поэтому инициализация пропускается
   static Future<void> initializeSettings() async {
+    // Hive не поддерживается на вебе из-за отсутствия файловой системы
+    if (kIsWeb) {
+      AppLogger.info(
+        'HiveService.initializeSettings: пропущено на вебе (Hive не поддерживается)',
+      );
+      return;
+    }
+
     try {
       // Если settings box уже открыт, ничего не делаем
       if (Hive.isBoxOpen('settings')) {
@@ -66,7 +76,16 @@ class HiveService {
 
   /// Инициализация Hive и загрузка начальных данных
   /// Идемпотентный метод - можно вызывать несколько раз без ошибок
+  /// На вебе Hive не поддерживается, поэтому инициализация пропускается
   static Future<void> initialize() async {
+    // Hive не поддерживается на вебе из-за отсутствия файловой системы
+    if (kIsWeb) {
+      AppLogger.info(
+        'HiveService.initialize: пропущено на вебе (Hive не поддерживается)',
+      );
+      return;
+    }
+
     // Если уже инициализирован, просто возвращаемся
     if (isInitialized) {
       AppLogger.info('HiveService.initialize: Hive уже инициализирован');

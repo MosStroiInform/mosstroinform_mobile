@@ -30,16 +30,25 @@ Future<void> bootstrap() async {
   // Примечание: RTSP не поддерживается на вебе из-за ограничений браузеров,
   // но media_kit включен для веба для поддержки других форматов (HLS, HTTP)
   // Ошибки аудио обрабатываются в camera_view_screen.dart и не останавливают воспроизведение видео
-  MediaKit.ensureInitialized();
-  VideoPlayerMediaKit.ensureInitialized(
-    android: true,
-    iOS: true,
-    macOS: true,
-    windows: true,
-    linux: true,
-    web:
-        true, // media_kit работает на вебе, но RTSP не поддерживается браузерами
-  );
+  try {
+    MediaKit.ensureInitialized();
+    VideoPlayerMediaKit.ensureInitialized(
+      android: true,
+      iOS: true,
+      macOS: true,
+      windows: true,
+      linux: true,
+      web:
+          true, // media_kit работает на вебе, но RTSP не поддерживается браузерами
+    );
+  } catch (e, stackTrace) {
+    AppLogger.error(
+      'Ошибка при инициализации MediaKit/VideoPlayerMediaKit: $e',
+      stackTrace,
+    );
+    // Продолжаем запуск приложения, даже если MediaKit не удалось инициализировать
+    // На вебе это может быть нормально, если media_kit не поддерживается
+  }
 
   // Устанавливаем только вертикальную ориентацию для всего приложения
   // На вебе это не поддерживается, поэтому пропускаем
