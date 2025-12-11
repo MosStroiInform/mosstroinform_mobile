@@ -136,6 +136,9 @@ jobs:
       - name: List downloaded APK files
         run: ls -la *.apk 2>/dev/null || echo "No APK files found"
 
+      - name: Install zip utility
+        run: sudo apt-get update && sudo apt-get install -y zip
+
       - name: Package Linux artifacts
         shell: bash
         run: |
@@ -143,19 +146,11 @@ jobs:
             if [ -d "$dir" ]; then
               flavor=$(echo "$dir" | sed 's/linux-\(.*\)-release/\1/')
               echo "Packaging Linux $flavor from $dir"
-              if [ -f "$dir/mosstroinform_mobile" ] || [ -f "$dir/run.sh" ]; then
-                tar -czf "mosstroinform_mobile-linux-$flavor.tar.gz" -C "$dir" .
-                echo "✅ Created: mosstroinform_mobile-linux-$flavor.tar.gz"
-              else
-                echo "⚠️ Warning: No executable found in $dir"
-                ls -la "$dir" || true
-              fi
+              tar -czf "mosstroinform_mobile-linux-$flavor.tar.gz" -C "$dir" .
+              echo "Created: mosstroinform_mobile-linux-$flavor.tar.gz"
             fi
           done
           ls -lh *.tar.gz 2>/dev/null || echo "No Linux archives created"
-
-      - name: Install zip utility
-        run: sudo apt-get update && sudo apt-get install -y zip
 
       - name: Package Windows artifacts
         shell: bash
@@ -164,14 +159,13 @@ jobs:
             if [ -d "$dir" ]; then
               flavor=$(echo "$dir" | sed 's/windows-\(.*\)-release/\1/')
               echo "Packaging Windows $flavor from $dir"
-              if [ -f "$dir/mosstroinform_mobile.exe" ] || find "$dir" -name "*.exe" | head -1 | grep -q .; then
+              if find "$dir" -name "*.exe" | head -1 | grep -q .; then
                 cd "$dir"
                 zip -r "../mosstroinform_mobile-windows-$flavor.zip" .
                 cd ..
-                echo "✅ Created: mosstroinform_mobile-windows-$flavor.zip"
+                echo "Created: mosstroinform_mobile-windows-$flavor.zip"
               else
-                echo "⚠️ Warning: No .exe found in $dir"
-                find "$dir" -type f | head -5 || true
+                echo "No .exe found in $dir"
               fi
             fi
           done
@@ -185,21 +179,17 @@ jobs:
             if [ -d "$dir" ]; then
               flavor=$(echo "$dir" | sed 's/macos-\(.*\)-release/\1/')
               echo "Packaging macOS $flavor from $dir"
-              # Ищем .app файл внутри директории (может быть в разных местах)
               APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
               if [ -n "$APP_PATH" ]; then
                 APP_NAME=$(basename "$APP_PATH")
                 APP_DIR=$(dirname "$APP_PATH")
-                # Создаем zip из директории, содержащей .app
                 cd "$APP_DIR"
                 zip -r "$ORIGINAL_DIR/mosstroinform_mobile-macos-$flavor.zip" "$APP_NAME"
                 cd "$ORIGINAL_DIR"
-                echo "✅ Created: mosstroinform_mobile-macos-$flavor.zip"
+                echo "Created: mosstroinform_mobile-macos-$flavor.zip"
               else
-                echo "⚠️ Warning: No .app found in $dir"
-                echo "Directory structure:"
-                find "$dir" -type d -maxdepth 3 | head -10 || true
-                find "$dir" -name "*.app" -type d || echo "No .app files found"
+                echo "No .app found in $dir"
+                find "$dir" -name "*.app" -type d || true
               fi
             fi
           done
@@ -210,7 +200,7 @@ jobs:
           echo "=== Release files ==="
           ls -lh *.apk *.tar.gz *.zip 2>/dev/null || echo "No release files found"
 
-      - name: Create GitHub Release
+      - name: Upload release artifacts
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -223,31 +213,17 @@ jobs:
             Автоматическая сборка из ветки main
             
             ## 📱 Android APK
-            - **Mock flavor** (с моками) - `app-mock-release.apk`
-            - **Production flavor** (реальный API) - `app-prod-release.apk`
+            - Mock: `app-mock-release.apk`
+            - Prod: `app-prod-release.apk`
             
-            ## 💻 Desktop приложения
+            ## 💻 Desktop
+            - Linux: `mosstroinform_mobile-linux-prod.tar.gz`
+            - Windows: `mosstroinform_mobile-windows-prod.zip`
+            - macOS: `mosstroinform_mobile-macos-mock.zip`, `mosstroinform_mobile-macos-prod.zip`
             
-            ### Linux
-            - **Production** - `mosstroinform_mobile-linux-prod.tar.gz`
-              - Распакуйте архив и запустите `mosstroinform_mobile`
-            
-            ### Windows
-            - **Production** - `mosstroinform_mobile-windows-prod.zip`
-              - Распакуйте архив и запустите `mosstroinform_mobile.exe`
-            
-            ### macOS
-            - **Mock flavor** (с моками) - `mosstroinform_mobile-macos-mock.zip`
-            - **Production flavor** (реальный API) - `mosstroinform_mobile-macos-prod.zip`
-              - Распакуйте архив и запустите `mosstroinform_mobile.app`
-            
-            ---
-            
-            **Информация о сборке:**
-            - Commit: `${{ github.sha }}`
-            - Автор: ${{ github.actor }}
-            - Дата: ${{ github.event.head_commit.timestamp }}
-            - Workflow run: [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Commit: ${{ github.sha }}
+            Автор: ${{ github.actor }}
+            Дата: ${{ github.event.head_commit.timestamp }}
           draft: false
           prerelease: false
         env:

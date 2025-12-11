@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mosstroinform_mobile/core/config/app_config_provider.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/core/utils/stream_url.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/domain/entities/construction_site.dart';
 import 'package:mosstroinform_mobile/features/construction_stage/ui/screens/video_fullscreen_screen.dart';
-import 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/webrtc_video_player.dart';
+import 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/web_iframe_player_stub.dart'
+    if (dart.library.html) 'package:mosstroinform_mobile/features/construction_stage/ui/widgets/web_iframe_player_web.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
 
@@ -35,6 +35,12 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     AppLogger.debug('ID: ${widget.camera.id}');
     AppLogger.debug('isActive: ${widget.camera.isActive}');
     AppLogger.debug('URL: ${widget.camera.streamUrl}');
+    final isRTSP = StreamUrl.isRtsp(widget.camera.streamUrl);
+    if (kIsWeb && isRTSP) {
+      // Для веба показываем iframe с WebRTC/HLS страницей MediaMTX, не инициализируем VideoPlayer
+      AppLogger.debug('Веб + RTSP: пропускаем инициализацию VideoPlayer, используем iframe');
+      return;
+    }
     _initializeVideo();
   }
 
@@ -230,9 +236,25 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       // VideoPlayerController.networkUrl автоматически использует media_kit для RTSP
       // благодаря VideoPlayerMediaKit.ensureInitialized() в bootstrap
       // Для HLS и HTTP используется стандартный video_player
-      // Примечание: RTSP не работает на вебе из-за ограничений браузеров
-      // На вебе RTSP потоки не будут воспроизводиться, показывается ошибка
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.camera.streamUrl));
+      // На вебе преобразуем RTSP URL в HTTP URL для прямого воспроизведения
+      String urlToUse = widget.camera.streamUrl;
+      if (kIsWeb && isRTSP) {
+        // Для веба заменяем RTSP на HTTP и порт 8554 на 8889
+        urlToUse = urlToUse.replaceAll('rtsp://', 'http://');
+        // Заменяем порт 8554 на 8889 (работает с разными форматами URL)
+        urlToUse = urlToUse.replaceAll(':8554/', ':8889/');
+        urlToUse = urlToUse.replaceAll(':8554', ':8889');
+        AppLogger.info('Преобразован RTSP URL для веба:');
+        AppLogger.info('  Исходный: ${widget.camera.streamUrl}');
+        AppLogger.info('  Новый: $urlToUse');
+      }
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(urlToUse),
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true, // не блокируем звук других источников
+          allowBackgroundPlayback: false,
+        ),
+      );
 
       // Добавляем слушатель изменений состояния
       _addVideoListener();
@@ -266,6 +288,11 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         AppLogger.debug('Запуск воспроизведения');
         // Проверяем контроллер еще раз перед использованием
         if (_controller != null) {
+          // На вебе Chrome/Firefox блокируют автостарт без жеста, если звук включен.
+          // Глушим звук перед autoplay, чтобы разрешить автозапуск потока.
+          if (kIsWeb) {
+            await _controller!.setVolume(0);
+          }
           await _controller!.play();
           AppLogger.debug('Воспроизведение запущено');
           if (_controller != null) {
@@ -323,24 +350,18 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final streamUrl = widget.camera.streamUrl.toLowerCase();
-    final isRTSP = streamUrl.startsWith('rtsp://');
+    final isRTSP = StreamUrl.isRtsp(streamUrl);
 
-    // На вебе для RTSP потоков используем WebRTC виджет
+    // На вебе для RTSP показываем встроенный iframe с HTML-плеером MediaMTX (WHEP)
     if (kIsWeb && isRTSP) {
-      return Consumer(
-        builder: (context, ref, child) {
-          final config = ref.watch(appConfigSimpleProvider);
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(widget.camera.name),
-              leading: BackButton(onPressed: () => Navigator.of(context).pop()),
-            ),
-            body: WebRTCVideoPlayer(
-              streamUrl: widget.camera.streamUrl,
-              signalingServerUrl: config.webrtcSignalingUrl,
-            ),
-          );
-        },
+      final iframeUrl = StreamUrl.toMediaMtxIframeUrl(widget.camera.streamUrl);
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.camera.name),
+          leading: BackButton(onPressed: () => Navigator.of(context).pop()),
+        ),
+        body: WebIframePlayer(url: iframeUrl),
       );
     }
 
