@@ -211,6 +211,10 @@ jobs:
           if [ "${{ matrix.platform }}" == "macos" ]; then
             # Для macOS используем только --dart-define, так как macOS не поддерживает --flavor напрямую
             # Flavor определяется через схемы Xcode или через --dart-define
+            # Отключаем подпись кода для CI/CD сборки
+            export CODE_SIGN_IDENTITY=""
+            export CODE_SIGNING_REQUIRED=NO
+            export CODE_SIGNING_ALLOWED=NO
             flutter build ${{ matrix.platform }} --release --dart-define=FLAVOR=${{ matrix.flavor }}
           else
             # Для Linux и Windows не передаем FLAVOR, используется дефолт prod
