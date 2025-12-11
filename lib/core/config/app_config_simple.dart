@@ -7,31 +7,46 @@ class AppConfigSimple {
   final bool useMocks;
   final int requestTimeout;
   final String environmentName;
+  final String? webrtcSignalingUrl;
 
   const AppConfigSimple({
     required this.baseUrl,
     required this.useMocks,
     required this.requestTimeout,
     required this.environmentName,
+    this.webrtcSignalingUrl,
   });
 
   /// Конфигурация для production окружения (реальные данные)
   factory AppConfigSimple.prod() {
-    return const AppConfigSimple(
+    return AppConfigSimple(
       baseUrl: 'https://mosstroiinform.vasmarfas.com/api/v1',
       useMocks: false,
       requestTimeout: 30,
       environmentName: 'Production',
+      // WebRTC signaling сервер для конвертации RTSP в WebRTC на вебе
+      // Варианты бесплатных решений:
+      // 1. Развернуть Janus Gateway на бесплатном хостинге (Railway, Render, Fly.io)
+      //    Пример: 'wss://your-janus-server.railway.app/janus'
+      // 2. Использовать собственный сервер на Node.js/Python с бесплатным хостингом
+      //    Пример: 'wss://your-webrtc-server.onrender.com'
+      // 3. Использовать Cloudflare Calls (бесплатно до 1000 ГБ/месяц)
+      //    Требует настройки через Cloudflare API
+      // 4. Альтернатива: использовать HLS потоки для веба вместо RTSP
+      webrtcSignalingUrl: null,
     );
   }
 
   /// Конфигурация для mock окружения (моки)
   factory AppConfigSimple.mock() {
-    return const AppConfigSimple(
+    return AppConfigSimple(
       baseUrl: 'https://api-mock.example.com',
       useMocks: true,
       requestTimeout: 30,
       environmentName: 'Mock',
+      // Для mock окружения можно использовать тот же signaling сервер
+      // или отдельный тестовый сервер
+      webrtcSignalingUrl: null,
     );
   }
 

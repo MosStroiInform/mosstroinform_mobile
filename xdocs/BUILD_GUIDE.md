@@ -250,7 +250,8 @@ flutter build ios --release
     libgtk-3-dev \
     liblzma-dev \
     libsecret-1-dev \
-    libcurl4-openssl-dev
+    libcurl4-openssl-dev \
+    libmpv-dev
   ```
 
 ### Debug сборка
@@ -574,13 +575,13 @@ sudo apt-get update
 sudo apt-get install -y libgtk-3-dev
 ```
 
-#### Ошибка: "Could NOT find CURL"
+#### Ошибка: "Target 'media_kit_video_plugin' links to 'PkgConfig::mpv' but the target was not found"
 
-Установите библиотеку CURL (требуется для Sentry):
+Установите библиотеку mpv (требуется для media_kit_video):
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y libcurl4-openssl-dev
+sudo apt-get install -y libmpv-dev
 ```
 
 #### Ошибка: "CMake Error"
@@ -597,7 +598,8 @@ sudo apt-get install -y \
   libgtk-3-dev \
   liblzma-dev \
   libsecret-1-dev \
-  libcurl4-openssl-dev
+  libcurl4-openssl-dev \
+  libmpv-dev
 ```
 
 #### Приложение не запускается

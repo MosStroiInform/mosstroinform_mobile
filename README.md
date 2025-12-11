@@ -254,7 +254,7 @@ flutter run -d chrome
 - Системные зависимости:
 
   ```bash
-  sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libcurl4-openssl-dev
+  sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libcurl4-openssl-dev libmpv-dev
   ```
 
 ### Для разработки под Windows
@@ -567,7 +567,6 @@ flutter test --watch
 - ✅ Use Cases: 7 файлов тестов
 - ✅ Widgets: 4 файла тестов
 - ✅ Базовый тест приложения: 1 файл
-
 **Всего: 18 файлов тестов, 76 тестов**
 
 ### Написание новых тестов
