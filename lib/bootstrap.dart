@@ -17,13 +17,44 @@ Future<void> bootstrap() async {
 
     // Получаем flavor из константы компиляции или используем prod по умолчанию
     // Для платформ без поддержки flavors (Linux, Windows, Web) используется prod
-    final flavor = AppConfigSimple.getFlavor();
+    String flavor;
+    AppConfigSimple config;
+    
+    try {
+      flavor = AppConfigSimple.getFlavor();
+    } catch (e, stackTrace) {
+      if (kIsWeb) {
+        print('Ошибка получения flavor: $e');
+        print('Stack trace: $stackTrace');
+      }
+      flavor = 'prod'; // Fallback на prod
+    }
 
     // Инициализируем конфигурацию
-    final config = AppConfigSimple.fromFlavor(flavor);
+    try {
+      config = AppConfigSimple.fromFlavor(flavor);
+    } catch (e, stackTrace) {
+      if (kIsWeb) {
+        print('Ошибка создания конфигурации: $e');
+        print('Stack trace: $stackTrace');
+      }
+      // Fallback на prod конфигурацию
+      config = AppConfigSimple.prod();
+    }
 
     // Инициализируем логгер перед использованием
-    await AppLogger.init(showLogs: kDebugMode || config.useMocks);
+    // На вебе оборачиваем в try-catch, так как Sentry может не работать
+    try {
+      await AppLogger.init(showLogs: kDebugMode || config.useMocks);
+    } catch (e, stackTrace) {
+      if (kIsWeb) {
+        print('Ошибка инициализации AppLogger: $e');
+        print('Stack trace: $stackTrace');
+        // Продолжаем без логгера на вебе
+      } else {
+        rethrow; // На нативных платформах пробрасываем ошибку
+      }
+    }
 
     // Инициализируем video_player_media_kit для поддержки RTSP потоков
     // Это необходимо для воспроизведения RTSP потоков на всех платформах
@@ -51,7 +82,11 @@ Future<void> bootstrap() async {
         // Продолжаем запуск приложения, даже если MediaKit не удалось инициализировать
       }
     } else {
-      AppLogger.log('MediaKit пропущен на вебе');
+      if (kIsWeb) {
+        print('MediaKit пропущен на вебе');
+      } else {
+        AppLogger.log('MediaKit пропущен на вебе');
+      }
     }
 
     // Устанавливаем только вертикальную ориентацию для всего приложения
@@ -69,13 +104,22 @@ Future<void> bootstrap() async {
     // Инициализируем settings box для хранения настроек (тема и т.д.) в любом режиме
     try {
       await HiveService.initializeSettings();
-      AppLogger.log('Hive settings box инициализирован');
+      if (kIsWeb) {
+        print('Hive settings box инициализирован');
+      } else {
+        AppLogger.log('Hive settings box инициализирован');
+      }
     } catch (e, stackTrace) {
-      AppLogger.error(
-        'Ошибка при инициализации Hive settings: $e',
-        e,
-        stackTrace,
-      );
+      if (kIsWeb) {
+        print('Ошибка при инициализации Hive settings: $e');
+        print('Stack trace: $stackTrace');
+      } else {
+        AppLogger.error(
+          'Ошибка при инициализации Hive settings: $e',
+          e,
+          stackTrace,
+        );
+      }
       // Не прерываем запуск приложения, даже если Hive не удалось инициализировать
     }
 
@@ -83,36 +127,64 @@ Future<void> bootstrap() async {
     if (config.useMocks) {
       try {
         await HiveService.initialize();
-        AppLogger.log('Hive база данных инициализирована');
+        if (kIsWeb) {
+          print('Hive база данных инициализирована');
+        } else {
+          AppLogger.log('Hive база данных инициализирована');
+        }
       } catch (e, stackTrace) {
-        AppLogger.error(
-          'Ошибка при инициализации Hive: $e',
-          e,
-          stackTrace,
-        );
+        if (kIsWeb) {
+          print('Ошибка при инициализации Hive: $e');
+          print('Stack trace: $stackTrace');
+        } else {
+          AppLogger.error(
+            'Ошибка при инициализации Hive: $e',
+            e,
+            stackTrace,
+          );
+        }
         // Не прерываем запуск приложения, даже если Hive не удалось инициализировать
       }
     }
 
     // Создаем контейнер для предзагрузки авторизации
     // Этот контейнер будет использоваться на протяжении всего жизненного цикла приложения
-    final container = ProviderContainer(observers: [AppLogger.riverpodObserver]);
+    // На вебе может быть проблема с observers, поэтому используем условно
+    final container = ProviderContainer(
+      observers: kIsWeb ? [] : [AppLogger.riverpodObserver],
+    );
 
     // Предзагружаем состояние авторизации до запуска приложения
     // Это позволяет роутеру сразу определить правильный initialLocation
-    AppLogger.log('Bootstrap: проверка авторизации...');
+    if (kIsWeb) {
+      print('Bootstrap: проверка авторизации...');
+    } else {
+      AppLogger.log('Bootstrap: проверка авторизации...');
+    }
     try {
       final authState = await container.read(authProvider.future);
-      AppLogger.log(
-        'Bootstrap: авторизация проверена, isAuthenticated=${authState.isAuthenticated}, '
-        'user=${authState.user?.email ?? "null"}',
-      );
+      if (kIsWeb) {
+        print(
+          'Bootstrap: авторизация проверена, isAuthenticated=${authState.isAuthenticated}, '
+          'user=${authState.user?.email ?? "null"}',
+        );
+      } else {
+        AppLogger.log(
+          'Bootstrap: авторизация проверена, isAuthenticated=${authState.isAuthenticated}, '
+          'user=${authState.user?.email ?? "null"}',
+        );
+      }
     } catch (e, stackTrace) {
-      AppLogger.error(
-        'Bootstrap: ошибка при проверке авторизации: $e',
-        e,
-        stackTrace,
-      );
+      if (kIsWeb) {
+        print('Bootstrap: ошибка при проверке авторизации: $e');
+        print('Stack trace: $stackTrace');
+      } else {
+        AppLogger.error(
+          'Bootstrap: ошибка при проверке авторизации: $e',
+          e,
+          stackTrace,
+        );
+      }
       // Продолжаем запуск даже при ошибке - роутер покажет экран логина
     }
 
