@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:mosstroinform_mobile/app.dart';
 import 'package:mosstroinform_mobile/core/config/app_config_simple.dart';
 import 'package:mosstroinform_mobile/core/database/hive_service.dart';
 import 'package:mosstroinform_mobile/features/auth/notifier/auth_notifier.dart';
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 
 /// Функция инициализации и запуска приложения
 Future<void> bootstrap() async {
@@ -29,6 +29,7 @@ Future<void> bootstrap() async {
   // VideoPlayerMediaKit автоматически перехватывает RTSP потоки и использует media_kit
   // Примечание: RTSP не поддерживается на вебе из-за ограничений браузеров,
   // но media_kit включен для веба для поддержки других форматов (HLS, HTTP)
+  // Ошибки аудио обрабатываются в camera_view_screen.dart и не останавливают воспроизведение видео
   MediaKit.ensureInitialized();
   VideoPlayerMediaKit.ensureInitialized(
     android: true,
