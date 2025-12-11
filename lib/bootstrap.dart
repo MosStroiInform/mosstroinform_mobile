@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,8 +24,8 @@ Future<void> bootstrap() async {
       flavor = AppConfigSimple.getFlavor();
     } catch (e, stackTrace) {
       if (kIsWeb) {
-        print('Ошибка получения flavor: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('Ошибка получения flavor: $e');
+        debugPrint('Stack trace: $stackTrace');
       }
       flavor = 'prod'; // Fallback на prod
     }
@@ -35,8 +35,8 @@ Future<void> bootstrap() async {
       config = AppConfigSimple.fromFlavor(flavor);
     } catch (e, stackTrace) {
       if (kIsWeb) {
-        print('Ошибка создания конфигурации: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('Ошибка создания конфигурации: $e');
+        debugPrint('Stack trace: $stackTrace');
       }
       // Fallback на prod конфигурацию
       config = AppConfigSimple.prod();
@@ -48,8 +48,8 @@ Future<void> bootstrap() async {
       await AppLogger.init(showLogs: kDebugMode || config.useMocks);
     } catch (e, stackTrace) {
       if (kIsWeb) {
-        print('Ошибка инициализации AppLogger: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('Ошибка инициализации AppLogger: $e');
+        debugPrint('Stack trace: $stackTrace');
         // Продолжаем без логгера на вебе
       } else {
         rethrow; // На нативных платформах пробрасываем ошибку
@@ -83,7 +83,7 @@ Future<void> bootstrap() async {
       }
     } else {
       if (kIsWeb) {
-        print('MediaKit пропущен на вебе');
+        debugPrint('MediaKit пропущен на вебе');
       } else {
         AppLogger.log('MediaKit пропущен на вебе');
       }
@@ -105,14 +105,14 @@ Future<void> bootstrap() async {
     try {
       await HiveService.initializeSettings();
       if (kIsWeb) {
-        print('Hive settings box инициализирован');
+        debugPrint('Hive settings box инициализирован');
       } else {
         AppLogger.log('Hive settings box инициализирован');
       }
     } catch (e, stackTrace) {
       if (kIsWeb) {
-        print('Ошибка при инициализации Hive settings: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('Ошибка при инициализации Hive settings: $e');
+        debugPrint('Stack trace: $stackTrace');
       } else {
         AppLogger.error(
           'Ошибка при инициализации Hive settings: $e',
@@ -128,14 +128,14 @@ Future<void> bootstrap() async {
       try {
         await HiveService.initialize();
         if (kIsWeb) {
-          print('Hive база данных инициализирована');
+          debugPrint('Hive база данных инициализирована');
         } else {
           AppLogger.log('Hive база данных инициализирована');
         }
       } catch (e, stackTrace) {
         if (kIsWeb) {
-          print('Ошибка при инициализации Hive: $e');
-          print('Stack trace: $stackTrace');
+          debugPrint('Ошибка при инициализации Hive: $e');
+          debugPrint('Stack trace: $stackTrace');
         } else {
           AppLogger.error(
             'Ошибка при инициализации Hive: $e',
@@ -157,14 +157,14 @@ Future<void> bootstrap() async {
     // Предзагружаем состояние авторизации до запуска приложения
     // Это позволяет роутеру сразу определить правильный initialLocation
     if (kIsWeb) {
-      print('Bootstrap: проверка авторизации...');
+      debugPrint('Bootstrap: проверка авторизации...');
     } else {
       AppLogger.log('Bootstrap: проверка авторизации...');
     }
     try {
       final authState = await container.read(authProvider.future);
       if (kIsWeb) {
-        print(
+        debugPrint(
           'Bootstrap: авторизация проверена, isAuthenticated=${authState.isAuthenticated}, '
           'user=${authState.user?.email ?? "null"}',
         );
@@ -176,8 +176,8 @@ Future<void> bootstrap() async {
       }
     } catch (e, stackTrace) {
       if (kIsWeb) {
-        print('Bootstrap: ошибка при проверке авторизации: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('Bootstrap: ошибка при проверке авторизации: $e');
+        debugPrint('Stack trace: $stackTrace');
       } else {
         AppLogger.error(
           'Bootstrap: ошибка при проверке авторизации: $e',
@@ -202,8 +202,8 @@ Future<void> bootstrap() async {
     // На вебе это может быть единственный способ увидеть ошибку
     if (kIsWeb) {
       // На вебе выводим ошибку в консоль браузера
-      print('КРИТИЧЕСКАЯ ОШИБКА ПРИ ИНИЦИАЛИЗАЦИИ: $e');
-      print('Stack trace: $stackTrace');
+      debugPrint('КРИТИЧЕСКАЯ ОШИБКА ПРИ ИНИЦИАЛИЗАЦИИ: $e');
+      debugPrint('Stack trace: $stackTrace');
     }
     // Пытаемся запустить приложение с минимальной конфигурацией
     try {
