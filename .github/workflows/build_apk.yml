@@ -294,7 +294,7 @@ jobs:
         run: dart run build_runner build -d
 
       - name: Build Web (prod)
-        run: flutter build web --release --base-href /
+        run: flutter build web --release --base-href /mosstroinform_mobile/
         continue-on-error: false
 
       - name: Upload Web artifact (prod)
