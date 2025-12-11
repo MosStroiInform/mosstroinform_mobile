@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 
 /// Упрощённая конфигурация приложения для разных окружений
@@ -68,10 +69,21 @@ class AppConfigSimple {
   /// Если appFlavor не установлен, читает из String.fromEnvironment('FLAVOR')
   /// По умолчанию используется 'prod' для платформ, которые не поддерживают flavors
   static String getFlavor() {
+    // На вебе String.fromEnvironment может использоваться только как const,
+    // поэтому для веба всегда используем 'prod'
+    if (kIsWeb) {
+      return 'prod';
+    }
+    
     // Flutter автоматически передает flavor name через appFlavor при использовании --flavor
     // appFlavor доступен глобально из package:flutter/services.dart
-    // Если appFlavor не установлен (например, при использовании --dart-define), читаем из environment
-    // По умолчанию используем 'prod' для платформ без поддержки flavors (Linux, Windows, Web)
-    return appFlavor ?? String.fromEnvironment('FLAVOR', defaultValue: 'prod');
+    if (appFlavor != null) {
+      return appFlavor!;
+    }
+    
+    // Если appFlavor не установлен, читаем из environment (const для компиляции)
+    // String.fromEnvironment может использоваться только как const
+    const flavorFromEnv = String.fromEnvironment('FLAVOR', defaultValue: 'prod');
+    return flavorFromEnv;
   }
 }
