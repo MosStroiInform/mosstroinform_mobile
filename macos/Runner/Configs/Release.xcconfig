@@ -1,4 +1,5 @@
 #include "../../Flutter/Flutter-Release.xcconfig"
 #include "Warnings.xcconfig"
+#include "AppInfo.xcconfig"
 
 FLUTTER_BUILD_MODE=release
