@@ -133,8 +133,39 @@ jobs:
             windows-*-release
             macos-*-release
           merge-multiple: false
-          path: .
+          path: desktop-artifacts
 
+      - name: Move desktop artifacts to root
+        run: |
+          echo "=== Moving desktop artifacts to root ==="
+          if [ -d "desktop-artifacts" ]; then
+            echo "Contents of desktop-artifacts:"
+            ls -la desktop-artifacts/ || true
+            echo ""
+            echo "Searching for artifact directories:"
+            find desktop-artifacts -maxdepth 1 -type d ! -name "desktop-artifacts" || true
+            echo ""
+            # Перемещаем все директории из desktop-artifacts в корень
+            for dir in desktop-artifacts/*/; do
+              if [ -d "$dir" ]; then
+                dir_name=$(basename "$dir")
+                echo "Moving $dir_name to root..."
+                mv "$dir" .
+                echo "✅ Moved $dir_name"
+              fi
+            done
+            # Удаляем пустую директорию desktop-artifacts если она пуста
+            rmdir desktop-artifacts 2>/dev/null || true
+            echo ""
+            echo "✅ Moved desktop artifacts to root"
+            echo "Current root directory contents:"
+            ls -la | grep -E "(linux|windows|macos).*-release" || echo "No artifact directories found in root"
+          else
+            echo "⚠️ desktop-artifacts directory not found"
+            echo "Checking if artifacts are already in root:"
+            ls -d *-*-release 2>/dev/null || echo "No artifact directories found"
+          fi
+          
       - name: Check if artifacts were downloaded as zip files
         run: |
           echo "=== Checking for zip files ==="
@@ -207,10 +238,13 @@ jobs:
         shell: bash
         run: |
           FOUND_ANY=false
-          for dir in $(find . -maxdepth 1 -type d -name "linux-*-release" 2>/dev/null | sort); do
+          # Сначала ищем в корне, потом глубже
+          for dir in $(find . -maxdepth 2 -type d -name "linux-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              flavor=$(echo "$dir" | sed 's/.*linux-\(.*\)-release/\1/' | sed 's|^\./||')
+              # Получаем имя директории без пути
+              dir_name=$(basename "$dir")
+              flavor=$(echo "$dir_name" | sed 's/linux-\(.*\)-release/\1/')
               echo "Packaging Linux $flavor from $dir"
               if [ -f "$dir/mosstroinform_mobile" ] || [ -f "$dir/run.sh" ] || [ -n "$(find "$dir" -maxdepth 1 -type f 2>/dev/null | head -1)" ]; then
                 tar -czf "mosstroinform_mobile-linux-$flavor.tar.gz" -C "$dir" .
@@ -223,6 +257,8 @@ jobs:
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No Linux artifact directories found"
+            echo "Searching in all locations:"
+            find . -type d -name "*linux*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.tar.gz 2>/dev/null || echo "No Linux archives created"
 
@@ -230,10 +266,13 @@ jobs:
         shell: bash
         run: |
           FOUND_ANY=false
-          for dir in $(find . -maxdepth 1 -type d -name "windows-*-release" 2>/dev/null | sort); do
+          # Сначала ищем в корне, потом глубже
+          for dir in $(find . -maxdepth 2 -type d -name "windows-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              flavor=$(echo "$dir" | sed 's/.*windows-\(.*\)-release/\1/' | sed 's|^\./||')
+              # Получаем имя директории без пути
+              dir_name=$(basename "$dir")
+              flavor=$(echo "$dir_name" | sed 's/windows-\(.*\)-release/\1/')
               echo "Packaging Windows $flavor from $dir"
               if find "$dir" -name "*.exe" | head -1 | grep -q .; then
                 cd "$dir"
@@ -250,6 +289,8 @@ jobs:
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No Windows artifact directories found"
+            echo "Searching in all locations:"
+            find . -type d -name "*windows*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.zip 2>/dev/null | grep windows || echo "No Windows archives created"
 
@@ -258,10 +299,13 @@ jobs:
         run: |
           ORIGINAL_DIR=$(pwd)
           FOUND_ANY=false
-          for dir in $(find . -maxdepth 1 -type d -name "macos-*-release" 2>/dev/null | sort); do
+          # Сначала ищем в корне, потом глубже
+          for dir in $(find . -maxdepth 2 -type d -name "macos-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              flavor=$(echo "$dir" | sed 's/.*macos-\(.*\)-release/\1/' | sed 's|^\./||')
+              # Получаем имя директории без пути
+              dir_name=$(basename "$dir")
+              flavor=$(echo "$dir_name" | sed 's/macos-\(.*\)-release/\1/')
               echo "Packaging macOS $flavor from $dir"
               APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
               if [ -n "$APP_PATH" ]; then
@@ -282,6 +326,8 @@ jobs:
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No macOS artifact directories found"
+            echo "Searching in all locations:"
+            find . -type d -name "*macos*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.zip 2>/dev/null | grep macos || echo "No macOS archives created"
 
