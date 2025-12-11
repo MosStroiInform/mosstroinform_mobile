@@ -29,16 +29,8 @@ class HiveService {
   /// Инициализация только settings box для хранения настроек приложения
   /// Используется в любом режиме (mock и production) для сохранения темы и других настроек
   /// Идемпотентный метод - можно вызывать несколько раз без ошибок
-  /// На вебе Hive не поддерживается, поэтому инициализация пропускается
+  /// На вебе использует IndexedDB для хранения данных
   static Future<void> initializeSettings() async {
-    // Hive не поддерживается на вебе из-за отсутствия файловой системы
-    if (kIsWeb) {
-      AppLogger.info(
-        'HiveService.initializeSettings: пропущено на вебе (Hive не поддерживается)',
-      );
-      return;
-    }
-
     try {
       // Если settings box уже открыт, ничего не делаем
       if (Hive.isBoxOpen('settings')) {
@@ -58,9 +50,17 @@ class HiveService {
         // Если не удалось открыть, значит Hive не инициализирован
       }
 
-      // Инициализируем Hive
-      await Hive.initFlutter();
-      AppLogger.info('HiveService.initializeSettings: Hive инициализирован');
+      // Инициализируем Hive в зависимости от платформы
+      if (kIsWeb) {
+        // На вебе используем Hive.init('') для использования IndexedDB
+        // Hive автоматически использует IndexedDB для хранения данных на вебе
+        Hive.init('');
+        AppLogger.info('HiveService.initializeSettings: Hive инициализирован для веба (IndexedDB)');
+      } else {
+        // На нативных платформах используем Hive.initFlutter()
+        await Hive.initFlutter();
+        AppLogger.info('HiveService.initializeSettings: Hive инициализирован');
+      }
 
       // Открываем settings box
       await Hive.openBox('settings');
@@ -76,16 +76,8 @@ class HiveService {
 
   /// Инициализация Hive и загрузка начальных данных
   /// Идемпотентный метод - можно вызывать несколько раз без ошибок
-  /// На вебе Hive не поддерживается, поэтому инициализация пропускается
+  /// На вебе использует IndexedDB для хранения данных
   static Future<void> initialize() async {
-    // Hive не поддерживается на вебе из-за отсутствия файловой системы
-    if (kIsWeb) {
-      AppLogger.info(
-        'HiveService.initialize: пропущено на вебе (Hive не поддерживается)',
-      );
-      return;
-    }
-
     // Если уже инициализирован, просто возвращаемся
     if (isInitialized) {
       AppLogger.info('HiveService.initialize: Hive уже инициализирован');
@@ -97,8 +89,17 @@ class HiveService {
     }
 
     try {
-      await Hive.initFlutter();
-      AppLogger.info('HiveService.initialize: Hive инициализирован');
+      // Инициализируем Hive в зависимости от платформы
+      if (kIsWeb) {
+        // На вебе используем Hive.init('') для использования IndexedDB
+        // Hive автоматически использует IndexedDB для хранения данных на вебе
+        Hive.init('');
+        AppLogger.info('HiveService.initialize: Hive инициализирован для веба (IndexedDB)');
+      } else {
+        // На нативных платформах используем Hive.initFlutter()
+        await Hive.initFlutter();
+        AppLogger.info('HiveService.initialize: Hive инициализирован');
+      }
 
       // Открываем settings box для хранения настроек приложения
       await Hive.openBox('settings');
