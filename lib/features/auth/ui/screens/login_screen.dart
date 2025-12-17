@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/core/utils/email_validator.dart';
 import 'package:mosstroinform_mobile/features/auth/notifier/auth_notifier.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
@@ -134,15 +135,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return l10n.enterEmail;
-                            }
-                            if (!value.contains('@')) {
-                              return l10n.enterValidEmail;
-                            }
-                            return null;
-                          },
+                          validator: (value) =>
+                              EmailValidator.validate(value).localize(context),
                         ),
                         const SizedBox(height: 16),
 
