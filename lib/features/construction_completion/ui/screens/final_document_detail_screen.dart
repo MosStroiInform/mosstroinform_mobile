@@ -1,44 +1,35 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/notifier/final_document_notifier.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:mosstroinform_mobile/shared/file_download/data/providers/file_download_data_source_impl_native.dart';
+import 'package:mosstroinform_mobile/shared/file_download/domain/providers/file_download_service_provider.dart';
 
 /// Экран детального просмотра финального документа
 class FinalDocumentDetailScreen extends ConsumerStatefulWidget {
   final String projectId;
   final String documentId;
 
-  const FinalDocumentDetailScreen({
-    super.key,
-    required this.projectId,
-    required this.documentId,
-  });
+  const FinalDocumentDetailScreen({super.key, required this.projectId, required this.documentId});
 
   @override
-  ConsumerState<FinalDocumentDetailScreen> createState() =>
-      _FinalDocumentDetailScreenState();
+  ConsumerState<FinalDocumentDetailScreen> createState() => _FinalDocumentDetailScreenState();
 }
 
-class _FinalDocumentDetailScreenState
-    extends ConsumerState<FinalDocumentDetailScreen> {
+class _FinalDocumentDetailScreenState extends ConsumerState<FinalDocumentDetailScreen> {
   bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(
-            finalDocumentProvider((
-              widget.projectId,
-              widget.documentId,
-            )).notifier,
-          )
-          .loadFinalDocument();
+      ref.read(finalDocumentProvider((widget.projectId, widget.documentId)).notifier).loadFinalDocument();
     });
   }
 
@@ -48,32 +39,19 @@ class _FinalDocumentDetailScreenState
     setState(() => _isProcessing = true);
 
     try {
-      await ref
-          .read(
-            finalDocumentProvider((
-              widget.projectId,
-              widget.documentId,
-            )).notifier,
-          )
-          .signFinalDocument();
+      await ref.read(finalDocumentProvider((widget.projectId, widget.documentId)).notifier).signFinalDocument();
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.documentSigned),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.documentSigned), backgroundColor: Colors.green));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toLocalizedMessage(context)),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -85,9 +63,7 @@ class _FinalDocumentDetailScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final documentAsync = ref.watch(
-      finalDocumentProvider((widget.projectId, widget.documentId)),
-    );
+    final documentAsync = ref.watch(finalDocumentProvider((widget.projectId, widget.documentId)));
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -97,22 +73,14 @@ class _FinalDocumentDetailScreenState
         duration: const Duration(milliseconds: 300),
         child: documentAsync.when(
           data: (state) {
-            // Если документ не загружен и нет ошибки - это начальное состояние, показываем шиммер
-            if (state.document == null &&
-                state.error == null &&
-                !state.isLoading) {
+            if (state.document == null && state.error == null && !state.isLoading) {
               return const DocumentDetailShimmer(key: ValueKey('shimmer'));
             }
 
-            // Если документ не найден и есть ошибка - показываем ошибку
             if (state.document == null && state.error != null) {
-              return Center(
-                key: const ValueKey('error'),
-                child: Text(l10n.finalDocumentNotFound),
-              );
+              return Center(key: const ValueKey('error'), child: Text(l10n.finalDocumentNotFound));
             }
 
-            // Если документ не загружен, но идет загрузка - показываем предыдущие данные или шиммер
             if (state.document == null) {
               return const DocumentDetailShimmer(key: ValueKey('shimmer'));
             }
@@ -125,42 +93,29 @@ class _FinalDocumentDetailScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Заголовок и статус
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           document.title,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      _StatusChip(status: document.status),
+                      _StatusChip(status: document.status, signedAt: document.signedAt),
                     ],
                   ),
                   const SizedBox(height: 16),
 
-                  // Описание
                   Text(
                     l10n.description,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(document.description, style: theme.textTheme.bodyLarge),
                   const SizedBox(height: 24),
 
-                  // Информация о датах
-                  if (document.submittedAt != null) ...[
-                    _InfoRow(
-                      icon: Icons.access_time,
-                      label: l10n.submitted,
-                      value: _formatDateTime(document.submittedAt!),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  // Если документ подписан - показываем только дату подписания
+                  // Иначе показываем дату отправки
                   if (document.signedAt != null) ...[
                     _InfoRow(
                       icon: Icons.check_circle,
@@ -168,9 +123,15 @@ class _FinalDocumentDetailScreenState
                       value: _formatDateTime(document.signedAt!),
                     ),
                     const SizedBox(height: 8),
+                  ] else if (document.submittedAt != null) ...[
+                    _InfoRow(
+                      icon: Icons.access_time,
+                      label: l10n.submitted,
+                      value: _formatDateTime(document.submittedAt!),
+                    ),
+                    const SizedBox(height: 8),
                   ],
 
-                  // Подпись
                   if (document.signatureUrl != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -181,10 +142,7 @@ class _FinalDocumentDetailScreenState
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.verified,
-                            color: colorScheme.onTertiaryContainer,
-                          ),
+                          Icon(Icons.verified, color: colorScheme.onTertiaryContainer),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -213,16 +171,42 @@ class _FinalDocumentDetailScreenState
                     const SizedBox(height: 24),
                   ],
 
-                  // Ссылка на файл
                   if (document.fileUrl != null) ...[
                     OutlinedButton.icon(
-                      onPressed: () {
-                        final l10n = AppLocalizations.of(context)!;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      onPressed: () async {
+                        final fileUrl = document.fileUrl!;
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+                        try {
+                          final downloadService = ref.read(fileDownloadServiceProvider);
+                          await downloadService.downloadFile(fileUrl);
+
+                          if (context.mounted) {
+                            final filePath = FileDownloadDataSourceImpl.getLastDownloadedFilePath();
+
+                            String message;
+                            if (filePath != null) {
+                              message = 'Файл сохранён\n$filePath';
+                            } else if (Platform.isIOS) {
+                              message = 'Файл сохранён\nДоступен в приложении Files';
+                            } else {
+                              message = 'Файл сохранён';
+                            }
+
+                            scaffoldMessenger.showSnackBar(
                           SnackBar(
-                            content: Text(l10n.openFile(document.fileUrl!)),
+                                content: Text(message),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 4),
                           ),
                         );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red),
+                            );
+                          }
+                        }
                       },
                       icon: const Icon(Icons.file_download),
                       label: Text(l10n.downloadDocument),
@@ -230,18 +214,15 @@ class _FinalDocumentDetailScreenState
                     const SizedBox(height: 24),
                   ],
 
-                  // Кнопка подписания
                   Builder(
                     builder: (context) {
-                      // Получаем статус завершения строительства
-                      final completionStatusAsync = ref.watch(
-                        completionStatusProvider(widget.projectId),
-                      );
-                      final isCompleted =
-                          completionStatusAsync.value?.status?.isCompleted ??
-                          false;
+                      final completionStatusAsync = ref.watch(completionStatusProvider(widget.projectId));
+                      final isCompleted = completionStatusAsync.value?.status?.isCompleted ?? false;
 
-                      if (document.status == FinalDocumentStatus.pending &&
+                      // Кнопка показывается только если документ не подписан (нет signedAt)
+                      // и статус pending, и строительство не завершено
+                      if (document.signedAt == null &&
+                          document.status == FinalDocumentStatus.pending &&
                           !isCompleted) {
                         return SizedBox(
                           width: double.infinity,
@@ -251,9 +232,7 @@ class _FinalDocumentDetailScreenState
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
+                                    child: CircularProgressIndicator(strokeWidth: 2),
                                   )
                                 : const Icon(Icons.edit),
                             label: Text(l10n.signDocument),
@@ -274,10 +253,7 @@ class _FinalDocumentDetailScreenState
               children: [
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
-                Text(
-                  l10n.errorLoadingFinalDocument,
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(l10n.errorLoadingFinalDocument, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 Text(
                   error.toLocalizedMessage(context),
@@ -288,12 +264,7 @@ class _FinalDocumentDetailScreenState
                 ElevatedButton(
                   onPressed: () {
                     ref
-                        .read(
-                          finalDocumentProvider((
-                            widget.projectId,
-                            widget.documentId,
-                          )).notifier,
-                        )
+                        .read(finalDocumentProvider((widget.projectId, widget.documentId)).notifier)
                         .loadFinalDocument();
                   },
                   child: Text(l10n.retry),
@@ -317,11 +288,7 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _InfoRow({required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -332,18 +299,8 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 12),
-        Text(
-          '$label: ',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Text(
-          value,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text('$label: ', style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+        Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -352,8 +309,9 @@ class _InfoRow extends StatelessWidget {
 /// Виджет статуса финального документа
 class _StatusChip extends StatelessWidget {
   final FinalDocumentStatus status;
+  final DateTime? signedAt;
 
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, this.signedAt});
 
   @override
   Widget build(BuildContext context) {
@@ -361,12 +319,16 @@ class _StatusChip extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    // Если документ подписан (есть signedAt), показываем статус "Подписан"
+    // независимо от значения поля status
+    final effectiveStatus = signedAt != null ? FinalDocumentStatus.signed : status;
+
     Color backgroundColor;
     Color textColor;
     String label;
     IconData icon;
 
-    switch (status) {
+    switch (effectiveStatus) {
       case FinalDocumentStatus.pending:
         backgroundColor = colorScheme.surfaceContainerHighest;
         textColor = colorScheme.onSurface;
@@ -389,10 +351,7 @@ class _StatusChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -400,10 +359,7 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.labelMedium?.copyWith(color: textColor, fontWeight: FontWeight.w600),
           ),
         ],
       ),

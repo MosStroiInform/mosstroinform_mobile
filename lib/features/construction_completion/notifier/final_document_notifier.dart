@@ -13,17 +13,9 @@ class CompletionStatusState {
   final bool isLoading;
   final Failure? error;
 
-  const CompletionStatusState({
-    this.status,
-    this.isLoading = false,
-    this.error,
-  });
+  const CompletionStatusState({this.status, this.isLoading = false, this.error});
 
-  CompletionStatusState copyWith({
-    ConstructionCompletionStatus? status,
-    bool? isLoading,
-    Failure? error,
-  }) {
+  CompletionStatusState copyWith({ConstructionCompletionStatus? status, bool? isLoading, Failure? error}) {
     return CompletionStatusState(
       status: status ?? this.status,
       isLoading: isLoading ?? this.isLoading,
@@ -56,24 +48,21 @@ class CompletionStatusNotifier extends _$CompletionStatusNotifier {
     try {
       final repository = ref.read(finalDocumentRepositoryProvider);
       final status = await repository.getCompletionStatus(projectId);
-      state = AsyncValue.data(
-        CompletionStatusState(status: status, isLoading: false),
-      );
+      if (!ref.mounted) return;
+      state = AsyncValue.data(CompletionStatusState(status: status, isLoading: false));
     } on Failure catch (e) {
+      if (!ref.mounted) return;
       // При ошибке сохраняем предыдущие данные, если они были
       if (previousState != null && previousState.status != null) {
-        state = AsyncValue.data(
-          previousState.copyWith(error: e, isLoading: false),
-        );
+        state = AsyncValue.data(previousState.copyWith(error: e, isLoading: false));
       } else {
         state = AsyncValue.error(e, StackTrace.current);
       }
     } catch (e, s) {
+      if (!ref.mounted) return;
       final failure = UnknownFailure('Неизвестная ошибка: $e');
       if (previousState != null && previousState.status != null) {
-        state = AsyncValue.data(
-          previousState.copyWith(error: failure, isLoading: false),
-        );
+        state = AsyncValue.data(previousState.copyWith(error: failure, isLoading: false));
       } else {
         state = AsyncValue.error(failure, s);
       }
@@ -87,17 +76,9 @@ class FinalDocumentsState {
   final bool isLoading;
   final Failure? error;
 
-  const FinalDocumentsState({
-    required this.documents,
-    this.isLoading = false,
-    this.error,
-  });
+  const FinalDocumentsState({required this.documents, this.isLoading = false, this.error});
 
-  FinalDocumentsState copyWith({
-    List<FinalDocument>? documents,
-    bool? isLoading,
-    Failure? error,
-  }) {
+  FinalDocumentsState copyWith({List<FinalDocument>? documents, bool? isLoading, Failure? error}) {
     return FinalDocumentsState(
       documents: documents ?? this.documents,
       isLoading: isLoading ?? this.isLoading,
@@ -120,12 +101,13 @@ class FinalDocumentsNotifier extends _$FinalDocumentsNotifier {
     try {
       final repository = ref.read(finalDocumentRepositoryProvider);
       final documents = await repository.getFinalDocuments(projectId);
-      state = AsyncValue.data(
-        FinalDocumentsState(documents: documents, isLoading: false),
-      );
+      if (!ref.mounted) return;
+      state = AsyncValue.data(FinalDocumentsState(documents: documents, isLoading: false));
     } on Failure catch (e) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(e, StackTrace.current);
     } catch (e, s) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(UnknownFailure('Неизвестная ошибка: $e'), s);
     }
   }
@@ -139,11 +121,7 @@ class FinalDocumentState {
 
   const FinalDocumentState({this.document, this.isLoading = false, this.error});
 
-  FinalDocumentState copyWith({
-    FinalDocument? document,
-    bool? isLoading,
-    Failure? error,
-  }) {
+  FinalDocumentState copyWith({FinalDocument? document, bool? isLoading, Failure? error}) {
     return FinalDocumentState(
       document: document ?? this.document,
       isLoading: isLoading ?? this.isLoading,
@@ -156,9 +134,7 @@ class FinalDocumentState {
 @riverpod
 class FinalDocumentNotifier extends _$FinalDocumentNotifier {
   @override
-  Future<FinalDocumentState> build(
-    (String projectId, String documentId) params,
-  ) async {
+  Future<FinalDocumentState> build((String projectId, String documentId) params) async {
     return const FinalDocumentState();
   }
 
@@ -174,28 +150,22 @@ class FinalDocumentNotifier extends _$FinalDocumentNotifier {
 
     try {
       final repository = ref.read(finalDocumentRepositoryProvider);
-      final document = await repository.getFinalDocumentById(
-        params.$1,
-        params.$2,
-      );
-      state = AsyncValue.data(
-        FinalDocumentState(document: document, isLoading: false),
-      );
+      final document = await repository.getFinalDocumentById(params.$1, params.$2);
+      if (!ref.mounted) return;
+      state = AsyncValue.data(FinalDocumentState(document: document, isLoading: false));
     } on Failure catch (e) {
+      if (!ref.mounted) return;
       // При ошибке сохраняем предыдущие данные, если они были
       if (previousState != null && previousState.document != null) {
-        state = AsyncValue.data(
-          previousState.copyWith(error: e, isLoading: false),
-        );
+        state = AsyncValue.data(previousState.copyWith(error: e, isLoading: false));
       } else {
         state = AsyncValue.error(e, StackTrace.current);
       }
     } catch (e, s) {
+      if (!ref.mounted) return;
       final failure = UnknownFailure('Неизвестная ошибка: $e');
       if (previousState != null && previousState.document != null) {
-        state = AsyncValue.data(
-          previousState.copyWith(error: failure, isLoading: false),
-        );
+        state = AsyncValue.data(previousState.copyWith(error: failure, isLoading: false));
       } else {
         state = AsyncValue.error(failure, s);
       }
@@ -208,30 +178,36 @@ class FinalDocumentNotifier extends _$FinalDocumentNotifier {
     try {
       final repository = ref.read(finalDocumentRepositoryProvider);
       await repository.signFinalDocument(params.$1, params.$2);
+      if (!ref.mounted) return;
+
       await loadFinalDocument(); // Перезагрузить документ после подписания
+      if (!ref.mounted) return;
 
       // Проверяем, все ли документы подписаны
       final completionStatus = await repository.getCompletionStatus(params.$1);
+      if (!ref.mounted) return;
+
       final allDocumentsSigned = completionStatus.allDocumentsSigned;
 
       // Обновляем статус документов в объекте строительства
       final objectRepository = ref.read(constructionObjectRepositoryProvider);
-      await objectRepository.updateDocumentsSignedStatus(
-        params.$1,
-        allDocumentsSigned,
-      );
+      await objectRepository.updateDocumentsSignedStatus(params.$1, allDocumentsSigned);
+      if (!ref.mounted) return;
 
-      // Обновить статус завершения строительства
       ref.invalidate(completionStatusProvider(params.$1));
+      await ref.read(completionStatusProvider(params.$1).notifier).loadCompletionStatus();
+      if (!ref.mounted) return;
 
-      // Инвалидируем провайдер списка документов, чтобы обновился список на экране
       ref.invalidate(finalDocumentsProvider(params.$1));
+      await ref.read(finalDocumentsProvider(params.$1).notifier).loadFinalDocuments();
+      if (!ref.mounted) return;
 
-      // Инвалидируем провайдер объекта строительства, чтобы обновилась кнопка "Завершить строительство"
       ref.invalidate(constructionObjectByProjectProvider(params.$1));
     } on Failure catch (e) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(e, StackTrace.current);
     } catch (e, s) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(UnknownFailure('Неизвестная ошибка: $e'), s);
     }
   }

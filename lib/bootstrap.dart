@@ -19,7 +19,7 @@ Future<void> bootstrap() async {
     // Для платформ без поддержки flavors (Linux, Windows, Web) используется prod
     String flavor;
     AppConfigSimple config;
-    
+
     try {
       flavor = AppConfigSimple.getFlavor();
     } catch (e, stackTrace) {
@@ -75,10 +75,7 @@ Future<void> bootstrap() async {
           web: false, // На вебе не используем media_kit
         );
       } catch (e, stackTrace) {
-        AppLogger.error(
-          'Ошибка при инициализации MediaKit/VideoPlayerMediaKit: $e',
-          stackTrace,
-        );
+        AppLogger.error('Ошибка при инициализации MediaKit/VideoPlayerMediaKit: $e', stackTrace);
         // Продолжаем запуск приложения, даже если MediaKit не удалось инициализировать
       }
     } else {
@@ -114,11 +111,7 @@ Future<void> bootstrap() async {
         debugPrint('Ошибка при инициализации Hive settings: $e');
         debugPrint('Stack trace: $stackTrace');
       } else {
-        AppLogger.error(
-          'Ошибка при инициализации Hive settings: $e',
-          e,
-          stackTrace,
-        );
+        AppLogger.error('Ошибка при инициализации Hive settings: $e', e, stackTrace);
       }
       // Не прерываем запуск приложения, даже если Hive не удалось инициализировать
     }
@@ -137,11 +130,7 @@ Future<void> bootstrap() async {
           debugPrint('Ошибка при инициализации Hive: $e');
           debugPrint('Stack trace: $stackTrace');
         } else {
-          AppLogger.error(
-            'Ошибка при инициализации Hive: $e',
-            e,
-            stackTrace,
-          );
+          AppLogger.error('Ошибка при инициализации Hive: $e', e, stackTrace);
         }
         // Не прерываем запуск приложения, даже если Hive не удалось инициализировать
       }
@@ -150,9 +139,7 @@ Future<void> bootstrap() async {
     // Создаем контейнер для предзагрузки авторизации
     // Этот контейнер будет использоваться на протяжении всего жизненного цикла приложения
     // На вебе может быть проблема с observers, поэтому используем условно
-    final container = ProviderContainer(
-      observers: kIsWeb ? [] : [AppLogger.riverpodObserver],
-    );
+    final container = ProviderContainer(observers: kIsWeb ? [] : [AppLogger.riverpodObserver]);
 
     // Предзагружаем состояние авторизации до запуска приложения
     // Это позволяет роутеру сразу определить правильный initialLocation
@@ -179,11 +166,7 @@ Future<void> bootstrap() async {
         debugPrint('Bootstrap: ошибка при проверке авторизации: $e');
         debugPrint('Stack trace: $stackTrace');
       } else {
-        AppLogger.error(
-          'Bootstrap: ошибка при проверке авторизации: $e',
-          e,
-          stackTrace,
-        );
+        AppLogger.error('Bootstrap: ошибка при проверке авторизации: $e', e, stackTrace);
       }
       // Продолжаем запуск даже при ошибке - роутер покажет экран логина
     }

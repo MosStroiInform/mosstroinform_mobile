@@ -42,7 +42,6 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
 
   Future<void> _loadChat() async {
     try {
-      // Получаем объект строительства по projectId
       final objectRepository = ref.read(constructionObjectRepositoryProvider);
       final objects = await objectRepository.getObjects();
       final object = objects.firstWhere(
@@ -50,13 +49,11 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
         orElse: () => throw UnknownFailure('Объект строительства не найден'),
       );
 
-      // Получаем chatId из объекта
       final chatId = object.chatId;
       if (chatId == null) {
         throw UnknownFailure('У объекта строительства нет чата');
       }
 
-      // Загружаем чат по ID
       final chatRepository = ref.read(chatRepositoryProvider);
       final chat = await chatRepository.getChatById(chatId);
 
@@ -64,22 +61,14 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
         _chat = chat;
       });
 
-      // Загружаем сообщения чата
       ref.read(messagesProvider(chat.id).notifier).loadMessages();
       ref.read(messagesProvider(chat.id).notifier).markAsRead();
     } catch (e, stackTrace) {
-      AppLogger.error(
-        'ObjectChatScreen._loadChat: ошибка загрузки чата: $e',
-        stackTrace,
-      );
+      AppLogger.error('ObjectChatScreen._loadChat: ошибка загрузки чата: $e', stackTrace);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e is Failure ? e.message : AppLocalizations.of(context)!.error,
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e is Failure ? e.message : AppLocalizations.of(context)!.error)));
       }
     }
   }
@@ -92,15 +81,6 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
 
     _messageController.clear();
     await ref.read(messagesProvider(_chat!.id).notifier).sendMessage(text);
-
-    // Прокрутить вниз после отправки
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   @override
@@ -135,26 +115,25 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
       ),
       body: Column(
         children: [
-          // Список сообщений
           Expanded(
             child: messagesAsync.when(
               data: (state) {
-                // Если идет загрузка и сообщений нет - показываем индикатор
                 if (state.isLoading && state.messages.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // Если список пустой после загрузки - показываем сообщение
                 if (state.messages.isEmpty) {
                   return Center(child: Text(l10n.noMessages));
                 }
 
+                final reversedMessages = state.messages.reversed.toList();
                 return ListView.builder(
                   controller: _scrollController,
+                  reverse: true,
                   padding: const EdgeInsets.all(16),
-                  itemCount: state.messages.length,
+                  itemCount: reversedMessages.length,
                   itemBuilder: (context, index) {
-                    final message = state.messages[index];
+                    final message = reversedMessages[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _MessageBubble(message: message),
@@ -167,16 +146,9 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: Colors.red,
-                    ),
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text(
-                      l10n.errorLoadingMessages,
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text(l10n.errorLoadingMessages, style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Text(
                       error.toLocalizedMessage(context),
@@ -186,9 +158,7 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        ref
-                            .read(messagesProvider(_chat!.id).notifier)
-                            .loadMessages();
+                        ref.read(messagesProvider(_chat!.id).notifier).loadMessages();
                       },
                       child: Text(l10n.retry),
                     ),
@@ -198,7 +168,6 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
             ),
           ),
 
-          // Поле ввода сообщения
           Container(
             decoration: BoxDecoration(
               color: colorScheme.surface,
@@ -220,13 +189,8 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
                         controller: _messageController,
                         decoration: InputDecoration(
                           hintText: l10n.typeMessage,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                         maxLines: null,
                         textCapitalization: TextCapitalization.sentences,
@@ -241,9 +205,7 @@ class _ObjectChatScreenState extends ConsumerState<ObjectChatScreen> {
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Icon(Icons.send, color: colorScheme.primary),
                         style: IconButton.styleFrom(
@@ -284,18 +246,12 @@ class _MessageBubble extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Align(
-      alignment: message.isFromSpecialist
-          ? Alignment.centerLeft
-          : Alignment.centerRight,
+      alignment: message.isFromSpecialist ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: message.isFromSpecialist
-              ? colorScheme.surfaceContainerHighest
-              : colorScheme.primaryContainer,
+          color: message.isFromSpecialist ? colorScheme.surfaceContainerHighest : colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -304,9 +260,7 @@ class _MessageBubble extends StatelessWidget {
             Text(
               message.text,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: message.isFromSpecialist
-                    ? colorScheme.onSurface
-                    : colorScheme.onPrimaryContainer,
+                color: message.isFromSpecialist ? colorScheme.onSurface : colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(height: 4),
@@ -315,9 +269,7 @@ class _MessageBubble extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: message.isFromSpecialist
                     ? colorScheme.onSurfaceVariant
-                    : colorScheme.onPrimaryContainer.withAlpha(
-                        (255 * 0.7).round(),
-                      ),
+                    : colorScheme.onPrimaryContainer.withAlpha((255 * 0.7).round()),
               ),
             ),
           ],

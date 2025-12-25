@@ -8,9 +8,7 @@ part 'secure_storage_provider.g.dart';
 FlutterSecureStorage secureStorage(Ref ref) {
   return const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock_this_device,
-    ),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
   );
 }
 
@@ -19,4 +17,7 @@ class StorageKeys {
   static const String accessToken = 'access_token';
   static const String refreshToken = 'refresh_token';
   static const String userId = 'user_id';
+  static const String userEmail = 'user_email';
+  static const String userName = 'user_name';
+  static const String userPhone = 'user_phone';
 }

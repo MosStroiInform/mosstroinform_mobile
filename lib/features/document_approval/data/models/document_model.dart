@@ -13,14 +13,13 @@ abstract class DocumentModel with _$DocumentModel {
     String? title,
     String? description,
     String? fileUrl,
-    @Default('pending') String statusString,
+    @Default('pending') String status,
     DateTime? submittedAt,
     DateTime? approvedAt,
     String? rejectionReason,
   }) = _DocumentModel;
 
-  factory DocumentModel.fromJson(Map<String, dynamic> json) =>
-      _$DocumentModelFromJson(json);
+  factory DocumentModel.fromJson(Map<String, dynamic> json) => _$DocumentModelFromJson(json);
 }
 
 /// Расширение для конвертации модели в сущность
@@ -32,15 +31,15 @@ extension DocumentModelExtension on DocumentModel {
       title: title ?? '',
       description: description ?? '',
       fileUrl: fileUrl,
-      status: _parseStatus(statusString),
+      status: _parseStatus(status),
       submittedAt: submittedAt,
       approvedAt: approvedAt,
       rejectionReason: rejectionReason,
     );
   }
 
-  DocumentStatus _parseStatus(String status) {
-    switch (status.toLowerCase()) {
+  DocumentStatus _parseStatus(String statusValue) {
+    switch (statusValue.toLowerCase()) {
       case 'pending':
         return DocumentStatus.pending;
       case 'under_review':

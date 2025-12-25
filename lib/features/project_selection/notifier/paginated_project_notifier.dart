@@ -12,9 +12,7 @@ part 'paginated_project_notifier.g.dart';
 
 /// Состояние списка проектов с пагинацией
 @freezed
-abstract class PaginatedProjectsState
-    with _$PaginatedProjectsState
-    implements PaginatedState<Project> {
+abstract class PaginatedProjectsState with _$PaginatedProjectsState implements PaginatedState<Project> {
   const PaginatedProjectsState._();
 
   @Implements<PaginatedState<Project>>()
@@ -41,13 +39,7 @@ abstract class PaginatedProjectsState
 
   /// Сбросить пагинацию (начать с первой страницы)
   PaginatedProjectsState reset() {
-    return copyWith(
-      items: [],
-      currentPage: 0,
-      hasMore: false,
-      isLoadingMore: false,
-      error: null,
-    );
+    return copyWith(items: [], currentPage: 0, hasMore: false, isLoadingMore: false, error: null);
   }
 }
 
@@ -62,9 +54,7 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
 
   @override
   Future<void> loadFirstPage() async {
-    AppLogger.info(
-      'PaginatedProjectsNotifier.loadFirstPage: начинаем загрузку первой страницы',
-    );
+    AppLogger.info('PaginatedProjectsNotifier.loadFirstPage: начинаем загрузку первой страницы');
 
     // Сбрасываем состояние
     state = AsyncValue.data(const PaginatedProjectsState(items: []));
@@ -73,18 +63,15 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
       final repository = ref.read(projectRepositoryProvider);
       final paginationParams = getPaginationParams();
 
-      AppLogger.info(
-        'PaginatedProjectsNotifier.loadFirstPage: запрос с параметрами: $paginationParams',
-      );
+      AppLogger.info('PaginatedProjectsNotifier.loadFirstPage: запрос с параметрами: $paginationParams');
 
       final page = paginationParams['page'] as int;
       final limit = paginationParams['limit'] as int;
 
       // Запрашиваем первую страницу с бэкенда
-      final firstPageItems = await repository.getProjects(
-        page: page,
-        limit: limit,
-      );
+      final firstPageItems = await repository.getProjects(page: page, limit: limit);
+
+      if (!ref.mounted) return;
 
       // Проверяем, есть ли еще данные (если получили меньше limit, значит это последняя страница)
       final hasMore = firstPageItems.length == limit;
@@ -103,21 +90,14 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
         ),
       );
     } on Failure catch (e) {
-      AppLogger.error(
-        'PaginatedProjectsNotifier.loadFirstPage: ошибка Failure: $e',
-      );
-      state = AsyncValue.data(
-        const PaginatedProjectsState(items: []).copyWith(error: e),
-      );
+      if (!ref.mounted) return;
+      AppLogger.error('PaginatedProjectsNotifier.loadFirstPage: ошибка Failure: $e');
+      state = AsyncValue.data(const PaginatedProjectsState(items: []).copyWith(error: e));
     } catch (e, stackTrace) {
-      AppLogger.error(
-        'PaginatedProjectsNotifier.loadFirstPage: неизвестная ошибка: $e',
-        stackTrace,
-      );
+      if (!ref.mounted) return;
+      AppLogger.error('PaginatedProjectsNotifier.loadFirstPage: неизвестная ошибка: $e', stackTrace);
       state = AsyncValue.data(
-        const PaginatedProjectsState(
-          items: [],
-        ).copyWith(error: UnknownFailure('Неизвестная ошибка: $e')),
+        const PaginatedProjectsState(items: []).copyWith(error: UnknownFailure('Неизвестная ошибка: $e')),
       );
     }
   }
@@ -125,24 +105,18 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
   @override
   Future<void> loadNextPage() async {
     if (!canLoadNextPage()) {
-      AppLogger.info(
-        'PaginatedProjectsNotifier.loadNextPage: нельзя загрузить следующую страницу',
-      );
+      AppLogger.info('PaginatedProjectsNotifier.loadNextPage: нельзя загрузить следующую страницу');
       return;
     }
 
     if (!state.hasValue || state.value == null) {
-      AppLogger.warning(
-        'PaginatedProjectsNotifier.loadNextPage: состояние null',
-      );
+      AppLogger.warning('PaginatedProjectsNotifier.loadNextPage: состояние null');
       return;
     }
 
     final currentState = state.value!;
 
-    AppLogger.info(
-      'PaginatedProjectsNotifier.loadNextPage: загрузка страницы ${currentState.currentPage + 1}',
-    );
+    AppLogger.info('PaginatedProjectsNotifier.loadNextPage: загрузка страницы ${currentState.currentPage + 1}');
 
     // Устанавливаем флаг загрузки
     state = AsyncValue.data(currentState.copyWith(isLoadingMore: true));
@@ -151,18 +125,15 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
       final repository = ref.read(projectRepositoryProvider);
       final paginationParams = getPaginationParams();
 
-      AppLogger.info(
-        'PaginatedProjectsNotifier.loadNextPage: запрос с параметрами: $paginationParams',
-      );
+      AppLogger.info('PaginatedProjectsNotifier.loadNextPage: запрос с параметрами: $paginationParams');
 
       final nextPage = currentState.currentPage + 1;
       final limit = currentState.itemsPerPage;
 
       // Запрашиваем следующую страницу с бэкенда
-      final nextPageItems = await repository.getProjects(
-        page: nextPage,
-        limit: limit,
-      );
+      final nextPageItems = await repository.getProjects(page: nextPage, limit: limit);
+
+      if (!ref.mounted) return;
 
       // Проверяем, есть ли еще данные (если получили меньше limit, значит это последняя страница)
       final hasMore = nextPageItems.length == limit;
@@ -171,26 +142,16 @@ class PaginatedProjectsNotifier extends _$PaginatedProjectsNotifier
         'PaginatedProjectsNotifier.loadNextPage: получено ${nextPageItems.length} проектов, hasMore=$hasMore',
       );
 
-      state = AsyncValue.data(
-        currentState.appendItems(nextPageItems, hasMore: hasMore),
-      );
+      state = AsyncValue.data(currentState.appendItems(nextPageItems, hasMore: hasMore));
     } on Failure catch (e) {
-      AppLogger.error(
-        'PaginatedProjectsNotifier.loadNextPage: ошибка Failure: $e',
-      );
-      state = AsyncValue.data(
-        currentState.copyWith(error: e, isLoadingMore: false),
-      );
+      if (!ref.mounted) return;
+      AppLogger.error('PaginatedProjectsNotifier.loadNextPage: ошибка Failure: $e');
+      state = AsyncValue.data(currentState.copyWith(error: e, isLoadingMore: false));
     } catch (e, stackTrace) {
-      AppLogger.error(
-        'PaginatedProjectsNotifier.loadNextPage: неизвестная ошибка: $e',
-        stackTrace,
-      );
+      if (!ref.mounted) return;
+      AppLogger.error('PaginatedProjectsNotifier.loadNextPage: неизвестная ошибка: $e', stackTrace);
       state = AsyncValue.data(
-        currentState.copyWith(
-          error: UnknownFailure('Неизвестная ошибка: $e'),
-          isLoadingMore: false,
-        ),
+        currentState.copyWith(error: UnknownFailure('Неизвестная ошибка: $e'), isLoadingMore: false),
       );
     }
   }

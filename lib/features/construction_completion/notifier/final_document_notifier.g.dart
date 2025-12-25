@@ -59,7 +59,7 @@ final class CompletionStatusNotifierProvider
 }
 
 String _$completionStatusNotifierHash() =>
-    r'3b79e2df5937a5f15d62e83f03cdc2ab7361a865';
+    r'b4ee3579b003f01d0971358afd96c6cca11d566e';
 
 /// Notifier для управления состоянием завершения строительства
 
@@ -168,7 +168,7 @@ final class FinalDocumentsNotifierProvider
 }
 
 String _$finalDocumentsNotifierHash() =>
-    r'3ba3323b00ad63156b6a76f405ad6bb25f7ec244';
+    r'144566f78fe42a7af713dbf8c0265d93afb907d8';
 
 /// Notifier для управления состоянием списка финальных документов
 
@@ -271,7 +271,7 @@ final class FinalDocumentNotifierProvider
 }
 
 String _$finalDocumentNotifierHash() =>
-    r'2ad5ae54681cf2a76316e9ae602c5d98e9c90468';
+    r'255a329a64e929f33b9003f6e055e7f48d380485';
 
 /// Notifier для управления состоянием отдельного финального документа
 

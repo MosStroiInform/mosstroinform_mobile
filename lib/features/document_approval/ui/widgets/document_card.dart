@@ -29,9 +29,7 @@ class DocumentCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       document.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                   _StatusChip(status: document.status),
@@ -40,27 +38,33 @@ class DocumentCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 document.description,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (document.submittedAt != null) ...[
+              // Если документ одобрен - показываем только дату одобрения
+              // Иначе показываем дату отправки
+              if (document.status == DocumentStatus.approved && document.approvedAt != null) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
+                    Icon(Icons.check_circle, size: 16, color: colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${AppLocalizations.of(context)!.approved}: ${_formatDate(document.approvedAt!)}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
+                  ],
+                ),
+              ] else if (document.submittedAt != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
                       '${AppLocalizations.of(context)!.submitted}: ${_formatDate(document.submittedAt!)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -75,18 +79,12 @@ class DocumentCard extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: colorScheme.onErrorContainer,
-                      ),
+                      Icon(Icons.info_outline, size: 16, color: colorScheme.onErrorContainer),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           document.rejectionReason!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onErrorContainer,
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer),
                         ),
                       ),
                     ],
@@ -151,10 +149,7 @@ class _StatusChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -162,10 +157,7 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w500,
-            ),
+            style: theme.textTheme.labelSmall?.copyWith(color: textColor, fontWeight: FontWeight.w500),
           ),
         ],
       ),
