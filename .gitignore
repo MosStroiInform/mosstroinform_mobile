@@ -56,3 +56,5 @@ xtemp/
 # Scripts for generating assets (temporary)
 .scripts/
 scripts/temp/
+
+.cursor/

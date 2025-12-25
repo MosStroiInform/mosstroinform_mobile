@@ -39,10 +39,7 @@ class DocumentsNotifier extends _$DocumentsNotifier {
       state = AsyncValue.error(failure, stackTrace);
     } catch (e, stackTrace) {
       if (!ref.mounted) return;
-      state = AsyncValue.error(
-        UnknownFailure('Ошибка при загрузке документов: $e'),
-        stackTrace,
-      );
+      state = AsyncValue.error(UnknownFailure('Ошибка при загрузке документов: $e'), stackTrace);
     }
   }
 
@@ -68,10 +65,7 @@ class DocumentsNotifier extends _$DocumentsNotifier {
       state = AsyncValue.error(failure, stackTrace);
     } catch (e, stackTrace) {
       if (!ref.mounted) return;
-      state = AsyncValue.error(
-        UnknownFailure('Ошибка при загрузке документов проекта: $e'),
-        stackTrace,
-      );
+      state = AsyncValue.error(UnknownFailure('Ошибка при загрузке документов проекта: $e'), stackTrace);
     }
   }
 }
@@ -94,10 +88,7 @@ class DocumentNotifier extends _$DocumentNotifier {
     } on Failure catch (failure, stackTrace) {
       state = AsyncValue.error(failure, stackTrace);
     } catch (e, stackTrace) {
-      state = AsyncValue.error(
-        UnknownFailure('Ошибка при загрузке документа: $e'),
-        stackTrace,
-      );
+      state = AsyncValue.error(UnknownFailure('Ошибка при загрузке документа: $e'), stackTrace);
     }
   }
 
@@ -125,40 +116,47 @@ class DocumentNotifier extends _$DocumentNotifier {
       ref.invalidate(myObjectsProvider);
 
       // Обновляем список документов, чтобы показать обновленное состояние
-      await ref
-          .read(documentsProvider.notifier)
-          .loadDocumentsForProject(projectId);
+      await ref.read(documentsProvider.notifier).loadDocumentsForProject(projectId);
     } on Failure catch (failure, stackTrace) {
       // Восстанавливаем предыдущее состояние при ошибке
-      state = currentDocument != null
-          ? AsyncValue.data(currentDocument)
-          : AsyncValue.error(failure, stackTrace);
+      state = currentDocument != null ? AsyncValue.data(currentDocument) : AsyncValue.error(failure, stackTrace);
     } catch (e, stackTrace) {
       // Восстанавливаем предыдущее состояние при ошибке
       state = currentDocument != null
           ? AsyncValue.data(currentDocument)
-          : AsyncValue.error(
-              UnknownFailure('Ошибка при одобрении документа: $e'),
-              stackTrace,
-            );
+          : AsyncValue.error(UnknownFailure('Ошибка при одобрении документа: $e'), stackTrace);
     }
   }
 
   /// Отклонить документ
   Future<void> rejectDocument(String documentId, String reason) async {
+    // Сохраняем текущее состояние документа перед обновлением
+    final currentDocument = state.value;
+
     try {
       final repository = ref.read(documentRepositoryProvider);
       await repository.rejectDocument(documentId, reason);
 
-      // Перезагружаем документ после отклонения
-      await loadDocument(documentId);
+      // Получаем обновленный документ напрямую из репозитория
+      // чтобы избежать перезагрузки через loadDocument, которая может вызвать шиммер
+      final updatedDocument = await repository.getDocumentById(documentId);
+
+      // Обновляем состояние напрямую, не вызывая loadDocument
+      state = AsyncValue.data(updatedDocument);
+
+      // Получаем projectId для обновления UI
+      final projectId = updatedDocument.projectId;
+
+      // Обновляем список документов, чтобы показать обновленное состояние
+      await ref.read(documentsProvider.notifier).loadDocumentsForProject(projectId);
     } on Failure catch (failure, stackTrace) {
-      state = AsyncValue.error(failure, stackTrace);
+      // Восстанавливаем предыдущее состояние при ошибке
+      state = currentDocument != null ? AsyncValue.data(currentDocument) : AsyncValue.error(failure, stackTrace);
     } catch (e, stackTrace) {
-      state = AsyncValue.error(
-        UnknownFailure('Ошибка при отклонении документа: $e'),
-        stackTrace,
-      );
+      // Восстанавливаем предыдущее состояние при ошибке
+      state = currentDocument != null
+          ? AsyncValue.data(currentDocument)
+          : AsyncValue.error(UnknownFailure('Ошибка при отклонении документа: $e'), stackTrace);
     }
   }
 }
