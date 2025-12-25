@@ -143,6 +143,27 @@ jobs:
             ios-*-release
           merge-multiple: true
 
+      - name: Verify downloaded artifacts structure
+        run: |
+          echo "=== Current working directory ==="
+          pwd
+          echo ""
+          echo "=== All files and directories in root ==="
+          ls -la
+          echo ""
+          echo "=== Searching for artifact directories ==="
+          echo "Looking for linux-*-release:"
+          find . -maxdepth 1 -type d -name "linux-*-release" 2>/dev/null | sort || echo "  None found"
+          echo "Looking for windows-*-release:"
+          find . -maxdepth 1 -type d -name "windows-*-release" 2>/dev/null | sort || echo "  None found"
+          echo "Looking for macos-*-release:"
+          find . -maxdepth 1 -type d -name "macos-*-release" 2>/dev/null | sort || echo "  None found"
+          echo "Looking for ios-*-release:"
+          find . -maxdepth 1 -type d -name "ios-*-release" 2>/dev/null | sort || echo "  None found"
+          echo ""
+          echo "=== Full directory tree (first 100 items) ==="
+          find . -maxdepth 3 | head -100 || true
+
       - name: List downloaded artifacts
         run: |
           echo "=== All downloaded artifacts ==="
@@ -199,6 +220,55 @@ jobs:
 
       - name: Install zip utility
         run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Reorganize artifact directories
+        run: |
+          echo "=== Reorganizing artifact directories ==="
+          # Когда используем merge-multiple: true, артефакты могут быть извлечены в поддиректории
+          # Нужно проверить структуру и переместить содержимое в правильные директории
+          
+          # Проверяем, есть ли директории с правильными именами артефактов
+          ARTIFACT_DIRS=$(find . -maxdepth 1 -type d \( -name "linux-*-release" -o -name "windows-*-release" -o -name "macos-*-release" -o -name "ios-*-release" \) 2>/dev/null | sort)
+          
+          if [ -z "$ARTIFACT_DIRS" ]; then
+            echo "⚠️ No artifact directories found with expected names"
+            echo "Checking for alternative structures..."
+            # Если артефакты были извлечены в поддиректории (например, bundle/, Release/, etc.)
+            # Ищем содержимое и перемещаем в правильные директории
+            if [ -d "bundle" ]; then
+              echo "Found bundle/ directory, creating linux-prod-release/"
+              mkdir -p linux-prod-release
+              mv bundle/* linux-prod-release/ 2>/dev/null || true
+              rmdir bundle 2>/dev/null || true
+            fi
+            if [ -d "Release" ]; then
+              echo "Found Release/ directory, checking platform..."
+              # Определяем платформу по содержимому
+              if find Release -name "*.exe" | head -1 | grep -q .; then
+                echo "Windows detected, creating windows-prod-release/"
+                mkdir -p windows-prod-release
+                mv Release/* windows-prod-release/ 2>/dev/null || true
+                rmdir Release 2>/dev/null || true
+              elif find Release -name "*.app" | head -1 | grep -q .; then
+                echo "macOS/iOS detected, checking..."
+                APP_NAME=$(find Release -name "*.app" -type d | head -1 | xargs basename)
+                if [ -n "$APP_NAME" ]; then
+                  # Определяем по имени или другим признакам
+                  echo "Creating macos-prod-release/ or ios-prod-release/"
+                  mkdir -p macos-prod-release
+                  mv Release/* macos-prod-release/ 2>/dev/null || true
+                  rmdir Release 2>/dev/null || true
+                fi
+              fi
+            fi
+          else
+            echo "✅ Found artifact directories:"
+            echo "$ARTIFACT_DIRS"
+          fi
+          
+          echo ""
+          echo "=== Final artifact directories ==="
+          find . -maxdepth 1 -type d \( -name "linux-*" -o -name "windows-*" -o -name "macos-*" -o -name "ios-*" \) 2>/dev/null | sort
 
       - name: Package Linux artifacts
         shell: bash
