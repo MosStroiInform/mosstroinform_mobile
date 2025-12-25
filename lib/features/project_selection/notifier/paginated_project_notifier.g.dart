@@ -41,7 +41,7 @@ final class PaginatedProjectsNotifierProvider
 }
 
 String _$paginatedProjectsNotifierHash() =>
-    r'893cf6eff1e572a31bbdd8f3f5048c9a8387815e';
+    r'1f82ca58690c416ca72c0b3947506a916b85e07f';
 
 /// Notifier для управления списком проектов с пагинацией
 

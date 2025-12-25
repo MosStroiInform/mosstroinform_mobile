@@ -193,12 +193,12 @@ class _FinalDocumentDetailScreenState extends ConsumerState<FinalDocumentDetailS
                             }
 
                             scaffoldMessenger.showSnackBar(
-                              SnackBar(
+                          SnackBar(
                                 content: Text(message),
                                 backgroundColor: Colors.green,
                                 duration: const Duration(seconds: 4),
-                              ),
-                            );
+                          ),
+                        );
                           }
                         } catch (e) {
                           if (context.mounted) {
