@@ -80,5 +80,10 @@
 		</dict>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- Разрешаем открытие документов на месте и делаем файлы видимыми в приложении Files -->
+		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<true/>
+		<key>UIFileSharingEnabled</key>
+		<true/>
 	</dict>
 </plist>

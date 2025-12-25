@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/widgets/app_animated_switcher.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/notifier/final_document_notifier.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/ui/widgets/final_document_card.dart';
-import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// Экран статуса завершения строительства
 class CompletionStatusScreen extends ConsumerStatefulWidget {
@@ -17,12 +17,10 @@ class CompletionStatusScreen extends ConsumerStatefulWidget {
   const CompletionStatusScreen({super.key, required this.projectId});
 
   @override
-  ConsumerState<CompletionStatusScreen> createState() =>
-      _CompletionStatusScreenState();
+  ConsumerState<CompletionStatusScreen> createState() => _CompletionStatusScreenState();
 }
 
-class _CompletionStatusScreenState
-    extends ConsumerState<CompletionStatusScreen> {
+class _CompletionStatusScreenState extends ConsumerState<CompletionStatusScreen> {
   // Убрали вызов loadCompletionStatus из initState,
   // так как build метод провайдера теперь сам загружает данные
 
@@ -39,18 +37,13 @@ class _CompletionStatusScreenState
         child: statusAsync.when(
           data: (state) {
             // Если статус не загружен и нет ошибки - это начальное состояние, показываем шиммер
-            if (state.status == null &&
-                state.error == null &&
-                !state.isLoading) {
+            if (state.status == null && state.error == null && !state.isLoading) {
               return const CompletionStatusShimmer(key: ValueKey('shimmer'));
             }
 
             // Если статус не найден и есть ошибка - показываем ошибку
             if (state.status == null && state.error != null) {
-              return Center(
-                key: const ValueKey('error'),
-                child: Text(l10n.errorLoadingCompletionStatus),
-              );
+              return Center(key: const ValueKey('error'), child: Text(l10n.errorLoadingCompletionStatus));
             }
 
             // Если статус не загружен, но идет загрузка - показываем предыдущие данные или шиммер
@@ -61,8 +54,9 @@ class _CompletionStatusScreenState
             final status = state.status!;
 
             // Подсчитываем количество подписанных документов
+            // Документ считается подписанным, если status == signed или signedAt != null
             final signedCount = status.documents
-                .where((doc) => doc.status == FinalDocumentStatus.signed)
+                .where((doc) => doc.status == FinalDocumentStatus.signed || doc.signedAt != null)
                 .length;
             final totalCount = status.documents.length;
 
@@ -80,9 +74,7 @@ class _CompletionStatusScreenState
                         child: Row(
                           children: [
                             Icon(
-                              signedCount == totalCount
-                                  ? Icons.check_circle
-                                  : Icons.description,
+                              signedCount == totalCount ? Icons.check_circle : Icons.description,
                               color: signedCount == totalCount
                                   ? theme.colorScheme.primary
                                   : theme.colorScheme.onSurfaceVariant,
@@ -90,10 +82,7 @@ class _CompletionStatusScreenState
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                l10n.documentsSignedCount(
-                                  signedCount,
-                                  totalCount,
-                                ),
+                                l10n.documentsSignedCount(signedCount, totalCount),
                                 style: theme.textTheme.bodyLarge?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: signedCount == totalCount
@@ -115,9 +104,7 @@ class _CompletionStatusScreenState
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       l10n.finalDocuments,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                   if (status.documents.isEmpty)
@@ -126,9 +113,7 @@ class _CompletionStatusScreenState
                       child: Center(
                         child: Text(
                           l10n.noFinalDocuments,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                         ),
                       ),
                     )
@@ -145,9 +130,7 @@ class _CompletionStatusScreenState
                           child: FinalDocumentCard(
                             document: document,
                             onTap: () {
-                              context.push(
-                                '/completion/${widget.projectId}/documents/${document.id}',
-                              );
+                              context.push('/completion/${widget.projectId}/documents/${document.id}');
                             },
                           ),
                         );
@@ -171,19 +154,14 @@ class _CompletionStatusScreenState
                     // Shimmer для статуса
                     Container(
                       height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                     ),
                     const SizedBox(height: 24),
                     // Shimmer для документов
                     ...List.generate(
                       3,
-                      (index) => const Padding(
-                        padding: EdgeInsets.only(bottom: 12),
-                        child: FinalDocumentCardShimmer(),
-                      ),
+                      (index) =>
+                          const Padding(padding: EdgeInsets.only(bottom: 12), child: FinalDocumentCardShimmer()),
                     ),
                   ],
                 ),
@@ -196,10 +174,7 @@ class _CompletionStatusScreenState
               children: [
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
-                Text(
-                  l10n.errorLoadingCompletionStatus,
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(l10n.errorLoadingCompletionStatus, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 Text(
                   error.toLocalizedMessage(context),
@@ -209,11 +184,7 @@ class _CompletionStatusScreenState
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    ref
-                        .read(
-                          completionStatusProvider(widget.projectId).notifier,
-                        )
-                        .loadCompletionStatus();
+                    ref.read(completionStatusProvider(widget.projectId).notifier).loadCompletionStatus();
                   },
                   child: Text(l10n.retry),
                 ),

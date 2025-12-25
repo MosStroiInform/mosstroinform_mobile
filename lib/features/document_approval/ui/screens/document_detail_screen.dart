@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
@@ -5,6 +7,8 @@ import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
+import 'package:mosstroinform_mobile/shared/file_download/data/providers/file_download_data_source_impl_native.dart';
+import 'package:mosstroinform_mobile/shared/file_download/domain/providers/file_download_service_provider.dart';
 
 /// Экран детального просмотра документа
 class DocumentDetailScreen extends ConsumerStatefulWidget {
@@ -13,8 +17,7 @@ class DocumentDetailScreen extends ConsumerStatefulWidget {
   const DocumentDetailScreen({super.key, required this.documentId});
 
   @override
-  ConsumerState<DocumentDetailScreen> createState() =>
-      _DocumentDetailScreenState();
+  ConsumerState<DocumentDetailScreen> createState() => _DocumentDetailScreenState();
 }
 
 class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
@@ -25,9 +28,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(documentProvider(widget.documentId).notifier)
-          .loadDocument(widget.documentId);
+      ref.read(documentProvider(widget.documentId).notifier).loadDocument(widget.documentId);
     });
   }
 
@@ -49,9 +50,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
     try {
       debugPrint('Вызываем approveDocument');
-      await ref
-          .read(documentProvider(documentId).notifier)
-          .approveDocument(documentId);
+      await ref.read(documentProvider(documentId).notifier).approveDocument(documentId);
       debugPrint('approveDocument выполнен успешно');
 
       if (mounted) {
@@ -60,16 +59,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
         // Получаем projectId для обновления списка документов проекта
         final currentDocument = ref.read(documentProvider(documentId));
-        final projectId = currentDocument.maybeWhen(
-          data: (doc) => doc?.projectId,
-          orElse: () => null,
-        );
+        final projectId = currentDocument.maybeWhen(data: (doc) => doc?.projectId, orElse: () => null);
 
         // Обновляем список документов для проекта (не все документы)
         if (projectId != null) {
-          await ref
-              .read(documentsProvider.notifier)
-              .loadDocumentsForProject(projectId);
+          await ref.read(documentsProvider.notifier).loadDocumentsForProject(projectId);
         }
 
         if (!mounted) return;
@@ -86,12 +80,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toLocalizedMessage(context)),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -106,40 +97,29 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     final reason = _rejectionReasonController.text.trim();
     if (reason.isEmpty) {
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.specifyRejectionReason),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.specifyRejectionReason), backgroundColor: Colors.orange));
       return;
     }
 
     setState(() => _isProcessing = true);
 
     try {
-      await ref
-          .read(documentProvider(documentId).notifier)
-          .rejectDocument(documentId, reason);
+      await ref.read(documentProvider(documentId).notifier).rejectDocument(documentId, reason);
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         _rejectionReasonController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.documentRejected),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.documentRejected), backgroundColor: Colors.orange));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toLocalizedMessage(context)),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -212,9 +192,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                     Expanded(
                       child: Text(
                         document.title,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     _StatusChip(status: document.status),
@@ -223,30 +201,26 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                 const SizedBox(height: 16),
 
                 // Описание
-                Text(
-                  l10n.description,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(l10n.description, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 Text(document.description, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 24),
 
                 // Информация о датах
-                if (document.submittedAt != null) ...[
-                  _InfoRow(
-                    icon: Icons.access_time,
-                    label: l10n.submitted,
-                    value: _formatDateTime(document.submittedAt!),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (document.approvedAt != null) ...[
+                // Если документ одобрен - показываем только дату одобрения
+                // Иначе показываем дату отправки
+                if (document.status == DocumentStatus.approved && document.approvedAt != null) ...[
                   _InfoRow(
                     icon: Icons.check_circle,
                     label: l10n.approved,
                     value: _formatDateTime(document.approvedAt!),
+                  ),
+                  const SizedBox(height: 8),
+                ] else if (document.submittedAt != null) ...[
+                  _InfoRow(
+                    icon: Icons.access_time,
+                    label: l10n.submitted,
+                    value: _formatDateTime(document.submittedAt!),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -262,10 +236,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: colorScheme.onErrorContainer,
-                        ),
+                        Icon(Icons.info_outline, color: colorScheme.onErrorContainer),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -281,9 +252,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 document.rejectionReason!,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onErrorContainer,
-                                ),
+                                style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onErrorContainer),
                               ),
                             ],
                           ),
@@ -297,14 +266,40 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                 // Ссылка на файл
                 if (document.fileUrl != null) ...[
                   OutlinedButton.icon(
-                    onPressed: () {
-                      // В реальном приложении здесь была бы открыта ссылка на файл
-                      final l10n = AppLocalizations.of(context)!;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.openFile(document.fileUrl!)),
-                        ),
-                      );
+                    onPressed: () async {
+                      final fileUrl = document.fileUrl!;
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      try {
+                        final downloadService = ref.read(fileDownloadServiceProvider);
+                        await downloadService.downloadFile(fileUrl);
+
+                        if (context.mounted) {
+                          final filePath = FileDownloadDataSourceImpl.getLastDownloadedFilePath();
+
+                          String message;
+                          if (filePath != null) {
+                            message = 'Файл сохранён\n$filePath';
+                          } else if (Platform.isIOS) {
+                            message = 'Файл сохранён\nДоступен в приложении Files';
+                          } else {
+                            message = 'Файл сохранён';
+                          }
+
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 4),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red),
+                          );
+                        }
+                      }
                     },
                     icon: const Icon(Icons.file_download),
                     label: Text(l10n.downloadDocument),
@@ -322,9 +317,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _isProcessing
-                              ? null
-                              : () => _showRejectDialog(document.id),
+                          onPressed: _isProcessing ? null : () => _showRejectDialog(document.id),
                           icon: const Icon(Icons.close),
                           label: Text(l10n.reject),
                         ),
@@ -332,18 +325,14 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: FilledButton.icon(
-                          onPressed: _isProcessing
-                              ? null
-                              : () => _handleApprove(document.id),
+                          onPressed: _isProcessing ? null : () => _handleApprove(document.id),
                           icon: _isProcessing
                               ? SizedBox(
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator.adaptive(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      colorScheme.onPrimary,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
                                   ),
                                 )
                               : const Icon(Icons.check),
@@ -364,10 +353,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
-              Text(
-                l10n.errorLoadingDocument,
-                style: theme.textTheme.titleMedium,
-              ),
+              Text(l10n.errorLoadingDocument, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               Text(
                 error.toLocalizedMessage(context),
@@ -377,9 +363,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref
-                      .read(documentProvider(widget.documentId).notifier)
-                      .loadDocument(widget.documentId);
+                  ref.read(documentProvider(widget.documentId).notifier).loadDocument(widget.documentId);
                 },
                 child: Text(l10n.retry),
               ),
@@ -401,11 +385,7 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _InfoRow({required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -416,18 +396,8 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 12),
-        Text(
-          '$label: ',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Text(
-          value,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text('$label: ', style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+        Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -479,10 +449,7 @@ class _StatusChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -490,10 +457,7 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.labelMedium?.copyWith(color: textColor, fontWeight: FontWeight.w600),
           ),
         ],
       ),

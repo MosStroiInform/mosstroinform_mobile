@@ -46,9 +46,7 @@ class ProjectsNotifier extends _$ProjectsNotifier {
     }
 
     if (authState?.isAuthenticated != true) {
-      AppLogger.info(
-        'ProjectsNotifier.loadProjects: пользователь не авторизован, пропускаем загрузку',
-      );
+      AppLogger.info('ProjectsNotifier.loadProjects: пользователь не авторизован, пропускаем загрузку');
       return;
     }
 
@@ -56,22 +54,17 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 
     try {
       final repository = ref.read(projectRepositoryProvider);
-      final projects = await repository
-          .getProjects(); // Без пагинации - получаем все проекты
+      final projects = await repository.getProjects(); // Без пагинации - получаем все проекты
 
       if (!ref.mounted) return;
 
       if (state.hasValue || !state.hasError) {
-        state = AsyncValue.data(
-          ProjectsState(projects: projects, isLoading: false),
-        );
+        state = AsyncValue.data(ProjectsState(projects: projects, isLoading: false));
       }
     } on Failure catch (e) {
       if (!ref.mounted) return;
 
-      state = AsyncValue.data(
-        const ProjectsState(projects: []).copyWith(isLoading: false, error: e),
-      );
+      state = AsyncValue.data(const ProjectsState(projects: []).copyWith(isLoading: false, error: e));
     } catch (e, _) {
       // Игнорируем ошибку использования disposed ref, если она возникла
       if (e.toString().contains('disposed')) return;
@@ -79,10 +72,9 @@ class ProjectsNotifier extends _$ProjectsNotifier {
       if (!ref.mounted) return;
 
       state = AsyncValue.data(
-        const ProjectsState(projects: []).copyWith(
-          isLoading: false,
-          error: UnknownFailure('Неизвестная ошибка: $e'),
-        ),
+        const ProjectsState(
+          projects: [],
+        ).copyWith(isLoading: false, error: UnknownFailure('Неизвестная ошибка: $e')),
       );
     }
   }
@@ -127,14 +119,8 @@ class ProjectNotifier extends _$ProjectNotifier {
       );
     } catch (e) {
       state = AsyncValue.data(
-        currentState?.copyWith(
-              isLoading: false,
-              error: UnknownFailure('Неизвестная ошибка: $e'),
-            ) ??
-            const ProjectState().copyWith(
-              isLoading: false,
-              error: UnknownFailure('Неизвестная ошибка: $e'),
-            ),
+        currentState?.copyWith(isLoading: false, error: UnknownFailure('Неизвестная ошибка: $e')) ??
+            const ProjectState().copyWith(isLoading: false, error: UnknownFailure('Неизвестная ошибка: $e')),
       );
     }
   }
@@ -144,39 +130,31 @@ class ProjectNotifier extends _$ProjectNotifier {
     // Устанавливаем состояние загрузки
     final currentState = state.value;
     state = AsyncValue.data(
-      currentState?.copyWith(isLoading: true, error: null) ??
-          const ProjectState(isLoading: true),
+      currentState?.copyWith(isLoading: true, error: null) ?? const ProjectState(isLoading: true),
     );
 
     try {
       final repository = ref.read(projectRepositoryProvider);
       await repository.startConstruction(projectId, address);
+      if (!ref.mounted) return;
 
-      // Инвалидируем провайдеры для обновления UI
-      ref.invalidate(isProjectRequestedProvider(projectId));
-      ref.invalidate(projectsProvider);
-      ref.invalidate(requestedProjectsProvider);
-      ref.invalidate(paginatedProjectsProvider);
-      ref.invalidate(
-        myObjectsProvider,
-      ); // Инвалидируем список объектов для обновления "Мои объекты"
-
-      // Перезагружаем данные после инвалидации
+      // Перезагружаем данные для обновления UI
       await loadProject(projectId);
+      if (!ref.mounted) return;
+
+      // Обновляем провайдеры без инвалидации, чтобы избежать dispose
       ref.read(projectsProvider.notifier).loadProjects();
       ref.read(requestedProjectsProvider.notifier).loadRequestedProjects();
       ref.read(paginatedProjectsProvider.notifier).loadFirstPage();
+
+      // Инвалидируем только провайдеры, которые не имеют методов загрузки
+      ref.invalidate(isProjectRequestedProvider(projectId));
+      ref.invalidate(myObjectsProvider);
     } on Failure catch (e) {
-      state = AsyncValue.data(
-        currentState?.copyWith(isLoading: false, error: e) ??
-            ProjectState(error: e),
-      );
+      state = AsyncValue.data(currentState?.copyWith(isLoading: false, error: e) ?? ProjectState(error: e));
     } catch (e) {
       state = AsyncValue.data(
-        currentState?.copyWith(
-              isLoading: false,
-              error: UnknownFailure('Неизвестная ошибка: $e'),
-            ) ??
+        currentState?.copyWith(isLoading: false, error: UnknownFailure('Неизвестная ошибка: $e')) ??
             ProjectState(error: UnknownFailure('Неизвестная ошибка: $e')),
       );
     }
@@ -187,45 +165,36 @@ class ProjectNotifier extends _$ProjectNotifier {
     // Устанавливаем состояние загрузки запроса
     final currentState = state.value;
     state = AsyncValue.data(
-      currentState?.copyWith(
-            isLoading: false,
-            isRequestingConstruction: true,
-            error: null,
-          ) ??
+      currentState?.copyWith(isLoading: false, isRequestingConstruction: true, error: null) ??
           const ProjectState(isRequestingConstruction: true),
     );
 
     try {
       final repository = ref.read(projectRepositoryProvider);
       await repository.requestConstruction(projectId);
+      if (!ref.mounted) return;
 
-      // Инвалидируем провайдеры для обновления UI
-      // Инвалидируем провайдер проверки статуса запроса для этого проекта
-      ref.invalidate(isProjectRequestedProvider(projectId));
-      // Инвалидируем список запрошенных проектов
-      ref.invalidate(requestedProjectsProvider);
-      // Инвалидируем пагинированный список проектов
-      ref.invalidate(paginatedProjectsProvider);
-
-      // Перезагружаем данные после инвалидации
+      // Перезагружаем данные для обновления UI без инвалидации
       // Перезагружаем текущий проект для обновления статуса на странице деталей
       // Не показываем loading, так как данные уже есть
       await loadProject(projectId, showLoading: false);
-      // Перезагружаем список проектов для обновления карточек
+      if (!ref.mounted) return;
+
+      // Обновляем провайдеры без инвалидации, чтобы избежать dispose
       await ref.read(projectsProvider.notifier).loadProjects();
-      // Перезагружаем список запрошенных проектов
-      await ref
-          .read(requestedProjectsProvider.notifier)
-          .loadRequestedProjects();
-      // Перезагружаем пагинированный список проектов
+      if (!ref.mounted) return;
+
+      await ref.read(requestedProjectsProvider.notifier).loadRequestedProjects();
+      if (!ref.mounted) return;
+
       await ref.read(paginatedProjectsProvider.notifier).loadFirstPage();
+      if (!ref.mounted) return;
+
+      // Инвалидируем только провайдеры, которые не имеют методов загрузки
+      ref.invalidate(isProjectRequestedProvider(projectId));
     } on Failure catch (e) {
       state = AsyncValue.data(
-        currentState?.copyWith(
-              isLoading: false,
-              isRequestingConstruction: false,
-              error: e,
-            ) ??
+        currentState?.copyWith(isLoading: false, isRequestingConstruction: false, error: e) ??
             ProjectState(error: e),
       );
     } catch (e) {

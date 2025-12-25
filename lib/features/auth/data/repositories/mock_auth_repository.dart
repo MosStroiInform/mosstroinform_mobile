@@ -1,58 +1,28 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mosstroinform_mobile/core/config/app_config_simple.dart';
 import 'package:mosstroinform_mobile/core/database/hive_service.dart';
-import 'package:mosstroinform_mobile/core/errors/failures.dart';
-import 'package:mosstroinform_mobile/core/storage/secure_storage_provider.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/features/auth/data/datasources/mock_auth_remote_data_source.dart';
+import 'package:mosstroinform_mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mosstroinform_mobile/features/auth/domain/entities/user.dart';
 import 'package:mosstroinform_mobile/features/auth/domain/repositories/auth_repository.dart';
 
 /// Mock реализация репозитория авторизации для тестирования
+/// Использует MockAuthRemoteDataSource для имитации API вызовов
 class MockAuthRepository implements AuthRepository {
   final FlutterSecureStorage secureStorage;
+  late final AuthRepository _impl;
 
-  // Mock данные пользователей
-  static const _mockUsers = {
-    'test@example.com': {
-      'password': 'password123',
-      'id': 'user1',
-      'name': 'Тестовый Пользователь',
-      'phone': '+7 (999) 123-45-67',
-    },
-    'admin@example.com': {
-      'password': 'admin123',
-      'id': 'user2',
-      'name': 'Администратор',
-      'phone': null,
-    },
-  };
-
-  MockAuthRepository({required this.secureStorage});
+  MockAuthRepository({required this.secureStorage}) {
+    // Используем AuthRepositoryImpl с MockAuthRemoteDataSource
+    // Это позволяет использовать тот же код что и в реальном API
+    final mockDataSource = MockAuthRemoteDataSource(secureStorage: secureStorage);
+    _impl = AuthRepositoryImpl(remoteDataSource: mockDataSource, secureStorage: secureStorage);
+  }
 
   @override
   Future<String> login(String email, String password) async {
-    // Имитация задержки сети
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final userData = _mockUsers[email];
-    if (userData == null || userData['password'] != password) {
-      throw ValidationFailure('Неверный email или пароль');
-    }
-
-    // Генерируем mock токен
-    final token =
-        'mock_token_${userData['id']}_${DateTime.now().millisecondsSinceEpoch}';
-
-    // Сохраняем токены
-    await secureStorage.write(key: StorageKeys.accessToken, value: token);
-    await secureStorage.write(
-      key: StorageKeys.refreshToken,
-      value: 'refresh_$token',
-    );
-    await secureStorage.write(
-      key: StorageKeys.userId,
-      value: userData['id'] as String,
-    );
+    final token = await _impl.login(email, password);
 
     // Очищаем базу данных при логине, чтобы начать с чистого листа
     // Проекты загрузятся автоматически при первом обращении к списку проектов
@@ -61,14 +31,10 @@ class MockAuthRepository implements AuthRepository {
       final config = AppConfigSimple.fromFlavor(flavor);
       if (config.useMocks) {
         await HiveService.clearUserData();
-        AppLogger.info(
-          'MockAuthRepository.login: моковая база данных очищена, будет создана с нуля',
-        );
+        AppLogger.info('MockAuthRepository.login: моковая база данных очищена, будет создана с нуля');
       }
     } catch (e) {
-      AppLogger.warning(
-        'MockAuthRepository.login: ошибка при очистке базы данных: $e',
-      );
+      AppLogger.warning('MockAuthRepository.login: ошибка при очистке базы данных: $e');
       // Не прерываем логин, даже если очистка не удалась
     }
 
@@ -82,28 +48,7 @@ class MockAuthRepository implements AuthRepository {
     required String name,
     String? phone,
   }) async {
-    // Имитация задержки сети
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (_mockUsers.containsKey(email)) {
-      throw ValidationFailure('Пользователь с таким email уже существует');
-    }
-
-    if (password.length < 6) {
-      throw ValidationFailure('Пароль должен содержать минимум 6 символов');
-    }
-
-    // Генерируем новый ID
-    final userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
-    final token = 'mock_token_$userId';
-
-    // Сохраняем токены
-    await secureStorage.write(key: StorageKeys.accessToken, value: token);
-    await secureStorage.write(
-      key: StorageKeys.refreshToken,
-      value: 'refresh_$token',
-    );
-    await secureStorage.write(key: StorageKeys.userId, value: userId);
+    final token = await _impl.register(email: email, password: password, name: name, phone: phone);
 
     // Очищаем базу данных при регистрации, чтобы начать с чистого листа
     // Проекты загрузятся автоматически при первом обращении к списку проектов
@@ -112,14 +57,10 @@ class MockAuthRepository implements AuthRepository {
       final config = AppConfigSimple.fromFlavor(flavor);
       if (config.useMocks) {
         await HiveService.clearUserData();
-        AppLogger.info(
-          'MockAuthRepository.register: моковая база данных очищена, будет создана с нуля',
-        );
+        AppLogger.info('MockAuthRepository.register: моковая база данных очищена, будет создана с нуля');
       }
     } catch (e) {
-      AppLogger.warning(
-        'MockAuthRepository.register: ошибка при очистке базы данных: $e',
-      );
+      AppLogger.warning('MockAuthRepository.register: ошибка при очистке базы данных: $e');
       // Не прерываем регистрацию, даже если очистка не удалась
     }
 
@@ -128,12 +69,7 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    // Очищаем токены
-    await secureStorage.delete(key: StorageKeys.accessToken);
-    await secureStorage.delete(key: StorageKeys.refreshToken);
-    await secureStorage.delete(key: StorageKeys.userId);
+    await _impl.logout();
 
     // Очищаем всю моковую базу данных при logout (только в моковом режиме)
     // При новом логине база будет создана с нуля
@@ -147,71 +83,20 @@ class MockAuthRepository implements AuthRepository {
         );
       }
     } catch (e) {
-      AppLogger.warning(
-        'MockAuthRepository.logout: ошибка при очистке базы данных: $e',
-      );
+      AppLogger.warning('MockAuthRepository.logout: ошибка при очистке базы данных: $e');
       // Не прерываем logout, даже если очистка базы не удалась
     }
   }
 
   @override
-  Future<User> getCurrentUser() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final userId = await secureStorage.read(key: StorageKeys.userId);
-    if (userId == null) {
-      throw ValidationFailure('Требуется авторизация');
-    }
-
-    // Ищем пользователя в mock данных
-    final userEntry = _mockUsers.entries.firstWhere(
-      (entry) => entry.value['id'] == userId,
-      orElse: () => _mockUsers.entries.first,
-    );
-
-    return User(
-      id: userEntry.value['id']!,
-      email: userEntry.key,
-      name: userEntry.value['name']!,
-      phone: userEntry.value['phone'],
-    );
-  }
+  Future<User> getCurrentUser() => _impl.getCurrentUser();
 
   @override
-  Future<bool> isAuthenticated() async {
-    final token = await secureStorage.read(key: StorageKeys.accessToken);
-    return token != null && token.isNotEmpty;
-  }
+  Future<bool> isAuthenticated() => _impl.isAuthenticated();
 
   @override
-  Future<String?> getAccessToken() async {
-    return await secureStorage.read(key: StorageKeys.accessToken);
-  }
+  Future<String?> getAccessToken() => _impl.getAccessToken();
 
   @override
-  Future<String> refreshToken() async {
-    // Имитация задержки сети
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final refreshTokenValue = await secureStorage.read(
-      key: StorageKeys.refreshToken,
-    );
-    if (refreshTokenValue == null) {
-      throw ValidationFailure('Refresh token не найден');
-    }
-
-    // Генерируем новый mock токен
-    final newToken =
-        'mock_token_refreshed_${DateTime.now().millisecondsSinceEpoch}';
-    final newRefreshToken = 'refresh_$newToken';
-
-    // Сохраняем новые токены
-    await secureStorage.write(key: StorageKeys.accessToken, value: newToken);
-    await secureStorage.write(
-      key: StorageKeys.refreshToken,
-      value: newRefreshToken,
-    );
-
-    return newToken;
-  }
+  Future<String> refreshToken() => _impl.refreshToken();
 }

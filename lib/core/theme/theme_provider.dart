@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_provider.g.dart';
@@ -46,7 +47,8 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
       } else {
         // Если Hive не инициализирован, пытаемся инициализировать
         try {
-          await Hive.initFlutter();
+          final appSupportDir = await getApplicationSupportDirectory();
+          await Hive.initFlutter(appSupportDir.path);
         } catch (_) {
           // Если уже инициализирован, игнорируем ошибку
         }

@@ -37,7 +37,7 @@ final class RequestedProjectsNotifierProvider
 }
 
 String _$requestedProjectsNotifierHash() =>
-    r'542daad9023da5a00ea0fbf29a406c3e2213e7f2';
+    r'423918f05df00087a2c5e7122b1ebd4b4b33eee4';
 
 /// Notifier для управления состоянием запрошенных проектов
 

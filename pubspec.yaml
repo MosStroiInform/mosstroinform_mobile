@@ -21,6 +21,7 @@ dependencies:
   dio: ^5.7.0
   retrofit: ^4.9.1
   retrofit_generator: ^10.2.0
+  web_socket_channel: ^3.0.1
 
   # Code Generation
   freezed_annotation: ^3.1.0
@@ -43,6 +44,11 @@ dependencies:
 
   # Secure Storage
   flutter_secure_storage: ^9.2.2
+
+  # File System
+  path_provider: ^2.1.4
+  background_downloader: ^9.4.3
+  open_file: ^3.5.4
 
   # Local Database
   hive_ce: ^2.2.3

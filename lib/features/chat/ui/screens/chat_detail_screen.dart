@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/entities/chat.dart';
 import 'package:mosstroinform_mobile/features/chat/notifier/chat_notifier.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Экран детального просмотра чата
 class ChatDetailScreen extends ConsumerStatefulWidget {
@@ -22,8 +22,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Сообщения загружаются автоматически в build методе MessagesNotifier
-    // Здесь только отмечаем как прочитанные
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(messagesProvider(widget.chatId).notifier).markAsRead();
     });
@@ -42,15 +40,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
     _messageController.clear();
     await ref.read(messagesProvider(widget.chatId).notifier).sendMessage(text);
-
-    // Прокрутить вниз после отправки
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   @override
@@ -64,26 +53,25 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
       appBar: AppBar(title: Text(l10n.chat)),
       body: Column(
         children: [
-          // Список сообщений
           Expanded(
             child: messagesAsync.when(
               data: (state) {
-                // Если загрузка еще идет - показываем загрузчик
                 if (state.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // Если список пустой после загрузки - показываем сообщение
                 if (state.messages.isEmpty) {
                   return Center(child: Text(l10n.noMessages));
                 }
 
+                final reversedMessages = state.messages.reversed.toList();
                 return ListView.builder(
                   controller: _scrollController,
+                  reverse: true,
                   padding: const EdgeInsets.all(16),
-                  itemCount: state.messages.length,
+                  itemCount: reversedMessages.length,
                   itemBuilder: (context, index) {
-                    final message = state.messages[index];
+                    final message = reversedMessages[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _MessageBubble(message: message),
@@ -96,16 +84,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: Colors.red,
-                    ),
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text(
-                      l10n.errorLoadingMessages,
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text(l10n.errorLoadingMessages, style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Text(
                       error.toLocalizedMessage(context),
@@ -115,9 +96,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        ref
-                            .read(messagesProvider(widget.chatId).notifier)
-                            .loadMessages();
+                        ref.read(messagesProvider(widget.chatId).notifier).loadMessages();
                       },
                       child: Text(l10n.retry),
                     ),
@@ -127,7 +106,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             ),
           ),
 
-          // Поле ввода сообщения
           Container(
             decoration: BoxDecoration(
               color: colorScheme.surface,
@@ -149,13 +127,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                         controller: _messageController,
                         decoration: InputDecoration(
                           hintText: l10n.typeMessage,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                         maxLines: null,
                         textCapitalization: TextCapitalization.sentences,
@@ -170,9 +143,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Icon(Icons.send, color: colorScheme.primary),
                         style: IconButton.styleFrom(
@@ -213,18 +184,12 @@ class _MessageBubble extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Align(
-      alignment: message.isFromSpecialist
-          ? Alignment.centerLeft
-          : Alignment.centerRight,
+      alignment: message.isFromSpecialist ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: message.isFromSpecialist
-              ? colorScheme.surfaceContainerHighest
-              : colorScheme.primaryContainer,
+          color: message.isFromSpecialist ? colorScheme.surfaceContainerHighest : colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -233,9 +198,7 @@ class _MessageBubble extends StatelessWidget {
             Text(
               message.text,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: message.isFromSpecialist
-                    ? colorScheme.onSurface
-                    : colorScheme.onPrimaryContainer,
+                color: message.isFromSpecialist ? colorScheme.onSurface : colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(height: 4),
@@ -244,9 +207,7 @@ class _MessageBubble extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: message.isFromSpecialist
                     ? colorScheme.onSurfaceVariant
-                    : colorScheme.onPrimaryContainer.withAlpha(
-                        (255 * 0.7).round(),
-                      ),
+                    : colorScheme.onPrimaryContainer.withAlpha((255 * 0.7).round()),
               ),
             ),
           ],
