@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/features/construction_completion/domain/entities/final_document.dart';
+import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
 /// Виджет карточки финального документа
 class FinalDocumentCard extends StatelessWidget {
   final FinalDocument document;
   final VoidCallback onTap;
 
-  const FinalDocumentCard({
-    super.key,
-    required this.document,
-    required this.onTap,
-  });
+  const FinalDocumentCard({super.key, required this.document, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +29,16 @@ class FinalDocumentCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       document.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  _StatusChip(status: document.status),
+                  _StatusChip(status: document.status, signedAt: document.signedAt),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
                 document.description,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -54,17 +46,11 @@ class FinalDocumentCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      size: 16,
-                      color: colorScheme.tertiary,
-                    ),
+                    Icon(Icons.check_circle, size: 16, color: colorScheme.tertiary),
                     const SizedBox(width: 4),
                     Text(
                       '${AppLocalizations.of(context)!.signedAt}: ${_formatDate(document.signedAt!)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -84,8 +70,9 @@ class FinalDocumentCard extends StatelessWidget {
 /// Виджет статуса финального документа
 class _StatusChip extends StatelessWidget {
   final FinalDocumentStatus status;
+  final DateTime? signedAt;
 
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, this.signedAt});
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +80,16 @@ class _StatusChip extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    // Если документ подписан (есть signedAt), показываем статус "Подписан"
+    // независимо от значения поля status
+    final effectiveStatus = signedAt != null ? FinalDocumentStatus.signed : status;
+
     Color backgroundColor;
     Color textColor;
     String label;
     IconData icon;
 
-    switch (status) {
+    switch (effectiveStatus) {
       case FinalDocumentStatus.pending:
         backgroundColor = colorScheme.surfaceContainerHighest;
         textColor = colorScheme.onSurface;
@@ -121,10 +112,7 @@ class _StatusChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -132,10 +120,7 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w500,
-            ),
+            style: theme.textTheme.labelSmall?.copyWith(color: textColor, fontWeight: FontWeight.w500),
           ),
         ],
       ),

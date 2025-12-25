@@ -22,7 +22,7 @@ class DocumentAdapter extends HiveObject {
   final String? fileUrl;
 
   @HiveField(5)
-  final String statusString; // 'pending', 'under_review', 'approved', 'rejected'
+  final String status;
 
   @HiveField(6)
   final DateTime? submittedAt;
@@ -39,7 +39,7 @@ class DocumentAdapter extends HiveObject {
     required this.title,
     required this.description,
     this.fileUrl,
-    required this.statusString,
+    required this.status,
     this.submittedAt,
     this.approvedAt,
     this.rejectionReason,
@@ -53,7 +53,7 @@ class DocumentAdapter extends HiveObject {
       title: document.title,
       description: document.description,
       fileUrl: document.fileUrl,
-      statusString: _statusToString(document.status),
+      status: _statusToString(document.status),
       submittedAt: document.submittedAt,
       approvedAt: document.approvedAt,
       rejectionReason: document.rejectionReason,
@@ -68,7 +68,7 @@ class DocumentAdapter extends HiveObject {
       title: title,
       description: description,
       fileUrl: fileUrl,
-      status: _statusFromString(statusString),
+      status: _statusFromString(status),
       submittedAt: submittedAt,
       approvedAt: approvedAt,
       rejectionReason: rejectionReason,

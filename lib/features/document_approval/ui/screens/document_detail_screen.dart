@@ -207,19 +207,20 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                 const SizedBox(height: 24),
 
                 // Информация о датах
-                if (document.submittedAt != null) ...[
-                  _InfoRow(
-                    icon: Icons.access_time,
-                    label: l10n.submitted,
-                    value: _formatDateTime(document.submittedAt!),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (document.approvedAt != null) ...[
+                // Если документ одобрен - показываем только дату одобрения
+                // Иначе показываем дату отправки
+                if (document.status == DocumentStatus.approved && document.approvedAt != null) ...[
                   _InfoRow(
                     icon: Icons.check_circle,
                     label: l10n.approved,
                     value: _formatDateTime(document.approvedAt!),
+                  ),
+                  const SizedBox(height: 8),
+                ] else if (document.submittedAt != null) ...[
+                  _InfoRow(
+                    icon: Icons.access_time,
+                    label: l10n.submitted,
+                    value: _formatDateTime(document.submittedAt!),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -273,19 +274,14 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                         await downloadService.downloadFile(fileUrl);
 
                         if (context.mounted) {
-                          // Получаем путь к скачанному файлу
                           final filePath = FileDownloadDataSourceImpl.getLastDownloadedFilePath();
 
-                          // Формируем сообщение
                           String message;
                           if (filePath != null) {
-                            // На Android/macOS показываем путь
                             message = 'Файл сохранён\n$filePath';
                           } else if (Platform.isIOS) {
-                            // На iOS файл в Files app
                             message = 'Файл сохранён\nДоступен в приложении Files';
                           } else {
-                            // Fallback
                             message = 'Файл сохранён';
                           }
 

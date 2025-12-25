@@ -19,8 +19,10 @@ class RequestedProjectsNotifier extends _$RequestedProjectsNotifier {
     try {
       final repository = ref.read(projectRepositoryProvider);
       final projects = await repository.getRequestedProjects();
+      if (!ref.mounted) return;
       state = AsyncValue.data(projects);
     } catch (e, stackTrace) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(e, stackTrace);
     }
   }

@@ -1,13 +1,13 @@
+import 'package:mosstroinform_mobile/core/database/adapters/construction_object_adapter.dart';
+import 'package:mosstroinform_mobile/core/database/adapters/document_adapter.dart';
 import 'package:mosstroinform_mobile/core/database/hive_service.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
 import 'package:mosstroinform_mobile/core/utils/logger.dart';
+import 'package:mosstroinform_mobile/features/chat/data/repositories/mock_chat_repository.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/repositories/document_repository.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/construction_object.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/repositories/project_repository.dart';
-import 'package:mosstroinform_mobile/core/database/adapters/document_adapter.dart';
-import 'package:mosstroinform_mobile/core/database/adapters/construction_object_adapter.dart';
-import 'package:mosstroinform_mobile/features/chat/data/repositories/mock_chat_repository.dart';
 
 /// Интерактивная моковая реализация репозитория документов
 /// Использует локальную базу данных Hive для имитации реальной работы приложения
@@ -24,9 +24,7 @@ class MockDocumentRepository implements DocumentRepository {
 
     // Получаем все документы из базы
     final documentsBox = HiveService.documentsBox;
-    final documents = documentsBox.values
-        .map((adapter) => adapter.toDocument())
-        .toList();
+    final documents = documentsBox.values.map((adapter) => adapter.toDocument()).toList();
 
     return documents;
   }
@@ -89,32 +87,28 @@ class MockDocumentRepository implements DocumentRepository {
       throw UnknownFailure('Документ с ID $documentId не найден');
     }
 
-    // Обновляем существующий документ напрямую через HiveObject
-    // Используем copyWith-подобный подход, создавая новый адаптер с обновленными полями
-    final updatedAdapter = DocumentAdapter(
-      id: documentAdapter.id,
-      projectId: documentAdapter.projectId,
-      title: documentAdapter.title,
-      description: documentAdapter.description,
-      fileUrl: documentAdapter.fileUrl,
-      statusString: 'approved',
-      submittedAt: documentAdapter.submittedAt,
+    final currentDocument = documentAdapter.toDocument();
+    final updatedDocument = Document(
+      id: currentDocument.id,
+      projectId: currentDocument.projectId,
+      title: currentDocument.title,
+      description: currentDocument.description,
+      fileUrl: currentDocument.fileUrl,
+      status: DocumentStatus.approved,
+      submittedAt: currentDocument.submittedAt,
       approvedAt: DateTime.now(),
       rejectionReason: null,
     );
+    final updatedAdapter = DocumentAdapter.fromDocument(updatedDocument);
 
     // Обновляем документ в базе, используя тот же ключ (ID)
     // Hive.put с тем же ключом заменяет существующую запись, а не создает новую
     await documentsBox.put(documentId, updatedAdapter);
 
-    AppLogger.info(
-      'MockDocumentRepository.approveDocument: документ $documentId обновлен со статусом approved',
-    );
+    AppLogger.info('MockDocumentRepository.approveDocument: документ $documentId обновлен со статусом approved');
 
     // Проверяем, что нет дубликатов (по ID должен быть только один документ)
-    final documentsWithSameId = documentsBox.values
-        .where((adapter) => adapter.id == documentId)
-        .length;
+    final documentsWithSameId = documentsBox.values.where((adapter) => adapter.id == documentId).length;
     if (documentsWithSameId > 1) {
       AppLogger.error(
         'MockDocumentRepository.approveDocument: ОШИБКА! Обнаружены дубликаты документа $documentId ($documentsWithSameId записей)!',
@@ -129,8 +123,7 @@ class MockDocumentRepository implements DocumentRepository {
         .map((adapter) => adapter.toDocument())
         .toList();
     final allApproved =
-        projectDocuments.isNotEmpty &&
-        projectDocuments.every((doc) => doc.status == DocumentStatus.approved);
+        projectDocuments.isNotEmpty && projectDocuments.every((doc) => doc.status == DocumentStatus.approved);
 
     if (allApproved) {
       AppLogger.info(
@@ -142,9 +135,7 @@ class MockDocumentRepository implements DocumentRepository {
 
       // Проверяем, не существует ли уже объект для этого проекта
       final objectsBox = HiveService.constructionObjectsBox;
-      final existingObject = objectsBox.values
-          .where((obj) => obj.projectId == projectId)
-          .firstOrNull;
+      final existingObject = objectsBox.values.where((obj) => obj.projectId == projectId).firstOrNull;
 
       if (existingObject == null) {
         // Создаем чат для объекта автоматически (в моковом режиме)
@@ -153,31 +144,11 @@ class MockDocumentRepository implements DocumentRepository {
         // Создаем начальные этапы строительства
         // Для моков все этапы создаются со статусом completed (100% прогресс) для тестирования подписания документов
         final initialStages = [
-          ConstructionStageAdapter(
-            id: '1',
-            name: 'Подготовительные работы',
-            statusString: 'completed',
-          ),
-          ConstructionStageAdapter(
-            id: '2',
-            name: 'Фундамент',
-            statusString: 'completed',
-          ),
-          ConstructionStageAdapter(
-            id: '3',
-            name: 'Возведение стен',
-            statusString: 'completed',
-          ),
-          ConstructionStageAdapter(
-            id: '4',
-            name: 'Кровля',
-            statusString: 'completed',
-          ),
-          ConstructionStageAdapter(
-            id: '5',
-            name: 'Отделочные работы',
-            statusString: 'completed',
-          ),
+          ConstructionStageAdapter(id: '1', name: 'Подготовительные работы', statusString: 'completed'),
+          ConstructionStageAdapter(id: '2', name: 'Фундамент', statusString: 'completed'),
+          ConstructionStageAdapter(id: '3', name: 'Возведение стен', statusString: 'completed'),
+          ConstructionStageAdapter(id: '4', name: 'Кровля', statusString: 'completed'),
+          ConstructionStageAdapter(id: '5', name: 'Отделочные работы', statusString: 'completed'),
         ];
 
         // Создаем объект из проекта
@@ -199,17 +170,13 @@ class MockDocumentRepository implements DocumentRepository {
           'MockDocumentRepository.approveDocument: объект ${objectAdapter.id} создан для проекта $projectId',
         );
       } else {
-        AppLogger.info(
-          'MockDocumentRepository.approveDocument: объект для проекта $projectId уже существует',
-        );
+        AppLogger.info('MockDocumentRepository.approveDocument: объект для проекта $projectId уже существует');
       }
 
       // Удаляем проект из списка запрошенных
       final requestedBox = HiveService.requestedProjectsBox;
       await requestedBox.delete(projectId);
-      AppLogger.info(
-        'MockDocumentRepository.approveDocument: проект $projectId удален из списка запрошенных',
-      );
+      AppLogger.info('MockDocumentRepository.approveDocument: проект $projectId удален из списка запрошенных');
     }
   }
 
@@ -226,18 +193,19 @@ class MockDocumentRepository implements DocumentRepository {
       throw UnknownFailure('Документ с ID $documentId не найден');
     }
 
-    // Создаем обновленный документ со статусом rejected
-    final updatedAdapter = DocumentAdapter(
-      id: documentAdapter.id,
-      projectId: documentAdapter.projectId,
-      title: documentAdapter.title,
-      description: documentAdapter.description,
-      fileUrl: documentAdapter.fileUrl,
-      statusString: 'rejected',
-      submittedAt: documentAdapter.submittedAt,
+    final currentDocument = documentAdapter.toDocument();
+    final updatedDocument = Document(
+      id: currentDocument.id,
+      projectId: currentDocument.projectId,
+      title: currentDocument.title,
+      description: currentDocument.description,
+      fileUrl: currentDocument.fileUrl,
+      status: DocumentStatus.rejected,
+      submittedAt: currentDocument.submittedAt,
       approvedAt: null,
       rejectionReason: reason,
     );
+    final updatedAdapter = DocumentAdapter.fromDocument(updatedDocument);
 
     // Обновляем документ в базе
     await documentsBox.put(documentId, updatedAdapter);

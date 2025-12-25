@@ -22,7 +22,7 @@ class DocumentAdapterAdapter extends TypeAdapter<DocumentAdapter> {
       title: fields[2] as String,
       description: fields[3] as String,
       fileUrl: fields[4] as String?,
-      statusString: fields[5] as String,
+      status: fields[5] as String,
       submittedAt: fields[6] as DateTime?,
       approvedAt: fields[7] as DateTime?,
       rejectionReason: fields[8] as String?,
@@ -44,7 +44,7 @@ class DocumentAdapterAdapter extends TypeAdapter<DocumentAdapter> {
       ..writeByte(4)
       ..write(obj.fileUrl)
       ..writeByte(5)
-      ..write(obj.statusString)
+      ..write(obj.status)
       ..writeByte(6)
       ..write(obj.submittedAt)
       ..writeByte(7)

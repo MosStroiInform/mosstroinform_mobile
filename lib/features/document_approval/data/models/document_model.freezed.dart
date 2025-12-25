@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DocumentModel {
 
- String? get id; String? get projectId; String? get title; String? get description; String? get fileUrl; String get statusString; DateTime? get submittedAt; DateTime? get approvedAt; String? get rejectionReason;
+ String? get id; String? get projectId; String? get title; String? get description; String? get fileUrl; String get status; DateTime? get submittedAt; DateTime? get approvedAt; String? get rejectionReason;
 /// Create a copy of DocumentModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $DocumentModelCopyWith<DocumentModel> get copyWith => _$DocumentModelCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DocumentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.fileUrl, fileUrl) || other.fileUrl == fileUrl)&&(identical(other.statusString, statusString) || other.statusString == statusString)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.approvedAt, approvedAt) || other.approvedAt == approvedAt)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DocumentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.fileUrl, fileUrl) || other.fileUrl == fileUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.approvedAt, approvedAt) || other.approvedAt == approvedAt)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,projectId,title,description,fileUrl,statusString,submittedAt,approvedAt,rejectionReason);
+int get hashCode => Object.hash(runtimeType,id,projectId,title,description,fileUrl,status,submittedAt,approvedAt,rejectionReason);
 
 @override
 String toString() {
-  return 'DocumentModel(id: $id, projectId: $projectId, title: $title, description: $description, fileUrl: $fileUrl, statusString: $statusString, submittedAt: $submittedAt, approvedAt: $approvedAt, rejectionReason: $rejectionReason)';
+  return 'DocumentModel(id: $id, projectId: $projectId, title: $title, description: $description, fileUrl: $fileUrl, status: $status, submittedAt: $submittedAt, approvedAt: $approvedAt, rejectionReason: $rejectionReason)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $DocumentModelCopyWith<$Res>  {
   factory $DocumentModelCopyWith(DocumentModel value, $Res Function(DocumentModel) _then) = _$DocumentModelCopyWithImpl;
 @useResult
 $Res call({
- String? id, String? projectId, String? title, String? description, String? fileUrl, String statusString, DateTime? submittedAt, DateTime? approvedAt, String? rejectionReason
+ String? id, String? projectId, String? title, String? description, String? fileUrl, String status, DateTime? submittedAt, DateTime? approvedAt, String? rejectionReason
 });
 
 
@@ -65,14 +65,14 @@ class _$DocumentModelCopyWithImpl<$Res>
 
 /// Create a copy of DocumentModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? projectId = freezed,Object? title = freezed,Object? description = freezed,Object? fileUrl = freezed,Object? statusString = null,Object? submittedAt = freezed,Object? approvedAt = freezed,Object? rejectionReason = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? projectId = freezed,Object? title = freezed,Object? description = freezed,Object? fileUrl = freezed,Object? status = null,Object? submittedAt = freezed,Object? approvedAt = freezed,Object? rejectionReason = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
 as String?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,fileUrl: freezed == fileUrl ? _self.fileUrl : fileUrl // ignore: cast_nullable_to_non_nullable
-as String?,statusString: null == statusString ? _self.statusString : statusString // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,submittedAt: freezed == submittedAt ? _self.submittedAt : submittedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,approvedAt: freezed == approvedAt ? _self.approvedAt : approvedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
@@ -161,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String statusString,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String status,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DocumentModel() when $default != null:
-return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.statusString,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
+return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.status,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
   return orElse();
 
 }
@@ -182,10 +182,10 @@ return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fil
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String statusString,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String status,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)  $default,) {final _that = this;
 switch (_that) {
 case _DocumentModel():
-return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.statusString,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
+return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.status,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +202,10 @@ return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fil
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String statusString,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? projectId,  String? title,  String? description,  String? fileUrl,  String status,  DateTime? submittedAt,  DateTime? approvedAt,  String? rejectionReason)?  $default,) {final _that = this;
 switch (_that) {
 case _DocumentModel() when $default != null:
-return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.statusString,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
+return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fileUrl,_that.status,_that.submittedAt,_that.approvedAt,_that.rejectionReason);case _:
   return null;
 
 }
@@ -217,7 +217,7 @@ return $default(_that.id,_that.projectId,_that.title,_that.description,_that.fil
 @JsonSerializable()
 
 class _DocumentModel implements DocumentModel {
-  const _DocumentModel({this.id, this.projectId, this.title, this.description, this.fileUrl, this.statusString = 'pending', this.submittedAt, this.approvedAt, this.rejectionReason});
+  const _DocumentModel({this.id, this.projectId, this.title, this.description, this.fileUrl, this.status = 'pending', this.submittedAt, this.approvedAt, this.rejectionReason});
   factory _DocumentModel.fromJson(Map<String, dynamic> json) => _$DocumentModelFromJson(json);
 
 @override final  String? id;
@@ -225,7 +225,7 @@ class _DocumentModel implements DocumentModel {
 @override final  String? title;
 @override final  String? description;
 @override final  String? fileUrl;
-@override@JsonKey() final  String statusString;
+@override@JsonKey() final  String status;
 @override final  DateTime? submittedAt;
 @override final  DateTime? approvedAt;
 @override final  String? rejectionReason;
@@ -243,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DocumentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.fileUrl, fileUrl) || other.fileUrl == fileUrl)&&(identical(other.statusString, statusString) || other.statusString == statusString)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.approvedAt, approvedAt) || other.approvedAt == approvedAt)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DocumentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.fileUrl, fileUrl) || other.fileUrl == fileUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.submittedAt, submittedAt) || other.submittedAt == submittedAt)&&(identical(other.approvedAt, approvedAt) || other.approvedAt == approvedAt)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,projectId,title,description,fileUrl,statusString,submittedAt,approvedAt,rejectionReason);
+int get hashCode => Object.hash(runtimeType,id,projectId,title,description,fileUrl,status,submittedAt,approvedAt,rejectionReason);
 
 @override
 String toString() {
-  return 'DocumentModel(id: $id, projectId: $projectId, title: $title, description: $description, fileUrl: $fileUrl, statusString: $statusString, submittedAt: $submittedAt, approvedAt: $approvedAt, rejectionReason: $rejectionReason)';
+  return 'DocumentModel(id: $id, projectId: $projectId, title: $title, description: $description, fileUrl: $fileUrl, status: $status, submittedAt: $submittedAt, approvedAt: $approvedAt, rejectionReason: $rejectionReason)';
 }
 
 
@@ -263,7 +263,7 @@ abstract mixin class _$DocumentModelCopyWith<$Res> implements $DocumentModelCopy
   factory _$DocumentModelCopyWith(_DocumentModel value, $Res Function(_DocumentModel) _then) = __$DocumentModelCopyWithImpl;
 @override @useResult
 $Res call({
- String? id, String? projectId, String? title, String? description, String? fileUrl, String statusString, DateTime? submittedAt, DateTime? approvedAt, String? rejectionReason
+ String? id, String? projectId, String? title, String? description, String? fileUrl, String status, DateTime? submittedAt, DateTime? approvedAt, String? rejectionReason
 });
 
 
@@ -280,14 +280,14 @@ class __$DocumentModelCopyWithImpl<$Res>
 
 /// Create a copy of DocumentModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? projectId = freezed,Object? title = freezed,Object? description = freezed,Object? fileUrl = freezed,Object? statusString = null,Object? submittedAt = freezed,Object? approvedAt = freezed,Object? rejectionReason = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? projectId = freezed,Object? title = freezed,Object? description = freezed,Object? fileUrl = freezed,Object? status = null,Object? submittedAt = freezed,Object? approvedAt = freezed,Object? rejectionReason = freezed,}) {
   return _then(_DocumentModel(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
 as String?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,fileUrl: freezed == fileUrl ? _self.fileUrl : fileUrl // ignore: cast_nullable_to_non_nullable
-as String?,statusString: null == statusString ? _self.statusString : statusString // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,submittedAt: freezed == submittedAt ? _self.submittedAt : submittedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,approvedAt: freezed == approvedAt ? _self.approvedAt : approvedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
