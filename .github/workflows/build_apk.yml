@@ -110,7 +110,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [build, build-desktop]
+    needs: [build, build-desktop, build-ios]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
@@ -133,58 +133,23 @@ jobs:
             linux-*-release
             windows-*-release
             macos-*-release
-          merge-multiple: false
-          path: desktop-artifacts
+          merge-multiple: true
 
-      - name: Move desktop artifacts to root
+      - name: Download iOS artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: |
+            ios-*-release
+          merge-multiple: true
+
+      - name: List downloaded artifacts
         run: |
-          echo "=== Moving desktop artifacts to root ==="
-          if [ -d "desktop-artifacts" ]; then
-            echo "Contents of desktop-artifacts:"
-            ls -la desktop-artifacts/ || true
-            echo ""
-            echo "Searching for artifact directories:"
-            find desktop-artifacts -maxdepth 1 -type d ! -name "desktop-artifacts" || true
-            echo ""
-            # Перемещаем все директории из desktop-artifacts в корень
-            for dir in desktop-artifacts/*/; do
-              if [ -d "$dir" ]; then
-                dir_name=$(basename "$dir")
-                echo "Moving $dir_name to root..."
-                mv "$dir" .
-                echo "✅ Moved $dir_name"
-              fi
-            done
-            # Удаляем пустую директорию desktop-artifacts если она пуста
-            rmdir desktop-artifacts 2>/dev/null || true
-            echo ""
-            echo "✅ Moved desktop artifacts to root"
-            echo "Current root directory contents:"
-            ls -la | grep -E "(linux|windows|macos).*-release" || echo "No artifact directories found in root"
-          else
-            echo "⚠️ desktop-artifacts directory not found"
-            echo "Checking if artifacts are already in root:"
-            ls -d *-*-release 2>/dev/null || echo "No artifact directories found"
-          fi
-          
-      - name: Check if artifacts were downloaded as zip files
-        run: |
-          echo "=== Checking for zip files ==="
-          if ls *.zip 2>/dev/null | grep -q "release"; then
-            echo "⚠️ Found zip files instead of directories, extracting..."
-            for zip_file in *-*-release.zip; do
-              if [ -f "$zip_file" ]; then
-                dir_name=$(echo "$zip_file" | sed 's/\.zip$//')
-                echo "Extracting $zip_file to $dir_name"
-                mkdir -p "$dir_name"
-                unzip -q "$zip_file" -d "$dir_name"
-                rm "$zip_file"
-                echo "✅ Extracted $zip_file"
-              fi
-            done
-          else
-            echo "✅ No zip files found, artifacts should be in directories"
-          fi
+          echo "=== All downloaded artifacts ==="
+          ls -la
+          echo ""
+          echo "=== Looking for artifact directories ==="
+          find . -maxdepth 1 -type d \( -name "linux-*" -o -name "windows-*" -o -name "macos-*" -o -name "ios-*" \) 2>/dev/null | sort
 
       - name: List downloaded APK files
         run: ls -la *.apk 2>/dev/null || echo "No APK files found"
@@ -239,11 +204,9 @@ jobs:
         shell: bash
         run: |
           FOUND_ANY=false
-          # Сначала ищем в корне, потом глубже
-          for dir in $(find . -maxdepth 2 -type d -name "linux-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
+          for dir in $(find . -maxdepth 1 -type d -name "linux-*-release" 2>/dev/null | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              # Получаем имя директории без пути
               dir_name=$(basename "$dir")
               flavor=$(echo "$dir_name" | sed 's/linux-\(.*\)-release/\1/')
               echo "Packaging Linux $flavor from $dir"
@@ -258,8 +221,6 @@ jobs:
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No Linux artifact directories found"
-            echo "Searching in all locations:"
-            find . -type d -name "*linux*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.tar.gz 2>/dev/null || echo "No Linux archives created"
 
@@ -267,11 +228,9 @@ jobs:
         shell: bash
         run: |
           FOUND_ANY=false
-          # Сначала ищем в корне, потом глубже
-          for dir in $(find . -maxdepth 2 -type d -name "windows-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
+          for dir in $(find . -maxdepth 1 -type d -name "windows-*-release" 2>/dev/null | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              # Получаем имя директории без пути
               dir_name=$(basename "$dir")
               flavor=$(echo "$dir_name" | sed 's/windows-\(.*\)-release/\1/')
               echo "Packaging Windows $flavor from $dir"
@@ -282,16 +241,12 @@ jobs:
                 echo "✅ Created: mosstroinform_mobile-windows-$flavor.zip"
               else
                 echo "⚠️ Warning: No .exe found in $dir"
-                echo "Directory contents:"
                 ls -la "$dir" || true
-                find "$dir" -type f | head -5 || true
               fi
             fi
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No Windows artifact directories found"
-            echo "Searching in all locations:"
-            find . -type d -name "*windows*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.zip 2>/dev/null | grep windows || echo "No Windows archives created"
 
@@ -300,11 +255,9 @@ jobs:
         run: |
           ORIGINAL_DIR=$(pwd)
           FOUND_ANY=false
-          # Сначала ищем в корне, потом глубже
-          for dir in $(find . -maxdepth 2 -type d -name "macos-*-release" 2>/dev/null | grep -v "^\./desktop-artifacts" | sort); do
+          for dir in $(find . -maxdepth 1 -type d -name "macos-*-release" 2>/dev/null | sort); do
             if [ -d "$dir" ]; then
               FOUND_ANY=true
-              # Получаем имя директории без пути
               dir_name=$(basename "$dir")
               flavor=$(echo "$dir_name" | sed 's/macos-\(.*\)-release/\1/')
               echo "Packaging macOS $flavor from $dir"
@@ -318,19 +271,44 @@ jobs:
                 echo "✅ Created: mosstroinform_mobile-macos-$flavor.zip"
               else
                 echo "⚠️ Warning: No .app found in $dir"
-                echo "Directory contents:"
                 ls -la "$dir" || true
-                echo "Searching for .app files:"
-                find "$dir" -name "*.app" -type d || echo "No .app files found"
               fi
             fi
           done
           if [ "$FOUND_ANY" = "false" ]; then
             echo "⚠️ No macOS artifact directories found"
-            echo "Searching in all locations:"
-            find . -type d -name "*macos*" 2>/dev/null | head -10 || true
           fi
           ls -lh *.zip 2>/dev/null | grep macos || echo "No macOS archives created"
+
+      - name: Package iOS artifacts
+        shell: bash
+        run: |
+          ORIGINAL_DIR=$(pwd)
+          FOUND_ANY=false
+          for dir in $(find . -maxdepth 1 -type d -name "ios-*-release" 2>/dev/null | sort); do
+            if [ -d "$dir" ]; then
+              FOUND_ANY=true
+              dir_name=$(basename "$dir")
+              flavor=$(echo "$dir_name" | sed 's/ios-\(.*\)-release/\1/')
+              echo "Packaging iOS $flavor from $dir"
+              APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
+              if [ -n "$APP_PATH" ]; then
+                APP_NAME=$(basename "$APP_PATH")
+                APP_DIR=$(dirname "$APP_PATH")
+                cd "$APP_DIR"
+                zip -r "$ORIGINAL_DIR/mosstroinform_mobile-ios-$flavor.zip" "$APP_NAME"
+                cd "$ORIGINAL_DIR"
+                echo "✅ Created: mosstroinform_mobile-ios-$flavor.zip"
+              else
+                echo "⚠️ Warning: No .app found in $dir"
+                ls -la "$dir" || true
+              fi
+            fi
+          done
+          if [ "$FOUND_ANY" = "false" ]; then
+            echo "⚠️ No iOS artifact directories found"
+          fi
+          ls -lh *.zip 2>/dev/null | grep ios || echo "No iOS archives created"
 
       - name: List all release files
         run: |
@@ -357,6 +335,10 @@ jobs:
             - Linux: `mosstroinform_mobile-linux-prod.tar.gz`
             - Windows: `mosstroinform_mobile-windows-prod.zip`
             - macOS: `mosstroinform_mobile-macos-mock.zip`, `mosstroinform_mobile-macos-prod.zip`
+            
+            ## 🍎 iOS
+            - Mock: `mosstroinform_mobile-ios-mock.zip`
+            - Prod: `mosstroinform_mobile-ios-prod.zip`
             
             Commit: ${{ github.sha }}
             Автор: ${{ github.actor }}
@@ -571,3 +553,66 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build-ios:
+    name: Build iOS
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - flavor: mock
+          - flavor: prod
+
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build -d
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: Build iOS (${{ matrix.flavor }})
+        run: |
+          export CODE_SIGN_IDENTITY=""
+          export CODE_SIGNING_REQUIRED=NO
+          export CODE_SIGNING_ALLOWED=NO
+          flutter build ios --release --flavor ${{ matrix.flavor }} --dart-define=FLAVOR=${{ matrix.flavor }} --no-codesign
+        continue-on-error: false
+
+      - name: Determine artifact path
+        id: artifact_path
+        shell: bash
+        run: |
+          APP_PATH=$(find build/ios/iphoneos -name "*.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: No .app file found in build/ios/iphoneos/"
+            ls -la build/ios/iphoneos/ 2>/dev/null || echo "iphoneos directory not found"
+            exit 1
+          fi
+          echo "path=$APP_PATH" >> $GITHUB_OUTPUT
+          echo "app_name=$(basename "$APP_PATH")" >> $GITHUB_OUTPUT
+          echo "iOS app verified: $APP_PATH"
+
+      - name: Upload iOS artifact (${{ matrix.flavor }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ matrix.flavor }}-release
+          path: ${{ steps.artifact_path.outputs.path }}
+          retention-days: 30
+          if-no-files-found: warn
