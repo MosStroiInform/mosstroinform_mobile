@@ -128,22 +128,25 @@ class MessagesNotifier extends _$MessagesNotifier {
 
           final currentState = state.value;
           if (currentState != null) {
-            // Проверяем, нет ли уже такого сообщения (избегаем дубликатов)
-            final messageId = message.id;
-            final existingMessage = currentState.messages.any((m) => m.id == messageId);
-            if (!existingMessage) {
-              AppLogger.info(
-                '[MessagesNotifier] ← добавляем новое сообщение в список (всего было: ${currentState.messages.length})',
+            // Оптимизированная проверка на дубликаты - используем Set для быстрого поиска
+            final messageIds = currentState.messages.map((m) => m.id).toSet();
+            
+            if (!messageIds.contains(message.id)) {
+              // Добавляем новое сообщение в список (оптимизированное обновление)
+              state = AsyncValue.data(
+                currentState.copyWith(
+                  messages: [...currentState.messages, message],
+                  isSending: false, // Сбрасываем флаг отправки при получении сообщения
+                ),
               );
-              // Добавляем новое сообщение в список
-              final updatedMessages = <Message>[...currentState.messages, message];
-              state = AsyncValue.data(currentState.copyWith(messages: updatedMessages));
-              AppLogger.info('[MessagesNotifier] ← сообщение добавлено (всего стало: ${updatedMessages.length})');
             } else {
-              AppLogger.debug('[MessagesNotifier] ← сообщение уже существует, пропускаем (id=$messageId)');
+              // Обновляем существующее сообщение (например, если изменился статус прочитанности)
+              state = AsyncValue.data(
+                currentState.copyWith(
+                  messages: currentState.messages.map((m) => m.id == message.id ? message : m).toList(),
+                ),
+              );
             }
-          } else {
-            AppLogger.warning('[MessagesNotifier] ← состояние null, не можем добавить сообщение');
           }
         },
         (error) {

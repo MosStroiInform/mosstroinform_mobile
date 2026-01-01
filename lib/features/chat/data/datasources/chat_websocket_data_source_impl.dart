@@ -90,55 +90,44 @@ class ChatWebSocketDataSourceImpl implements IChatWebSocketDataSource {
 
             // Проверяем тип действия
             final actionType = json['type'] as String?;
-            AppLogger.info('[WebSocket] ← тип действия: $actionType');
 
-            if (actionType == 'CREATE') {
-              // Сервер отправляет CREATE action с данными сообщения
-              // Пытаемся создать MessageModel из полученных данных
+            // Если есть поле 'type', это action (CREATE или READ)
+            // Если нет поля 'type', но есть 'id' и 'text', это ChatMessage (транслированное сообщение)
+            if (actionType == 'CREATE' || (actionType == null && json['id'] != null && json['text'] != null)) {
+              // Сервер отправляет либо CREATE action, либо ChatMessage (транслированное сообщение)
+              // Оптимизированная обработка без лишних логов в production
               try {
-                AppLogger.info('[WebSocket] ← обработка CREATE action');
-                AppLogger.info(
-                  '[WebSocket] ← CREATE action данные: id=${json['id']}, text=${json['text']}, fromSpecialist=${json['fromSpecialist']}',
-                );
-
+                // Поддерживаем оба формата: camelCase и snake_case (оптимизированная проверка)
+                final fromSpecialist = json['fromSpecialist'] ?? json['is_from_specialist'] ?? false;
+                final isRead = json['isRead'] ?? json['is_read'] ?? json['read'] ?? false;
+                
+                // Поддерживаем оба формата для даты (оптимизированная проверка)
+                final sentAtStr = json['sentAt'] ?? json['sent_at'];
+                final createdAtStr = json['createdAt'] ?? json['created_at'];
+                
                 final messageModel = MessageModel(
-                  id:
-                      json['id'] as String? ??
-                      json['messageId'] as String? ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  id: json['id'] ?? json['messageId'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
                   chatId: chatId,
                   text: json['text'] as String,
-                  sentAt: json['sentAt'] != null
-                      ? DateTime.parse(json['sentAt'] as String)
-                      : (json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : DateTime.now()),
-                  isFromSpecialist: json['fromSpecialist'] as bool? ?? false,
-                  isRead: json['isRead'] as bool? ?? false,
+                  sentAt: sentAtStr != null
+                      ? DateTime.parse(sentAtStr as String)
+                      : (createdAtStr != null ? DateTime.parse(createdAtStr as String) : DateTime.now()),
+                  isFromSpecialist: fromSpecialist as bool? ?? false,
+                  isRead: isRead as bool? ?? false,
                 );
 
-                // Конвертируем модель в entity
-                final message = messageModel.toEntity();
-                final textPreview = message.text.length > 100
-                    ? '${message.text.substring(0, 100)}...'
-                    : message.text;
-                AppLogger.info(
-                  '[WebSocket] ← создано сообщение: id=${message.id}, text=$textPreview, fromSpecialist=${message.isFromSpecialist}, sentAt=${message.sentAt}',
-                );
-                onMessage(message);
-                AppLogger.info('[WebSocket] ← сообщение передано в callback');
+                // Конвертируем модель в entity и передаем в callback
+                onMessage(messageModel.toEntity());
               } catch (e, stackTrace) {
-                AppLogger.error('[WebSocket] ← ошибка создания сообщения из CREATE action: $e', stackTrace);
+                AppLogger.error('[WebSocket] ← ошибка создания сообщения: $e', stackTrace);
                 onError(e);
               }
             } else if (actionType == 'READ') {
-              // Действие READ - сообщение прочитано
+              // Действие READ - сообщение прочитано (игнорируем для мобилки)
               // Можно обновить статус сообщения, но для мобилки это не критично
-              final messageId = json['messageId'] as String?;
-              AppLogger.info('[WebSocket] ← получено действие READ для сообщения $messageId');
-            } else {
-              AppLogger.warning('[WebSocket] ← неизвестный тип действия: $actionType');
-              if (kDebugMode) {
-                AppLogger.info('[WebSocket] ← полный JSON неизвестного действия: $json');
-              }
+            } else if (kDebugMode) {
+              AppLogger.warning('[WebSocket] ← неизвестный тип действия или формат: $actionType');
+              AppLogger.info('[WebSocket] ← полный JSON: $json');
             }
           } catch (e, stackTrace) {
             AppLogger.error('[WebSocket] ← ошибка обработки сообщения: $e', stackTrace);
