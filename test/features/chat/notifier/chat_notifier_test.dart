@@ -240,9 +240,7 @@ void main() {
       await notifier.sendMessage('Новое сообщение');
 
       // Симулируем получение сообщения через WebSocket callback
-      if (onMessageCallback != null) {
-        onMessageCallback(newMessage);
-      }
+      onMessageCallback?.call(newMessage);
 
       // Ждем обновления состояния
       await Future.delayed(const Duration(milliseconds: 100));
