@@ -2,21 +2,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mosstroinform_mobile/core/errors/failures.dart';
+import 'package:mosstroinform_mobile/features/chat/domain/datasources/chat_websocket_data_source.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/entities/chat.dart';
+import 'package:mosstroinform_mobile/features/chat/domain/entities/chat_action.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/repositories/chat_repository.dart';
 import 'package:mosstroinform_mobile/features/chat/domain/providers/chat_repository_provider.dart';
+import 'package:mosstroinform_mobile/features/chat/data/providers/chat_websocket_provider.dart';
 import 'package:mosstroinform_mobile/features/chat/notifier/chat_notifier.dart';
 
 class MockChatRepository extends Mock implements ChatRepository {}
 
+class MockChatWebSocketDataSource extends Mock implements IChatWebSocketDataSource {}
+
 void main() {
   late MockChatRepository mockRepository;
+  late MockChatWebSocketDataSource mockWebSocket;
   late ProviderContainer container;
 
   setUp(() {
     mockRepository = MockChatRepository();
+    mockWebSocket = MockChatWebSocketDataSource();
     container = ProviderContainer(
-      overrides: [chatRepositoryProvider.overrideWithValue(mockRepository)],
+      overrides: [
+        chatRepositoryProvider.overrideWithValue(mockRepository),
+        chatWebSocketDataSourceProvider.overrideWithValue(mockWebSocket),
+      ],
     );
   });
 
@@ -188,35 +198,6 @@ void main() {
         ),
       ];
 
-      final updatedMessages = [
-        Message(
-          id: '1',
-          chatId: chatId,
-          text: 'Привет',
-          sentAt: DateTime(2024, 1, 1),
-          isFromSpecialist: true,
-          isRead: true,
-        ),
-        Message(
-          id: '2',
-          chatId: chatId,
-          text: 'Новое сообщение',
-          sentAt: DateTime(2024, 1, 2),
-          isFromSpecialist: false,
-          isRead: false,
-        ),
-      ];
-
-      // build уже загрузил сообщения
-      when(
-        () => mockRepository.getMessages(chatId),
-      ).thenAnswer((_) async => existingMessages);
-
-      // Ждем завершения build
-      await container.read(messagesProvider(chatId).future);
-
-      final notifier = container.read(messagesProvider(chatId).notifier);
-
       final newMessage = Message(
         id: '2',
         chatId: chatId,
@@ -226,24 +207,54 @@ void main() {
         isRead: false,
       );
 
-      when(
-        () => mockRepository.sendMessage(chatId, 'Новое сообщение'),
-      ).thenAnswer((_) async => newMessage);
+      // Сохраняем callback для последующего вызова
+      void Function(Message)? onMessageCallback;
 
-      // После отправки сообщения вызывается loadMessages, который вернет обновленный список
+      // build уже загрузил сообщения
       when(
         () => mockRepository.getMessages(chatId),
-      ).thenAnswer((_) async => updatedMessages);
+      ).thenAnswer((_) async => existingMessages);
 
+      // Настраиваем мок WebSocket как подключенный
+      when(() => mockWebSocket.isConnected).thenReturn(true);
+      when(
+        () => mockWebSocket.connect(
+          any(),
+          any(),
+          any(),
+        ),
+      ).thenAnswer((invocation) async {
+        // Сохраняем callback из второго аргумента (onMessage)
+        onMessageCallback = invocation.positionalArguments[1] as void Function(Message);
+      });
+      when(
+        () => mockWebSocket.sendAction(any()),
+      ).thenAnswer((_) async {});
+
+      // Ждем завершения build
+      await container.read(messagesProvider(chatId).future);
+
+      final notifier = container.read(messagesProvider(chatId).notifier);
+
+      // Отправляем сообщение
       await notifier.sendMessage('Новое сообщение');
+
+      // Симулируем получение сообщения через WebSocket callback
+      if (onMessageCallback != null) {
+        onMessageCallback(newMessage);
+      }
+
+      // Ждем обновления состояния
+      await Future.delayed(const Duration(milliseconds: 100));
 
       final state = await container.read(messagesProvider(chatId).future);
 
       expect(state.messages.length, 2);
       expect(state.messages.last.text, equals('Новое сообщение'));
+      expect(state.messages.last.id, equals('2'));
       expect(state.isSending, false);
       verify(
-        () => mockRepository.sendMessage(chatId, 'Новое сообщение'),
+        () => mockWebSocket.sendAction(any(that: isA<CreateMessageAction>())),
       ).called(1);
     });
 
