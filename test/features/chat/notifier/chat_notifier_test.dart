@@ -22,6 +22,18 @@ void main() {
   setUp(() {
     mockRepository = MockChatRepository();
     mockWebSocket = MockChatWebSocketDataSource();
+    
+    // Настраиваем базовые моки для WebSocket, которые нужны для всех тестов
+    when(() => mockWebSocket.isConnected).thenReturn(false);
+    when(() => mockWebSocket.disconnect()).thenAnswer((_) async {});
+    when(
+      () => mockWebSocket.connect(
+        any(),
+        any(),
+        any(),
+      ),
+    ).thenAnswer((_) async {});
+    
     container = ProviderContainer(
       overrides: [
         chatRepositoryProvider.overrideWithValue(mockRepository),
