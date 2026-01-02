@@ -119,6 +119,15 @@ void main() {
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => messages);
 
+      // Настраиваем мок WebSocket для build
+      when(
+        () => mockWebSocket.connect(
+          any(),
+          any(),
+          any(),
+        ),
+      ).thenAnswer((_) async {});
+
       final state = await container.read(messagesProvider(chatId).future);
 
       expect(state.messages, equals(messages));
@@ -163,6 +172,15 @@ void main() {
       when(
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => initialMessages);
+
+      // Настраиваем мок WebSocket для build
+      when(
+        () => mockWebSocket.connect(
+          any(),
+          any(),
+          any(),
+        ),
+      ).thenAnswer((_) async {});
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
@@ -257,12 +275,27 @@ void main() {
     });
 
     test('sendMessage игнорирует пустые сообщения', () async {
+      // Настраиваем мок WebSocket для build
+      when(
+        () => mockRepository.getMessages(chatId),
+      ).thenAnswer((_) async => []);
+      when(
+        () => mockWebSocket.connect(
+          any(),
+          any(),
+          any(),
+        ),
+      ).thenAnswer((_) async {});
+
+      // Ждем завершения build
+      await container.read(messagesProvider(chatId).future);
+
       final notifier = container.read(messagesProvider(chatId).notifier);
 
       await notifier.sendMessage('');
       await notifier.sendMessage('   ');
 
-      verifyNever(() => mockRepository.sendMessage(any(), any()));
+      verifyNever(() => mockWebSocket.sendAction(any()));
     });
 
     test('markAsRead успешно отмечает сообщения как прочитанные', () async {
@@ -281,6 +314,15 @@ void main() {
       when(
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => messages);
+
+      // Настраиваем мок WebSocket для build
+      when(
+        () => mockWebSocket.connect(
+          any(),
+          any(),
+          any(),
+        ),
+      ).thenAnswer((_) async {});
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
