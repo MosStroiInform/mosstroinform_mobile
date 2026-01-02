@@ -24,7 +24,7 @@ void main() {
     mockWebSocket = MockChatWebSocketDataSource();
     
     // Настраиваем базовые моки для WebSocket, которые нужны для всех тестов
-    when(() => mockWebSocket.isConnected).thenReturn(false);
+    // isConnected будет устанавливаться в каждом тесте отдельно
     when(() => mockWebSocket.disconnect()).thenAnswer((_) async {});
     when(
       () => mockWebSocket.connect(
@@ -186,6 +186,7 @@ void main() {
       ).thenAnswer((_) async => initialMessages);
 
       // Настраиваем мок WebSocket для build
+      when(() => mockWebSocket.isConnected).thenReturn(false);
       when(
         () => mockWebSocket.connect(
           any(),
@@ -255,8 +256,6 @@ void main() {
       ).thenAnswer((invocation) async {
         // Сохраняем callback из второго аргумента (onMessage)
         onMessageCallback = invocation.positionalArguments[1] as void Function(Message);
-        // После connect WebSocket становится подключенным
-        when(() => mockWebSocket.isConnected).thenReturn(true);
       });
       when(
         () => mockWebSocket.sendAction(any()),
@@ -265,8 +264,9 @@ void main() {
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
 
-      // Даем время для установки _websocket и isConnected
-      await Future.delayed(const Duration(milliseconds: 10));
+      // После build устанавливаем isConnected = true синхронно
+      // Это имитирует состояние после успешного подключения
+      when(() => mockWebSocket.isConnected).thenReturn(true);
 
       final notifier = container.read(messagesProvider(chatId).notifier);
 
@@ -301,16 +301,13 @@ void main() {
           any(),
           any(),
         ),
-      ).thenAnswer((_) async {
-        // После connect WebSocket становится подключенным
-        when(() => mockWebSocket.isConnected).thenReturn(true);
-      });
+      ).thenAnswer((_) async {});
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
 
-      // Даем время для установки _websocket и isConnected
-      await Future.delayed(const Duration(milliseconds: 10));
+      // После build устанавливаем isConnected = true синхронно
+      when(() => mockWebSocket.isConnected).thenReturn(true);
 
       final notifier = container.read(messagesProvider(chatId).notifier);
 
@@ -355,16 +352,13 @@ void main() {
           any(),
           any(),
         ),
-      ).thenAnswer((_) async {
-        // После connect WebSocket становится подключенным
-        when(() => mockWebSocket.isConnected).thenReturn(true);
-      });
+      ).thenAnswer((_) async {});
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
 
-      // Даем время для установки _websocket и isConnected
-      await Future.delayed(const Duration(milliseconds: 10));
+      // После build устанавливаем isConnected = true синхронно
+      when(() => mockWebSocket.isConnected).thenReturn(true);
 
       when(
         () => mockRepository.markMessagesAsRead(chatId),
