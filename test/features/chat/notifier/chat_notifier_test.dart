@@ -245,8 +245,8 @@ void main() {
         () => mockRepository.getMessages(chatId),
       ).thenAnswer((_) async => existingMessages);
 
-      // Настраиваем мок WebSocket как подключенный
-      when(() => mockWebSocket.isConnected).thenReturn(true);
+      // Настраиваем мок WebSocket - сначала не подключен, потом подключен
+      when(() => mockWebSocket.isConnected).thenReturn(false);
       when(
         () => mockWebSocket.connect(
           any(),
@@ -256,6 +256,8 @@ void main() {
       ).thenAnswer((invocation) async {
         // Сохраняем callback из второго аргумента (onMessage)
         onMessageCallback = invocation.positionalArguments[1] as void Function(Message);
+        // После connect WebSocket становится подключенным
+        when(() => mockWebSocket.isConnected).thenReturn(true);
       });
       when(
         () => mockWebSocket.sendAction(any()),
@@ -297,7 +299,10 @@ void main() {
           any(),
           any(),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async {
+        // После connect WebSocket становится подключенным
+        when(() => mockWebSocket.isConnected).thenReturn(true);
+      });
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
@@ -322,6 +327,17 @@ void main() {
         ),
       ];
 
+      final updatedMessages = [
+        Message(
+          id: '1',
+          chatId: chatId,
+          text: 'Привет',
+          sentAt: DateTime(2024, 1, 1),
+          isFromSpecialist: true,
+          isRead: true, // Теперь прочитано
+        ),
+      ];
+
       // build уже загрузил сообщения
       when(
         () => mockRepository.getMessages(chatId),
@@ -334,7 +350,10 @@ void main() {
           any(),
           any(),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async {
+        // После connect WebSocket становится подключенным
+        when(() => mockWebSocket.isConnected).thenReturn(true);
+      });
 
       // Ждем завершения build
       await container.read(messagesProvider(chatId).future);
@@ -343,19 +362,26 @@ void main() {
         () => mockRepository.markMessagesAsRead(chatId),
       ).thenAnswer((_) async {});
 
-      // После markAsRead вызывается loadMessages
+      // После markAsRead вызывается loadMessages, который вернет обновленный список
       when(
         () => mockRepository.getMessages(chatId),
-      ).thenAnswer((_) async => messages);
+      ).thenAnswer((_) async => updatedMessages);
 
       final notifier = container.read(messagesProvider(chatId).notifier);
       await notifier.markAsRead();
+
+      // Ждем завершения loadMessages
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      final state = await container.read(messagesProvider(chatId).future);
 
       verify(() => mockRepository.markMessagesAsRead(chatId)).called(1);
       // build вызвал getMessages один раз, markAsRead -> loadMessages еще раз
       verify(
         () => mockRepository.getMessages(chatId),
-      ).called(greaterThanOrEqualTo(1));
+      ).called(greaterThanOrEqualTo(2));
+      // Проверяем, что сообщение теперь прочитано
+      expect(state.messages.first.isRead, true);
     });
   });
 }
