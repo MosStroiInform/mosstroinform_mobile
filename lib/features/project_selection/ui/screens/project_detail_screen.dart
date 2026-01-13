@@ -237,7 +237,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                       projectDocs.every((doc) => doc.status == DocumentStatus.approved);
                 },
                 loading: () => false, // Во время загрузки не показываем кнопку
-                error: (_, __) => false, // При ошибке не показываем кнопку
+                error: (_, _) => false, // При ошибке не показываем кнопку
               ) ??
               false;
 
