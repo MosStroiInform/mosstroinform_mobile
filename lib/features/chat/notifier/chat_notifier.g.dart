@@ -110,7 +110,7 @@ final class MessagesNotifierProvider
   }
 }
 
-String _$messagesNotifierHash() => r'cf221eff0d70c05083ffe2a93f6ded1a1435781c';
+String _$messagesNotifierHash() => r'd497321bb0c962058853fa44200877ad0c5b3dc3';
 
 /// Notifier для управления состоянием сообщений чата
 /// keepAlive: true - провайдер не должен быть disposed автоматически,

@@ -249,8 +249,8 @@ jobs:
       - name: Reorganize artifact directories
         run: |
           echo "=== Reorganizing artifact directories ==="
-          # Когда используем merge-multiple: true, артефакты могут быть извлечены в поддиректории
-          # Нужно проверить структуру и переместить содержимое в правильные директории
+          # Когда используем merge-multiple: false, каждый артефакт извлекается в свою директорию
+          # Нужно проверить структуру и убедиться, что .app файлы находятся в правильных местах
           
           # Проверяем, есть ли директории с правильными именами артефактов
           ARTIFACT_DIRS=$(find . -maxdepth 1 -type d \( -name "linux-*-release" -o -name "windows-*-release" -o -name "macos-*-release" -o -name "ios-*-release" \) 2>/dev/null | sort)
@@ -289,11 +289,42 @@ jobs:
           else
             echo "✅ Found artifact directories:"
             echo "$ARTIFACT_DIRS"
+            
+            # Проверяем структуру macOS и iOS артефактов
+            # Иногда .app файлы могут быть в поддиректориях после загрузки
+            for dir in $(find . -maxdepth 1 -type d \( -name "macos-*-release" -o -name "ios-*-release" \) 2>/dev/null); do
+              echo "Checking structure of $dir..."
+              # Ищем .app файлы на любом уровне глубины
+              APP_FOUND=$(find "$dir" -name "*.app" -type d | head -1)
+              if [ -n "$APP_FOUND" ]; then
+                APP_DIR=$(dirname "$APP_FOUND")
+                APP_NAME=$(basename "$APP_FOUND")
+                # Если .app не находится прямо в корне директории артефакта, перемещаем его
+                if [ "$APP_DIR" != "$(realpath "$dir")" ]; then
+                  echo "Found .app in subdirectory, moving to root of $dir"
+                  mv "$APP_FOUND" "$dir/" 2>/dev/null || true
+                  # Удаляем пустые поддиректории если они остались
+                  find "$dir" -type d -empty -delete 2>/dev/null || true
+                fi
+              else
+                echo "⚠️ No .app file found in $dir"
+                echo "Contents of $dir:"
+                ls -la "$dir" || true
+                find "$dir" -type f -o -type d | head -10 || true
+              fi
+            done
           fi
           
           echo ""
           echo "=== Final artifact directories ==="
           find . -maxdepth 1 -type d \( -name "linux-*" -o -name "windows-*" -o -name "macos-*" -o -name "ios-*" \) 2>/dev/null | sort
+          
+          echo ""
+          echo "=== Checking for .app files in artifact directories ==="
+          for dir in $(find . -maxdepth 1 -type d \( -name "macos-*-release" -o -name "ios-*-release" \) 2>/dev/null); do
+            echo "Checking $dir for .app files:"
+            find "$dir" -name "*.app" -type d || echo "  No .app files found"
+          done
 
       - name: Package Linux artifacts
         shell: bash

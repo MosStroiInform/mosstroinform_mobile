@@ -12,14 +12,13 @@ abstract class FinalDocumentModel with _$FinalDocumentModel {
     String? title,
     String? description,
     String? fileUrl,
-    @Default('pending') String statusString,
+    @Default('pending') String status,
     DateTime? submittedAt,
     DateTime? signedAt,
     String? signatureUrl,
   }) = _FinalDocumentModel;
 
-  factory FinalDocumentModel.fromJson(Map<String, dynamic> json) =>
-      _$FinalDocumentModelFromJson(json);
+  factory FinalDocumentModel.fromJson(Map<String, dynamic> json) => _$FinalDocumentModelFromJson(json);
 }
 
 /// Модель статуса завершения строительства для работы с API
@@ -38,28 +37,19 @@ class ConstructionCompletionStatusModel {
     required this.documents,
   });
 
-  factory ConstructionCompletionStatusModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory ConstructionCompletionStatusModel.fromJson(Map<String, dynamic> json) {
     return ConstructionCompletionStatusModel(
       // Проверяем оба варианта: camelCase и snake_case
       projectId: json['project_id'] as String? ?? json['projectId'] as String?,
-      isCompleted:
-          json['is_completed'] as bool? ??
-          json['isCompleted'] as bool? ??
-          false,
+      isCompleted: json['is_completed'] as bool? ?? json['isCompleted'] as bool? ?? false,
       completionDate: () {
-        final dateStr =
-            json['completion_date'] as String? ??
-            json['completionDate'] as String?;
+        final dateStr = json['completion_date'] as String? ?? json['completionDate'] as String?;
         return dateStr != null ? DateTime.parse(dateStr) : null;
       }(),
       progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
       documents:
           (json['documents'] as List<dynamic>?)
-              ?.map(
-                (e) => FinalDocumentModel.fromJson(e as Map<String, dynamic>),
-              )
+              ?.map((e) => FinalDocumentModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
     );
@@ -74,7 +64,7 @@ extension FinalDocumentModelExtension on FinalDocumentModel {
       title: title ?? '',
       description: description ?? '',
       fileUrl: fileUrl,
-      status: _parseStatus(statusString),
+      status: _parseStatus(status),
       submittedAt: submittedAt,
       signedAt: signedAt,
       signatureUrl: signatureUrl,
@@ -96,10 +86,9 @@ extension FinalDocumentModelExtension on FinalDocumentModel {
 }
 
 /// Расширение для конвертации модели статуса в сущность
-extension ConstructionCompletionStatusModelExtension
-    on ConstructionCompletionStatusModel {
+extension ConstructionCompletionStatusModelExtension on ConstructionCompletionStatusModel {
   ConstructionCompletionStatus toEntity() {
-    final allSigned = documents.every((doc) => doc.statusString == 'signed');
+    final allSigned = documents.every((doc) => doc.status == 'signed');
     return ConstructionCompletionStatus(
       projectId: projectId ?? '',
       isCompleted: isCompleted,
