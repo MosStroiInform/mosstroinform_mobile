@@ -387,17 +387,29 @@ jobs:
               dir_name=$(basename "$dir")
               flavor=$(echo "$dir_name" | sed 's/macos-\(.*\)-release/\1/')
               echo "Packaging macOS $flavor from $dir"
-              APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
-              if [ -n "$APP_PATH" ]; then
-                APP_NAME=$(basename "$APP_PATH")
-                APP_DIR=$(dirname "$APP_PATH")
-                cd "$APP_DIR"
-                zip -r "$ORIGINAL_DIR/mosstroinform_mobile-macos-$flavor.zip" "$APP_NAME"
+              
+              # Проверяем, является ли сама директория .app бандлом (содержит Contents/)
+              if [ -d "$dir/Contents" ]; then
+                # Директория сама является .app бандлом
+                APP_NAME="${dir_name}.app"
+                cd "$dir/.."
+                zip -r "$ORIGINAL_DIR/mosstroinform_mobile-macos-$flavor.zip" "$dir_name"
                 cd "$ORIGINAL_DIR"
                 echo "✅ Created: mosstroinform_mobile-macos-$flavor.zip"
               else
-                echo "⚠️ Warning: No .app found in $dir"
-                ls -la "$dir" || true
+                # Ищем .app файл внутри директории
+                APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
+                if [ -n "$APP_PATH" ]; then
+                  APP_NAME=$(basename "$APP_PATH")
+                  APP_DIR=$(dirname "$APP_PATH")
+                  cd "$APP_DIR"
+                  zip -r "$ORIGINAL_DIR/mosstroinform_mobile-macos-$flavor.zip" "$APP_NAME"
+                  cd "$ORIGINAL_DIR"
+                  echo "✅ Created: mosstroinform_mobile-macos-$flavor.zip"
+                else
+                  echo "⚠️ Warning: No .app found in $dir"
+                  ls -la "$dir" || true
+                fi
               fi
             fi
           done
@@ -417,17 +429,29 @@ jobs:
               dir_name=$(basename "$dir")
               flavor=$(echo "$dir_name" | sed 's/ios-\(.*\)-release/\1/')
               echo "Packaging iOS $flavor from $dir"
-              APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
-              if [ -n "$APP_PATH" ]; then
-                APP_NAME=$(basename "$APP_PATH")
-                APP_DIR=$(dirname "$APP_PATH")
-                cd "$APP_DIR"
-                zip -r "$ORIGINAL_DIR/mosstroinform_mobile-ios-$flavor.zip" "$APP_NAME"
+              
+              # Проверяем, является ли сама директория .app бандлом (содержит Info.plist и Runner)
+              if [ -f "$dir/Info.plist" ] && [ -f "$dir/Runner" ]; then
+                # Директория сама является .app бандлом
+                APP_NAME="${dir_name}.app"
+                cd "$dir/.."
+                zip -r "$ORIGINAL_DIR/mosstroinform_mobile-ios-$flavor.zip" "$dir_name"
                 cd "$ORIGINAL_DIR"
                 echo "✅ Created: mosstroinform_mobile-ios-$flavor.zip"
               else
-                echo "⚠️ Warning: No .app found in $dir"
-                ls -la "$dir" || true
+                # Ищем .app файл внутри директории
+                APP_PATH=$(find "$dir" -name "*.app" -type d | head -1)
+                if [ -n "$APP_PATH" ]; then
+                  APP_NAME=$(basename "$APP_PATH")
+                  APP_DIR=$(dirname "$APP_PATH")
+                  cd "$APP_DIR"
+                  zip -r "$ORIGINAL_DIR/mosstroinform_mobile-ios-$flavor.zip" "$APP_NAME"
+                  cd "$ORIGINAL_DIR"
+                  echo "✅ Created: mosstroinform_mobile-ios-$flavor.zip"
+                else
+                  echo "⚠️ Warning: No .app found in $dir"
+                  ls -la "$dir" || true
+                fi
               fi
             fi
           done
