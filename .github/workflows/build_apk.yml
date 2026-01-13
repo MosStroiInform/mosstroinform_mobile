@@ -130,28 +130,28 @@ jobs:
         continue-on-error: true
         with:
           pattern: linux-*-release
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           pattern: windows-*-release
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           pattern: macos-*-release
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Download iOS artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           pattern: ios-*-release
-          merge-multiple: true
+          merge-multiple: false
 
       - name: List all available artifacts (debug)
         run: |
