@@ -1,7 +1,7 @@
-import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:mosstroinform_mobile/core/utils/extensions/localize_error_extension.dart';
 import 'package:mosstroinform_mobile/core/widgets/shimmer_widgets.dart';
 import 'package:mosstroinform_mobile/features/document_approval/domain/entities/document.dart';
@@ -10,7 +10,6 @@ import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 import 'package:mosstroinform_mobile/shared/file_download/data/providers/file_download_data_source_impl_native.dart';
 import 'package:mosstroinform_mobile/shared/file_download/domain/providers/file_download_service_provider.dart';
 
-/// Экран детального просмотра документа
 class DocumentDetailScreen extends ConsumerStatefulWidget {
   final String documentId;
 
@@ -40,18 +39,13 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
   Future<void> _handleApprove(String documentId) async {
     if (_isProcessing) {
-      debugPrint('Обработка уже идет, пропускаем');
       return;
     }
 
-    debugPrint('=== _handleApprove ===');
-    debugPrint('documentId: $documentId');
     setState(() => _isProcessing = true);
 
     try {
-      debugPrint('Вызываем approveDocument');
       await ref.read(documentProvider(documentId).notifier).approveDocument(documentId);
-      debugPrint('approveDocument выполнен успешно');
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -61,7 +55,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         final currentDocument = ref.read(documentProvider(documentId));
         final projectId = currentDocument.maybeWhen(data: (doc) => doc?.projectId, orElse: () => null);
 
-        // Обновляем список документов для проекта (не все документы)
         if (projectId != null) {
           await ref.read(documentsProvider.notifier).loadDocumentsForProject(projectId);
         }
@@ -75,8 +68,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-
-        // UI обновится автоматически через watch(documentsProvider)
       }
     } catch (e) {
       if (mounted) {
@@ -175,18 +166,15 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       appBar: AppBar(title: Text(l10n.documentTitle)),
       body: documentAsync.when(
         data: (document) {
-          // Если документ не загружен - это начальное состояние, показываем шиммер
           if (document == null) {
             return const DocumentDetailShimmer();
           }
 
-          // Показываем документ с кнопками (кнопки будут некликабельными и с лоадером при _isProcessing)
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Заголовок и статус
                 Row(
                   children: [
                     Expanded(
@@ -200,15 +188,11 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Описание
                 Text(l10n.description, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 Text(document.description, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 24),
 
-                // Информация о датах
-                // Если документ одобрен - показываем только дату одобрения
-                // Иначе показываем дату отправки
                 if (document.status == DocumentStatus.approved && document.approvedAt != null) ...[
                   _InfoRow(
                     icon: Icons.check_circle,
@@ -225,7 +209,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                   const SizedBox(height: 8),
                 ],
 
-                // Причина отклонения
                 if (document.rejectionReason != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -263,7 +246,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                   const SizedBox(height: 24),
                 ],
 
-                // Ссылка на файл
                 if (document.fileUrl != null) ...[
                   OutlinedButton.icon(
                     onPressed: () async {
@@ -279,12 +261,13 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                           String message;
                           if (filePath != null) {
                             message = 'Файл сохранён\n$filePath';
-                          } else if (Platform.isIOS) {
+                          } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
                             message = 'Файл сохранён\nДоступен в приложении Files';
                           } else {
                             message = 'Файл сохранён';
                           }
 
+                          if (kIsWeb) return;
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(message),
@@ -293,7 +276,8 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                             ),
                           );
                         }
-                      } catch (e) {
+                      } catch (e, stackTrace) {
+                        AppLogger.error('ошибка загрузки файла', e, stackTrace);
                         if (context.mounted) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text(e.toLocalizedMessage(context)), backgroundColor: Colors.red),
@@ -307,9 +291,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
                   const SizedBox(height: 24),
                 ],
 
-                // Кнопки действий
-                // Показываем кнопки для pending, underReview и rejected документов
-                // (rejected документы можно одобрить после исправлений)
                 if (document.status == DocumentStatus.pending ||
                     document.status == DocumentStatus.underReview ||
                     document.status == DocumentStatus.rejected) ...[
@@ -379,7 +360,6 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   }
 }
 
-/// Виджет строки информации
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -403,7 +383,6 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// Виджет статуса документа
 class _StatusChip extends StatelessWidget {
   final DocumentStatus status;
 

@@ -9,8 +9,6 @@ import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:mosstroinform_mobile/features/project_selection/data/models/project_model.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Сервис для работы с локальной базой данных Hive
-/// Используется только в моковом режиме для имитации работы бэкенда
 class HiveService {
   static const String _projectsBoxName = 'projects';
   static const String _documentsBoxName = 'documents';
@@ -24,61 +22,40 @@ class HiveService {
   static Box<String>? _requestedProjectsBox;
   static Box<FinalDocumentAdapter>? _finalDocumentsBox;
 
-  /// Проверка, инициализирован ли Hive
   static bool get isInitialized => _projectsBox != null;
 
-  /// Инициализация только settings box для хранения настроек приложения
-  /// Используется в любом режиме (mock и production) для сохранения темы и других настроек
-  /// Идемпотентный метод - можно вызывать несколько раз без ошибок
-  /// На вебе использует IndexedDB для хранения данных
   static Future<void> initializeSettings() async {
     try {
-      // Если settings box уже открыт, ничего не делаем
       if (Hive.isBoxOpen('settings')) {
         AppLogger.info('HiveService.initializeSettings: settings box уже открыт');
         return;
       }
 
-      // Пытаемся открыть settings box
-      // Если Hive не инициализирован, это вызовет ошибку, которую мы обработаем
       try {
         await Hive.openBox('settings');
         AppLogger.info('HiveService.initializeSettings: settings box открыт');
         return;
-      } catch (_) {
-        // Если не удалось открыть, значит Hive не инициализирован
-      }
+      } catch (_) {}
 
-      // Инициализируем Hive в зависимости от платформы
       if (kIsWeb) {
-        // На вебе используем Hive.init('') для использования IndexedDB
-        // Hive автоматически использует IndexedDB для хранения данных на вебе
         Hive.init('');
         AppLogger.info('HiveService.initializeSettings: Hive инициализирован для веба (IndexedDB)');
       } else {
-        // На нативных платформах используем скрытую папку приложения
         final appSupportDir = await getApplicationSupportDirectory();
         await Hive.initFlutter(appSupportDir.path);
         AppLogger.info('HiveService.initializeSettings: Hive инициализирован');
       }
 
-      // Открываем settings box
       await Hive.openBox('settings');
       AppLogger.info('HiveService.initializeSettings: settings box открыт');
     } catch (e, stackTrace) {
       AppLogger.error('HiveService.initializeSettings: ошибка инициализации: $e', stackTrace);
-      // Не пробрасываем ошибку, чтобы приложение могло работать без сохранения настроек
     }
   }
 
-  /// Инициализация Hive и загрузка начальных данных
-  /// Идемпотентный метод - можно вызывать несколько раз без ошибок
-  /// На вебе использует IndexedDB для хранения данных
   static Future<void> initialize() async {
-    // Если уже инициализирован, просто возвращаемся
     if (isInitialized) {
       AppLogger.info('HiveService.initialize: Hive уже инициализирован');
-      // Открываем settings box если еще не открыт
       if (!Hive.isBoxOpen('settings')) {
         await Hive.openBox('settings');
       }
@@ -86,23 +63,16 @@ class HiveService {
     }
 
     try {
-      // Инициализируем Hive в зависимости от платформы
       if (kIsWeb) {
-        // На вебе используем Hive.init('') для использования IndexedDB
-        // Hive автоматически использует IndexedDB для хранения данных на вебе
         Hive.init('');
         AppLogger.info('HiveService.initialize: Hive инициализирован для веба (IndexedDB)');
       } else {
-        // На нативных платформах используем скрытую папку приложения
         final appSupportDir = await getApplicationSupportDirectory();
         await Hive.initFlutter(appSupportDir.path);
         AppLogger.info('HiveService.initialize: Hive инициализирован');
       }
 
-      // Открываем settings box для хранения настроек приложения
       await Hive.openBox('settings');
-
-      // Регистрируем адаптеры
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(ProjectAdapterAdapter());
       }
@@ -135,14 +105,11 @@ class HiveService {
     }
   }
 
-  /// Обеспечить загрузку проектов, если бокс пустой (ленивая загрузка)
-  /// Вызывается автоматически при первом обращении к списку проектов
   static Future<void> ensureProjectsLoaded() async {
     if (_projectsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
     }
 
-    // Загружаем проекты, если база пустая
     if (_projectsBox!.isEmpty) {
       AppLogger.info('HiveService.ensureProjectsLoaded: загрузка начальных проектов');
       final mockData = ProjectsMockData.projects;
@@ -155,9 +122,6 @@ class HiveService {
     }
   }
 
-  /// Очистить все пользовательские данные (при logout)
-  /// Удаляет все данные из всех боксов, включая проекты
-  /// При новом логине база будет создана с нуля через ensureProjectsLoaded()
   static Future<void> clearUserData() async {
     if (_projectsBox != null) {
       await _projectsBox!.clear();
@@ -185,7 +149,6 @@ class HiveService {
     );
   }
 
-  /// Получить бокс финальных документов
   static Box<FinalDocumentAdapter> get finalDocumentsBox {
     if (_finalDocumentsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
@@ -193,7 +156,6 @@ class HiveService {
     return _finalDocumentsBox!;
   }
 
-  /// Получить бокс проектов
   static Box<ProjectAdapter> get projectsBox {
     if (_projectsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
@@ -201,7 +163,6 @@ class HiveService {
     return _projectsBox!;
   }
 
-  /// Получить бокс документов
   static Box<DocumentAdapter> get documentsBox {
     if (_documentsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
@@ -209,7 +170,6 @@ class HiveService {
     return _documentsBox!;
   }
 
-  /// Получить бокс объектов строительства
   static Box<ConstructionObjectAdapter> get constructionObjectsBox {
     if (_constructionObjectsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
@@ -217,7 +177,6 @@ class HiveService {
     return _constructionObjectsBox!;
   }
 
-  /// Получить бокс запрошенных проектов
   static Box<String> get requestedProjectsBox {
     if (_requestedProjectsBox == null) {
       throw StateError('HiveService не инициализирован. Вызовите initialize()');
@@ -225,7 +184,6 @@ class HiveService {
     return _requestedProjectsBox!;
   }
 
-  /// Очистить все данные (для тестирования)
   static Future<void> clearAll() async {
     await _projectsBox?.clear();
     await _documentsBox?.clear();
@@ -234,10 +192,7 @@ class HiveService {
     await ensureProjectsLoaded();
   }
 
-  /// Инициализация для тестов (без Flutter bindings)
-  /// Использует Hive.init() вместо Hive.initFlutter()
   static Future<void> initializeForTests(String testPath) async {
-    // Если уже инициализирован, просто возвращаемся
     if (isInitialized) {
       AppLogger.info('HiveService.initializeForTests: Hive уже инициализирован');
       return;
@@ -247,7 +202,6 @@ class HiveService {
       Hive.init(testPath);
       AppLogger.info('HiveService.initializeForTests: Hive инициализирован для тестов');
 
-      // Регистрируем адаптеры
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(ProjectAdapterAdapter());
       }
@@ -264,7 +218,6 @@ class HiveService {
         Hive.registerAdapter(FinalDocumentAdapterAdapter());
       }
 
-      // Открываем боксы
       _projectsBox = await Hive.openBox<ProjectAdapter>(_projectsBoxName);
       _documentsBox = await Hive.openBox<DocumentAdapter>(_documentsBoxName);
       _constructionObjectsBox = await Hive.openBox<ConstructionObjectAdapter>(_constructionObjectsBoxName);

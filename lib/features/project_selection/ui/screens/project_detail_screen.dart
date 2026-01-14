@@ -9,10 +9,8 @@ import 'package:mosstroinform_mobile/features/document_approval/domain/entities/
 import 'package:mosstroinform_mobile/features/document_approval/notifier/document_notifier.dart';
 import 'package:mosstroinform_mobile/features/project_selection/domain/entities/project.dart';
 import 'package:mosstroinform_mobile/features/project_selection/notifier/project_notifier.dart';
-// import 'package:mosstroinform_mobile/features/project_selection/ui/widgets/project_stage_item.dart';
 import 'package:mosstroinform_mobile/l10n/app_localizations.dart';
 
-/// Экран детального просмотра проекта
 class ProjectDetailScreen extends ConsumerStatefulWidget {
   final String projectId;
 
@@ -26,10 +24,8 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Загружаем проект при инициализации
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(projectProvider.notifier).loadProject(widget.projectId);
-      // Загружаем документы для проверки статуса одобрения
       ref.read(documentsProvider.notifier).loadDocumentsForProject(widget.projectId);
     });
   }
@@ -46,18 +42,15 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         actions: [
           Builder(
             builder: (context) {
-              // Проверяем статус проекта и документов
               final projectState = projectAsync.maybeWhen(data: (state) => state.project, orElse: () => null);
 
               if (projectState == null) return const SizedBox.shrink();
 
-              // Показываем кнопку перехода к объекту, если проект в статусе строительства и есть objectId
               if (projectState.status == ProjectStatus.construction && projectState.objectId != null) {
                 return IconButton(
                   icon: const Icon(Icons.construction),
                   tooltip: l10n.toConstruction,
                   onPressed: () {
-                    // Навигация к объекту строительства по objectId
                     context.push('/construction/${projectState.objectId}');
                   },
                 );
@@ -72,12 +65,10 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         duration: const Duration(milliseconds: 300),
         child: projectAsync.when(
           data: (state) {
-            // Если проект не загружен и нет ошибки - это начальное состояние, показываем шиммер
             if (state.project == null && state.error == null) {
               return const ProjectDetailShimmer(key: ValueKey('shimmer'));
             }
 
-            // Если проект не найден и есть ошибка - показываем ошибку
             if (state.project == null) {
               return Center(key: const ValueKey('error'), child: Text(l10n.projectNotFound));
             }
@@ -92,7 +83,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Изображение проекта
                       if (project.imageUrl != null)
                         AspectRatio(
                           aspectRatio: 16 / 9,
@@ -116,8 +106,8 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                               );
                             },
                             errorBuilder: (context, error, stackTrace) {
-                              debugPrint('Ошибка загрузки изображения: $error');
-                              debugPrint('URL: ${project.imageUrl}');
+                              AppLogger.debug('Ошибка загрузки изображения: $error', error, stackTrace);
+                              AppLogger.debug('URL: ${project.imageUrl}');
                               return Container(
                                 color: theme.colorScheme.surfaceContainerHighest,
                                 child: const Center(child: Icon(Icons.image_not_supported, size: 64)),
@@ -134,27 +124,22 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                           ),
                         ),
 
-                      // Информация о проекте
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Название
                             Text(project.name, style: theme.textTheme.headlineMedium),
                             const SizedBox(height: 8),
 
                             const SizedBox(height: 16),
 
-                            // Описание
                             Text(project.description, style: theme.textTheme.bodyLarge),
                             const SizedBox(height: 24),
 
-                            // Характеристики
                             _CharacteristicsSection(project: project),
                             const SizedBox(height: 24),
 
-                            // Цена
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -220,28 +205,20 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
           final isUnderConstruction = project.status == ProjectStatus.construction;
           final isRequesting = state.isRequestingConstruction;
 
-          // Проверяем, все ли документы одобрены для запрошенных проектов
-          // Всегда загружаем документы для запрошенных проектов, чтобы кнопка "Начать" отображалась корректно
           final documentsAsync = isRequested ? ref.watch(documentsProvider) : null;
 
-          // Убеждаемся, что документы загружены для текущего проекта
-          // Используем when вместо maybeWhen, чтобы правильно обработать состояние загрузки
           final allDocumentsApproved =
               documentsAsync?.when(
                 data: (docs) {
-                  // Проверяем, что документы относятся к текущему проекту
-                  // loadDocumentsForProject загружает документы для конкретного проекта,
-                  // но для безопасности фильтруем по projectId
                   final projectDocs = docs.where((doc) => doc.projectId == widget.projectId).toList();
                   return projectDocs.isNotEmpty &&
                       projectDocs.every((doc) => doc.status == DocumentStatus.approved);
                 },
-                loading: () => false, // Во время загрузки не показываем кнопку
-                error: (_, _) => false, // При ошибке не показываем кнопку
+                loading: () => false,
+                error: (_, _) => false,
               ) ??
               false;
 
-          // Для проектов в строительстве показываем только кнопку "К документам"
           if (isUnderConstruction) {
             return SafeArea(
               child: Padding(
@@ -273,9 +250,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Для запрошенных проектов показываем кнопки
                     if (isRequested) ...[
-                      // Кнопка "К документам"
                       SizedBox(
                         width: double.infinity,
                         child: Tooltip(
@@ -290,7 +265,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                           ),
                         ),
                       ),
-                      // Кнопка "Начать" показывается только если все документы одобрены
                       if (allDocumentsApproved) ...[
                         const SizedBox(height: 12),
                         SizedBox(
@@ -311,7 +285,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                         ),
                       ],
                     ] else
-                      // Для доступных проектов - кнопка запроса строительства
                       SizedBox(
                         width: double.infinity,
                         child: Tooltip(
@@ -384,7 +357,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
     );
   }
 
-  /// Показать диалог ввода адреса строительства
   void _showAddressInputDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final addressController = TextEditingController();
@@ -440,7 +412,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
     );
   }
 
-  /// Начать строительство с указанным адресом
   Future<void> _startConstruction(String address) async {
     try {
       await ref.read(projectProvider.notifier).startConstruction(widget.projectId, address);
@@ -470,7 +441,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
   }
 }
 
-/// Виджет секции характеристик проекта
 class _CharacteristicsSection extends StatelessWidget {
   final Project project;
 
@@ -510,7 +480,6 @@ class _CharacteristicsSection extends StatelessWidget {
   }
 }
 
-/// Виджет строки характеристики
 class _CharacteristicRow extends StatelessWidget {
   final String label;
   final String value;

@@ -1,19 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:mosstroinform_mobile/core/utils/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_provider.g.dart';
 
-/// Ключ для хранения выбранной темы в Hive
 const String _themeModeKey = 'theme_mode';
 
-/// Провайдер для управления темой приложения
 @riverpod
 class ThemeModeNotifier extends _$ThemeModeNotifier {
   @override
   ThemeMode build() {
-    // Загружаем сохраненную тему из Hive или используем системную по умолчанию
     try {
       final settingsBox = Hive.box('settings');
       final savedThemeMode = settingsBox.get(_themeModeKey) as String?;
@@ -28,29 +27,26 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
             return ThemeMode.system;
         }
       }
-    } catch (_) {
-      // Если Hive не инициализирован или произошла ошибка, используем системную тему
+    } catch (e, stackTrace) {
+      AppLogger.error('Ошибка получения темы, используется тема по умолчанию', e, stackTrace);
     }
 
     return ThemeMode.system;
   }
 
-  /// Установить тему
   Future<void> setThemeMode(ThemeMode mode) async {
     state = mode;
 
-    // Сохраняем выбор в Hive
     try {
       Box settingsBox;
       if (Hive.isBoxOpen('settings')) {
         settingsBox = Hive.box('settings');
       } else {
-        // Если Hive не инициализирован, пытаемся инициализировать
         try {
           final appSupportDir = await getApplicationSupportDirectory();
           await Hive.initFlutter(appSupportDir.path);
-        } catch (_) {
-          // Если уже инициализирован, игнорируем ошибку
+        } catch (e, stackTrace) {
+          AppLogger.error('Ошибка инициализации Hive', e, stackTrace);
         }
         settingsBox = await Hive.openBox('settings');
       }
@@ -69,9 +65,10 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
       }
 
       await settingsBox.put(_themeModeKey, themeModeString);
-    } catch (e) {
-      // Игнорируем ошибки сохранения, тема все равно будет работать
-      debugPrint('Ошибка сохранения темы: $e');
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        AppLogger.error('Ошибка сохранения темы', e, stackTrace);
+      }
     }
   }
 }

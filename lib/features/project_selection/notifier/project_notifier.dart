@@ -12,7 +12,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'project_notifier.freezed.dart';
 part 'project_notifier.g.dart';
 
-/// Состояние списка проектов
 @freezed
 abstract class ProjectsState with _$ProjectsState {
   const factory ProjectsState({
@@ -22,21 +21,16 @@ abstract class ProjectsState with _$ProjectsState {
   }) = _ProjectsState;
 }
 
-/// Notifier для управления состоянием списка проектов
 @Riverpod(keepAlive: true)
 class ProjectsNotifier extends _$ProjectsNotifier {
   @override
   Future<ProjectsState> build() async {
-    // Следим за состоянием авторизации, чтобы сбрасывать состояние при выходе
     ref.watch(authProvider);
 
-    // Начинаем с загрузки, чтобы UI показывал шиммер, а не "нет проектов"
     return const ProjectsState(projects: [], isLoading: true);
   }
 
-  /// Загрузить список проектов
   Future<void> loadProjects() async {
-    // Проверяем авторизацию перед загрузкой (дожидаемся, если провайдер еще грузится)
     final authAsync = ref.read(authProvider);
     AuthState? authState;
     try {
@@ -54,7 +48,7 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 
     try {
       final repository = ref.read(projectRepositoryProvider);
-      final projects = await repository.getProjects(); // Без пагинации - получаем все проекты
+      final projects = await repository.getProjects();
 
       if (!ref.mounted) return;
 
@@ -66,7 +60,6 @@ class ProjectsNotifier extends _$ProjectsNotifier {
 
       state = AsyncValue.data(const ProjectsState(projects: []).copyWith(isLoading: false, error: e));
     } catch (e, _) {
-      // Игнорируем ошибку использования disposed ref, если она возникла
       if (e.toString().contains('disposed')) return;
 
       if (!ref.mounted) return;
@@ -80,7 +73,6 @@ class ProjectsNotifier extends _$ProjectsNotifier {
   }
 }
 
-/// Состояние проекта
 @freezed
 abstract class ProjectState with _$ProjectState {
   const factory ProjectState({
@@ -91,7 +83,6 @@ abstract class ProjectState with _$ProjectState {
   }) = _ProjectState;
 }
 
-/// Notifier для управления состоянием конкретного проекта
 @riverpod
 class ProjectNotifier extends _$ProjectNotifier {
   @override
@@ -99,9 +90,7 @@ class ProjectNotifier extends _$ProjectNotifier {
     return const ProjectState();
   }
 
-  /// Загрузить проект по ID
   Future<void> loadProject(String id, {bool showLoading = true}) async {
-    // Если showLoading = false и есть данные, обновляем без показа loading
     final currentState = state.value;
     if (showLoading || currentState == null || currentState.project == null) {
       state = const AsyncValue.loading();
@@ -125,9 +114,7 @@ class ProjectNotifier extends _$ProjectNotifier {
     }
   }
 
-  /// Начать строительство проекта
   Future<void> startConstruction(String projectId, String address) async {
-    // Устанавливаем состояние загрузки
     final currentState = state.value;
     state = AsyncValue.data(
       currentState?.copyWith(isLoading: true, error: null) ?? const ProjectState(isLoading: true),
@@ -138,16 +125,13 @@ class ProjectNotifier extends _$ProjectNotifier {
       await repository.startConstruction(projectId, address);
       if (!ref.mounted) return;
 
-      // Перезагружаем данные для обновления UI
       await loadProject(projectId);
       if (!ref.mounted) return;
 
-      // Обновляем провайдеры без инвалидации, чтобы избежать dispose
       ref.read(projectsProvider.notifier).loadProjects();
       ref.read(requestedProjectsProvider.notifier).loadRequestedProjects();
       ref.read(paginatedProjectsProvider.notifier).loadFirstPage();
 
-      // Инвалидируем только провайдеры, которые не имеют методов загрузки
       ref.invalidate(isProjectRequestedProvider(projectId));
       ref.invalidate(myObjectsProvider);
     } on Failure catch (e) {
@@ -160,9 +144,7 @@ class ProjectNotifier extends _$ProjectNotifier {
     }
   }
 
-  /// Отправить запрос на строительство
   Future<void> requestConstruction(String projectId) async {
-    // Устанавливаем состояние загрузки запроса
     final currentState = state.value;
     state = AsyncValue.data(
       currentState?.copyWith(isLoading: false, isRequestingConstruction: true, error: null) ??
@@ -174,13 +156,9 @@ class ProjectNotifier extends _$ProjectNotifier {
       await repository.requestConstruction(projectId);
       if (!ref.mounted) return;
 
-      // Перезагружаем данные для обновления UI без инвалидации
-      // Перезагружаем текущий проект для обновления статуса на странице деталей
-      // Не показываем loading, так как данные уже есть
       await loadProject(projectId, showLoading: false);
       if (!ref.mounted) return;
 
-      // Обновляем провайдеры без инвалидации, чтобы избежать dispose
       await ref.read(projectsProvider.notifier).loadProjects();
       if (!ref.mounted) return;
 
@@ -190,7 +168,6 @@ class ProjectNotifier extends _$ProjectNotifier {
       await ref.read(paginatedProjectsProvider.notifier).loadFirstPage();
       if (!ref.mounted) return;
 
-      // Инвалидируем только провайдеры, которые не имеют методов загрузки
       ref.invalidate(isProjectRequestedProvider(projectId));
     } on Failure catch (e) {
       state = AsyncValue.data(

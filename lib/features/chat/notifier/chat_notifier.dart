@@ -11,7 +11,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'chat_notifier.g.dart';
 
-/// Состояние списка чатов
 class ChatsState {
   final List<Chat> chats;
   final bool isLoading;
@@ -24,7 +23,6 @@ class ChatsState {
   }
 }
 
-/// Notifier для управления состоянием списка чатов
 @riverpod
 class ChatsNotifier extends _$ChatsNotifier {
   @override
@@ -32,7 +30,6 @@ class ChatsNotifier extends _$ChatsNotifier {
     return const ChatsState(chats: []);
   }
 
-  /// Загрузить список чатов
   Future<void> loadChats() async {
     state = const AsyncValue.loading();
     try {
@@ -47,7 +44,6 @@ class ChatsNotifier extends _$ChatsNotifier {
   }
 }
 
-/// Состояние сообщений чата
 class MessagesState {
   final List<Message> messages;
   final bool isLoading;
@@ -66,32 +62,20 @@ class MessagesState {
   }
 }
 
-/// Notifier для управления состоянием сообщений чата
-/// keepAlive: true - провайдер не должен быть disposed автоматически,
-/// так как состояние сообщений должно сохраняться при навигации
 @Riverpod(keepAlive: true)
 class MessagesNotifier extends _$MessagesNotifier {
   IChatWebSocketDataSource? _websocket;
 
   @override
   Future<MessagesState> build(String chatId) async {
-    AppLogger.info('[MessagesNotifier] build: инициализация для чата $chatId');
-
-    // Настраиваем отключение при dispose провайдера
     ref.onDispose(() {
-      AppLogger.info('[MessagesNotifier] onDispose: отключение от WebSocket для чата $chatId');
       _websocket?.disconnect();
-      AppLogger.info('[MessagesNotifier] onDispose: WebSocket отключен');
     });
 
-    // Сразу загружаем сообщения при создании провайдера
     try {
-      AppLogger.debug('[MessagesNotifier] build: загрузка сообщений из репозитория...');
       final repository = ref.read(chatRepositoryProvider);
       final messages = await repository.getMessages(chatId);
-      AppLogger.info('[MessagesNotifier] build: загружено ${messages.length} сообщений из репозитория');
 
-      // Подключаемся к WebSocket для получения новых сообщений
       _connectWebSocket(chatId);
 
       return MessagesState(messages: messages, isLoading: false);
@@ -104,43 +88,27 @@ class MessagesNotifier extends _$MessagesNotifier {
     }
   }
 
-  /// Подключиться к WebSocket для получения новых сообщений
   void _connectWebSocket(String chatId) {
-    AppLogger.info('[MessagesNotifier] _connectWebSocket: начало подключения к WebSocket для чата $chatId');
     try {
       final websocket = ref.read(chatWebSocketDataSourceProvider);
       _websocket = websocket;
-      AppLogger.debug('[MessagesNotifier] _connectWebSocket: WebSocket провайдер получен');
 
       websocket.connect(
         chatId,
         (Message message) {
-          // Получено новое сообщение через WebSocket
-          AppLogger.info('[MessagesNotifier] ← получено новое сообщение через WebSocket: id=${message.id}');
-          AppLogger.debug(
-            '[MessagesNotifier] ← текст: ${message.text.substring(0, message.text.length > 50 ? 50 : message.text.length)}${message.text.length > 50 ? '...' : ''}',
-          );
-
           if (!ref.mounted) {
-            AppLogger.warning('[MessagesNotifier] ← провайдер disposed, игнорируем сообщение');
             return;
           }
 
           final currentState = state.value;
           if (currentState != null) {
-            // Оптимизированная проверка на дубликаты - используем Set для быстрого поиска
             final messageIds = currentState.messages.map((m) => m.id).toSet();
-            
+
             if (!messageIds.contains(message.id)) {
-              // Добавляем новое сообщение в список (оптимизированное обновление)
               state = AsyncValue.data(
-                currentState.copyWith(
-                  messages: [...currentState.messages, message],
-                  isSending: false, // Сбрасываем флаг отправки при получении сообщения
-                ),
+                currentState.copyWith(messages: [...currentState.messages, message], isSending: false),
               );
             } else {
-              // Обновляем существующее сообщение (например, если изменился статус прочитанности)
               state = AsyncValue.data(
                 currentState.copyWith(
                   messages: currentState.messages.map((m) => m.id == message.id ? message : m).toList(),
@@ -150,22 +118,15 @@ class MessagesNotifier extends _$MessagesNotifier {
           }
         },
         (error) {
-          // Ошибка WebSocket - логируем, но не прерываем работу
           AppLogger.error('[MessagesNotifier] ✗ ошибка WebSocket: $error');
-          AppLogger.error('[MessagesNotifier] ✗ тип ошибки: ${error.runtimeType}');
         },
       );
-      AppLogger.info('[MessagesNotifier] ✓ WebSocket подключение инициировано для чата $chatId');
     } catch (e, stackTrace) {
       AppLogger.error('[MessagesNotifier] ✗ ошибка подключения к WebSocket: $e', stackTrace);
-      AppLogger.error('[MessagesNotifier] ✗ chatId: $chatId');
-      AppLogger.error('[MessagesNotifier] ✗ stackTrace: $stackTrace');
     }
   }
 
-  /// Загрузить сообщения чата
   Future<void> loadMessages({bool showLoading = true}) async {
-    // Если showLoading = false и есть данные, обновляем без показа loading
     final currentState = state.value;
     if (showLoading || currentState == null || currentState.messages.isEmpty) {
       state = const AsyncValue.loading();
@@ -188,7 +149,6 @@ class MessagesNotifier extends _$MessagesNotifier {
     }
   }
 
-  /// Отправить сообщение
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
@@ -198,7 +158,6 @@ class MessagesNotifier extends _$MessagesNotifier {
     state = AsyncValue.data(currentState.copyWith(isSending: true));
 
     try {
-      // Отправляем сообщение только через WebSocket
       if (_websocket == null || !_websocket!.isConnected) {
         AppLogger.error('[MessagesNotifier] sendMessage: WebSocket не подключен');
         state = AsyncValue.data(
@@ -210,16 +169,9 @@ class MessagesNotifier extends _$MessagesNotifier {
         return;
       }
 
-      AppLogger.info('[MessagesNotifier] sendMessage: отправка CREATE action через WebSocket');
-      final createAction = CreateMessageAction(
-        text: text.trim(),
-        fromSpecialist: false, // В мобильном приложении пользователь не является специалистом
-      );
+      final createAction = CreateMessageAction(text: text.trim(), fromSpecialist: false);
       await _websocket!.sendAction(createAction);
-      AppLogger.info('[MessagesNotifier] sendMessage: CREATE action успешно отправлен через WebSocket');
 
-      // Сообщение будет добавлено в состояние через WebSocket callback, когда придет ответ от сервера
-      // Обновляем состояние, убирая флаг отправки
       final finalState = state.value;
       if (finalState != null) {
         state = AsyncValue.data(finalState.copyWith(isSending: false));
@@ -235,17 +187,14 @@ class MessagesNotifier extends _$MessagesNotifier {
     }
   }
 
-  /// Отметить сообщения как прочитанные
   Future<void> markAsRead() async {
     try {
       final repository = ref.read(chatRepositoryProvider);
       await repository.markMessagesAsRead(chatId);
-      // Перезагружаем сообщения без показа loading
       await loadMessages(showLoading: false);
     } on Failure catch (_) {
-      // Игнорируем ошибки при отметке как прочитанные
-    } catch (_) {
-      // Игнорируем ошибки при отметке как прочитанные
+    } catch (e, stackTrace) {
+      AppLogger.error('[MessagesNotifier] markAsRead: неизвестная ошибка', e, stackTrace);
     }
   }
 }
